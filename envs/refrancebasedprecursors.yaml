@@ -1,0 +1,15 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+    - anaconda
+
+dependencies:
+    - tophat
+    - bowtie
+    - cufflinks
+    - stringtie
+    - htseq
+    - subread
+    - bedtools 

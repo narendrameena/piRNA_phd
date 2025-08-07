@@ -1,0 +1,13 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+    - anaconda
+
+dependencies:
+    - bedtools
+    - minimap2==2.25
+    - mummer
+    - syri
+    - plotsr

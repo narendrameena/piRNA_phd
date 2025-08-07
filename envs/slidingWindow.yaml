@@ -1,0 +1,9 @@
+channels:
+  - http://conda.anaconda.org/tdido
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pysam==0.19.1
+  - tqdm
+  - numpy

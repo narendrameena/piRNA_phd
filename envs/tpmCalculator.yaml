@@ -1,0 +1,16 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+    - anaconda
+
+dependencies:
+    - libzlib
+    - zlib 
+    - libstdcxx-ng
+    - libgcc-ng
+    - bamtools
+    - tpmcalculator
+    - agat
+    

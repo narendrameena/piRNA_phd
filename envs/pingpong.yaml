@@ -1,0 +1,16 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults 
+
+dependencies:
+  - python=3.12.3
+  - scipy
+  - numpy
+  - pandas
+  - matplotlib
+  - pysam
+  - biopython
+  - pip
+  - pip:
+      - tstk  # only if you're installing from PyPI or a local wheel

@@ -1,0 +1,10 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+
+dependencies:
+    - conda-forge::ncurses
+    - samtools
+  

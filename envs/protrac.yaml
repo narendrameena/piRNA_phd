@@ -1,0 +1,14 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+    - r 
+
+dependencies:
+    - conda-forge::ncurses
+    - samtools
+    - perl
+    - perl-getopt-long
+    - perl-scalar-util-numeric
+    

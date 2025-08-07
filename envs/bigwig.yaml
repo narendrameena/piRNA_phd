@@ -1,0 +1,14 @@
+channels:
+  - http://conda.anaconda.org/tdido
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pysam
+  - pyBigWig
+  - tqdm
+  - conda-forge::ncurses
+  - samtools
+  - libcurl
+  - zlib
+  - deeptools

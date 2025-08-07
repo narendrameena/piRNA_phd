@@ -1,0 +1,20 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+    - anaconda 
+    - rmg
+
+dependencies:
+    - liftoff
+    - minimap2
+    - pysam
+    - numpy 
+    - biopython 
+    - gffutils 
+    - networkx
+    - glibc
+    - libgcc-ng
+    - conda-forge::ncurses
+    - samtools

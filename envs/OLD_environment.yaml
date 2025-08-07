@@ -1,0 +1,30 @@
+name: mice16
+
+channels:
+    - http://conda.anaconda.org/tdido
+    - bioconda
+    - r
+    - defaults
+    - conda-forge
+
+dependencies:
+    - tstk=0.3.2
+    - STAR=2.5.3a
+    - conda-forge::ncurses
+    - samtools
+    - python=3.5
+    - nomkl
+    - snakemake=4.0.0
+    - cutadapt=1.13
+    - subread=1.5.3
+    - bedtools=2.26.0
+    - ucsc-bedgraphtobigwig=332
+    - ucsc-bigwigmerge=332
+    - deeptools=2.5.0
+    - scikit-learn=0.18.1
+    - pandas=0.20.2
+    - stringtie=1.3.3
+    - trinity=2.6.5
+    - blat=35
+    - seqtk=1.2
+    - salmon=0.9.1

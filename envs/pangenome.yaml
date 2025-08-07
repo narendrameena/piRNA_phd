@@ -1,0 +1,21 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+    - r 
+
+dependencies:
+    - conda-forge::ncurses
+    - picard
+    - r
+    - python
+    - mummer==v4.0.0 
+    - assemblytics==v1.2.1 
+    - bwa-mem2==v0.7.17-r1198-dirty 
+    - picard 
+    - samtools==v.1.9-49-gb321ed1  
+    - bedtools==v2.29.2  
+    - seqkit==v1.2  
+    - blast==v2.2.3 
+  

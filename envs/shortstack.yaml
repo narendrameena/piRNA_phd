@@ -1,0 +1,21 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+    - anaconda
+
+dependencies:
+    - conda-forge::ncurses
+    - seqtk
+    - python
+    - cutadapt
+    - bedtools
+    - strucvis
+    - shortstack
+    - numpy
+    - viennarna
+    - bowtie
+    - conda-forge::ncurses
+    - samtools
+    - biopython

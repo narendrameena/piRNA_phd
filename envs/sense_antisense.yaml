@@ -1,0 +1,13 @@
+channels:
+    - http://conda.anaconda.org/tdido
+    - conda-forge
+    - bioconda
+    - defaults
+    - anaconda
+    - vladsaveliev 
+    - "bioconda/label/cf201901" 
+
+dependencies:
+    - bedtools
+    - samtools
+    - ucsc-bedgraphtobigwig
