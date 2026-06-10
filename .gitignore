@@ -17,8 +17,9 @@
 /spidymm/
 /tools/
 
-# --- vendored / generated bulk ---
+# --- vendored / generated bulk (incl. downloaded third-party tools) ---
 /snakemake-wrappers-*/
+/analysis/pangenome/tool/
 /cactus_*.sif
 /wrappers.tar.gz
 *.sif
