@@ -56,6 +56,16 @@ analysis/**/*.png
 analysis/**/*.svg
 /all_sample_norm_count_pivot.csv
 
+# --- rendered figures / binaries anywhere: never tracked (scripts + source-data CSVs + READMEs only) ---
+*.pdf
+*.png
+*.svg
+*.eps
+*.tif
+*.tiff
+*.jpg
+*.jpeg
+
 # --- python / editor / OS noise ---
 __pycache__/
 *.pyc
