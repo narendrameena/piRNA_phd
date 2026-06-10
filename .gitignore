@@ -1,0 +1,63 @@
+# ===========================================================================
+# Repo policy: track ONLY scripts / code / READMEs / curated figure source-data.
+# Raw data, results, genomes, BAMs, indices, rendered figures, containers stay OUT.
+# ===========================================================================
+
+# --- large data / results / resources / backups (never tracked) ---
+/results/
+/resources/
+/data/
+/intermediate_files/
+/figures/
+/tmp/
+/tmp_cach/
+/log/
+/narumeena_macbook/
+/papers/
+/spidymm/
+/tools/
+
+# --- vendored / generated bulk ---
+/snakemake-wrappers-*/
+/cactus_*.sif
+/wrappers.tar.gz
+*.sif
+
+# --- pipeline code lives in its OWN git repo (avoid nested gitlink) ---
+/workflow/
+
+# --- data file types anywhere ---
+*.bam
+*.bai
+*.sam
+*.cram
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.bw
+*.bigWig
+*.2bit
+*.fa
+*.fasta
+*.fai
+
+# --- logs ---
+*.log
+Log.out
+
+# --- analysis: keep code + source_data; drop bulk matrices & rendered figures ---
+analysis/**/_tmp/
+analysis/**/_tmp_fix/
+analysis/**/all_strains_pangenome/
+analysis/**/*.pdf
+analysis/**/*.png
+analysis/**/*.svg
+/all_sample_norm_count_pivot.csv
+
+# --- python / editor / OS noise ---
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+*.swp
