@@ -38,8 +38,9 @@ for (X in strains){
   da_sig <- tt$FDR < 0.05 & tt$logFC > 0
   absent_others <- rowSums(present[, others, drop=FALSE]) == 0
   specific <- da_sig & present[, X] & absent_others
-  out <- data.frame(sequence=seqs_k[specific], strain=X, timepoint=tp,
-                    length=nchar(seqs_k[specific]),
+  spq <- seqs_k[specific]   # length-matched cols so a strain with 0 strain-specific piRNAs -> valid 0-row frame
+  out <- data.frame(sequence=spq, strain=rep(X,length(spq)), timepoint=rep(tp,length(spq)),
+                    length=nchar(spq),
                     logFC=round(tt$logFC[specific],3), FDR=signif(tt$FDR[specific],3))
   cat(sprintf("  %s: DA-enriched=%d | +present/absent => strain-specific=%d\n", X, sum(da_sig), nrow(out)))
   res[[X]] <- out
