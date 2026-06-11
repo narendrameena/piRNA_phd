@@ -28,5 +28,5 @@ $STAR --runThreadN 8 --genomeDir "$IDX" --readFilesIn "$TMP/in.fasta" --outFileN
   --alignIntronMax 1 --alignEndsType EndToEnd --outSAMattributes All --scoreDelOpen -10000 --scoreInsOpen -10000 \
   --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN 1 --limitBAMsortRAM 50000000000
 # BAM -> BED; read name = candidate id (X|tp|seq); strip PanSN {X}#1#chr -> Ensembl chrom (1..19,X,Y,MT)
-$BT bamtobed -i "$TMP/$X.Aligned.sortedByCoord.out.bam" | sed "s/^${X}#1#chr//" > "$OUT/$X.cand_loci.ens.bed"
+$BT bamtobed -i "$TMP/$X.Aligned.sortedByCoord.out.bam" | sed "s/^${X}#1#//; s/^chr//" > "$OUT/$X.cand_loci.ens.bed"
 echo "[done] $X loci=$(wc -l < "$OUT/$X.cand_loci.ens.bed") $(date)"

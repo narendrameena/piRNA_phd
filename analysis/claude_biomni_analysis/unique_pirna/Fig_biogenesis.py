@@ -116,7 +116,11 @@ ov=np.arange(1,32)
 axAh.bar(ov,pp,color=["#C0392B" if z==10 else "#cfcfcf" for z in ov],width=0.9)
 axAh.axvline(10,color="#C0392B",lw=0.6,ls="--")
 axAh.set_xlabel("sense–antisense 5′ overlap (nt)",fontsize=8); axAh.set_ylabel("read-pair signal",fontsize=8)
-axAh.set_title("measured: 10-nt overlap peak",fontsize=8,fontweight="bold")
+axAh.set_title("measured: 10-nt overlap = ping-pong",fontsize=8,fontweight="bold")
+dd26=24+int(np.argmax(pp[23:28]))   # tallest bar in the 24-28 nt window
+axAh.annotate(f"~{dd26} nt = dual-strand coverage artifact\n(few abundant hotspot pairs × 24–32 nt length mix)\nNOT ping-pong; per-length it collapses to the 10-nt peak",
+              xy=(dd26,pp[dd26-1]),xytext=(11,max(pp)*0.99),fontsize=5.0,color="#666",ha="left",va="top",
+              arrowprops=dict(arrowstyle="-|>",color="#888",lw=0.8))
 axAh.tick_params(labelsize=6.5); axAh.spines[['top','right']].set_visible(False)
 
 # ---- B phased series ----
@@ -144,7 +148,10 @@ dd=np.arange(1,61)
 axBh.bar(dd,ac,color=["#0072B2" if 25<=z<=29 else "#cfcfcf" for z in dd],width=0.9)
 axBh.axvline(27,color="#0072B2",lw=0.6,ls="--")
 axBh.set_xlabel("same-strand 5′–5′ distance (nt)",fontsize=8); axBh.set_ylabel("read-pair signal",fontsize=8)
-axBh.set_title("measured: ~27-nt periodicity",fontsize=8,fontweight="bold")
+axBh.set_title("measured: ~27-nt periodicity = phasing",fontsize=8,fontweight="bold")
+s_d=1+int(np.argmax(ac[:6])); e_d=46+int(np.argmax(ac[45:]))
+axBh.annotate("~1–3 nt: 5′-end clustering\nat hotspots — not phasing",xy=(s_d,ac[s_d-1]),xytext=(4,max(ac)*0.99),fontsize=4.7,color="#666",ha="left",va="top",arrowprops=dict(arrowstyle="-|>",color="#888",lw=0.7))
+axBh.annotate("~55 nt: few dominant hotspot\npairs (L1 repeats) — not phasing",xy=(e_d,ac[e_d-1]),xytext=(29,max(ac)*0.8),fontsize=4.7,color="#666",ha="left",va="top",arrowprops=dict(arrowstyle="-|>",color="#888",lw=0.7))
 axBh.tick_params(labelsize=6.5); axBh.spines[['top','right']].set_visible(False)
 
 fig.suptitle(f"piRNA biogenesis at the strain-private L1 cluster — nucleotide + coordinate resolution (real reads, SPRET/EiJ {CHRLAB}, P20.5)",fontsize=10.5,fontweight="bold",y=0.975)
