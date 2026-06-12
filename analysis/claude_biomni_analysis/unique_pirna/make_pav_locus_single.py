@@ -90,7 +90,7 @@ for i, tp in enumerate(TPS):
     axB.axhline(off, color="#888", lw=0.4)
     at = 100 * d["nat"] / max(1, d["nte"])
     axB.text(ps - 0.012 * N, off, TPLAB[tp], fontsize=8, ha="right", va="center", fontweight="bold", color=TPCOL[tp])
-    axB.text(pe + 0.004 * N, off, f"FPM {fpm_tp[tp]:.1f} · {d['ntot']:,} reads · {at:.0f}% AS→TE", fontsize=6.3, ha="left", va="center", color="#555")
+    axB.text(pe + 0.004 * N, off, f"FPM {fpm_tp[tp]:.1f} · {d['ntot']:,} reads · {at:.0f}% AS→TE · {100*d['n1u']/max(1,d['ntot']):.0f}% 1U", fontsize=6.2, ha="left", va="center", color="#555")
 tey = -2.6 * 3 + 0.4
 for (ts, te, st, fam) in tes:
     axB.add_patch(Rectangle((ts, tey), te - ts, 0.3, facecolor=TECOL.get(fam, "#ddd"), edgecolor="none"))
@@ -101,6 +101,7 @@ axB.legend(handles=[Patch(facecolor="#33a02c", label="+ strand"), Patch(facecolo
 axB.set_title(f"B  {STRAIN.replace('_','/')} {BAMC}:{ps:,}-{pe:,} — genomic-strand coverage per timepoint (plus ↑ green / minus ↓ purple); TE track at bottom", fontsize=9.0, fontweight="bold", loc="left")
 d = DAT[CHOSEN]; reads = d["reads"]
 five = Counter((r[1] - 1 if r[2] else r[0]) for r in reads); pk = five.most_common(1)[0][0] if five else ps + N // 2; z0, z1 = pk - 30, pk + 50
+axB.add_patch(Rectangle((z0, tey - 0.15), z1 - z0, 1.55 - (tey - 0.15), facecolor="#FDB863", alpha=0.22, edgecolor="#E8A33D", lw=0.5, zorder=0))   # zoom highlighter bar across Panel B
 def anti_te(rs, re, isrev):
     st = testr((rs + re) // 2); return None if st is None else ((st == "-") != isrev)
 zr = [r for r in reads if r[0] < z1 and r[1] > z0]; pr, mr = Counter(), Counter()

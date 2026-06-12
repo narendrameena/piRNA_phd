@@ -29,8 +29,8 @@ nb = 180
 P = pd.read_csv(f"{CP}/picb_pangenome_fpm.tsv", sep="\t", dtype={"g39_chrom": str})
 sub = P[(P.g39_chrom == G39C) & (P.start < G39E) & (P.end > G39S)]
 FPM = sub.groupby(["strain", "tp"])["all_primary_FPM"].max().unstack(fill_value=0.0).reindex(index=ORDER, columns=TPS).fillna(0.0)
-present = sorted([X for X in ORDER if FPM.loc[X].max() > 0], key=lambda X: -FPM.loc[X].max())
-TOP = present[0] if present else max(ORDER, key=lambda X: FPM.loc[X].max())
+present = [X for X in ORDER if FPM.loc[X].max() > 0]   # CANONICAL order (same as Panel A)
+TOP = present[-1] if present else max(ORDER, key=lambda X: FPM.loc[X].max())   # last/bottom strain = Panel C example
 pattern_auto = f"PICB cluster present in {len(present)}/16 strains: " + ", ".join(s.replace("_", "/") for s in present)
 print(f"{GENE}: present={present}; top={TOP}")
 # ---- (2) per-present-strain coverage (own genome; back-lift cached) ----
@@ -81,11 +81,11 @@ def collect(X):
                 ntot=ntot, nminus=nminus, n1u=n1u, nat=nat, nte=nte, pct_at=100 * nat / max(1, nte),
                 arch="dual-strand" if min(nminus, ntot - nminus) / max(1, ntot) > 0.2 else "uni-strand")
 COV = {X: collect(X) for X in present}; COV = {X: d for X, d in COV.items() if d}
-present = [X for X in present if X in COV]; TOP = present[0] if present else TOP
+present = [X for X in present if X in COV]; TOP = present[-1] if present else TOP
 # ---- (3) figure ----
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none"})
-nP = max(1, len(present)); fig = plt.figure(figsize=(13.5, 5.6 + 0.55 * nP), dpi=300)
-gs = fig.add_gridspec(3, 1, height_ratios=[1.15, 0.5 * nP + 0.5, 1.5], hspace=0.75); fig.subplots_adjust(top=0.85, bottom=0.055)
+nP = max(1, len(present)); fig = plt.figure(figsize=(14, 7.2 + 0.95 * nP), dpi=300)
+gs = fig.add_gridspec(3, 1, height_ratios=[0.95, 0.9 * nP + 1.0, 2.1], hspace=0.78); fig.subplots_adjust(top=0.85, bottom=0.075)
 axA, axB, axC = fig.add_subplot(gs[0]), fig.add_subplot(gs[1]), fig.add_subplot(gs[2])
 x = np.arange(len(ORDER)); bw = 0.26
 for j, tp in enumerate(TPS):
@@ -98,19 +98,35 @@ for t, X in zip(axA.get_xticklabels(), ORDER):
 axA.set_ylabel("PICB cluster\nFPM (log)", fontsize=8); axA.spines[["top", "right"]].set_visible(False)
 axA.legend([TPLAB[t] for t in TPS], fontsize=7.5, frameon=False, ncol=1, loc="upper left", bbox_to_anchor=(1.005, 1.0), title="timepoint", title_fontsize=7, handlelength=1.2)
 axA.set_title("A  Pangenome cross-strain × timepoint comparison — PICB-combined cluster FPM (projected to GRCm39)", fontsize=8.8, fontweight="bold", loc="left")
-# B: per-present-strain coverage tracks (shared relative axis)
+# zoom window from TOP strain (for nucleotide panel C + the zoom bar in B)
+dT = COV[TOP]; psT = dT["ps"]; NT_ = dT["N"]
+fiveT = Counter((r[1] - 1 if r[2] else r[0]) for r in dT["reads"]); pk = fiveT.most_common(1)[0][0] if fiveT else psT + NT_ // 2; z0, z1 = pk - 30, pk + 50
+# B: per-present-strain coverage + per-strain TE track; EXAMPLE (zoomed) strain at the BOTTOM (next to C)
+SP = 3.0; off_top = -(nP - 1) * SP   # canonical order top->bottom; last (TOP) at the bottom, next to C
 for i, X in enumerate(present):
-    d = COV[X]; off = -i * 2.4; xr = np.linspace(0, 1, nb); pm = max(d["plus"].max(), d["minus"].max(), 1)
-    axB.fill_between(xr, off, off + d["plus"] / pm, color="#33a02c", alpha=0.8, step="mid"); axB.fill_between(xr, off, off - d["minus"] / pm, color="#6a3d9a", alpha=0.8, step="mid")
+    d = COV[X]; off = -i * SP; xr = np.linspace(0, 1, nb); pm = max(d["plus"].max(), d["minus"].max(), 1)
+    if X == TOP:                                          # zoom HIGHLIGHTER bar on the example (bottom) track
+        zr0 = (z0 - d["ps"]) / d["N"]; zr1 = (z1 - d["ps"]) / d["N"]
+        axB.add_patch(Rectangle((zr0, off - 1.65), zr1 - zr0, 2.75, facecolor="#FDB863", alpha=0.32, edgecolor="#E8A33D", lw=0.5, zorder=0))
+    axB.fill_between(xr, off, off + d["plus"] / pm, color="#33a02c", alpha=0.85, step="mid"); axB.fill_between(xr, off, off - d["minus"] / pm, color="#6a3d9a", alpha=0.85, step="mid")
     axB.axhline(off, color="#888", lw=0.4)
-    axB.text(-0.012, off, X.replace("_", "/"), fontsize=7.2, ha="right", va="center", fontweight="bold", color="#C0392B" if X in WILD else "#222")
-    axB.text(1.012, off, f"FPM {FPM.loc[X].max():.1f} · {d['arch']} · {d['pct_at']:.0f}% AS→TE · {100*d['n1u']/max(1,d['ntot']):.0f}% 1U", fontsize=6.1, ha="left", va="center", color="#555")
-axB.set_xlim(0, 1); axB.set_ylim(-2.4 * nP, 1.3); axB.axis("off")
-axB.text(0.5, 1.0, "B  Genomic-strand coverage in every PRESENT strain (plus ↑ green / minus ↓ purple) — PICB FPM + architecture + % ANTISENSE-to-TE (silencing) per strain", fontsize=8.6, fontweight="bold", ha="center", transform=axB.transAxes)
-axB.legend(handles=[Patch(facecolor="#33a02c", label="+ strand"), Patch(facecolor="#6a3d9a", label="− strand")], fontsize=6.6, frameon=False, loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.04))
+    for (ts, te, st, fam) in d["tes"]:                    # this strain's TE annotation track + STRAND arrow
+        x0 = max(0.0, (ts - d["ps"]) / d["N"]); x1 = min(1.0, (te - d["ps"]) / d["N"])
+        if x1 > x0:
+            axB.add_patch(Rectangle((x0, off - 1.6), x1 - x0, 0.32, facecolor=TECOL.get(fam, "#dddddd"), edgecolor="none"))
+            if x1 - x0 > 0.012:                            # TE strand: arrow points 5'->3' of the TE
+                af, at = (x0, x1) if st == "+" else (x1, x0)
+                axB.annotate("", xy=(at, off - 1.44), xytext=(af, off - 1.44), arrowprops=dict(arrowstyle="-|>", color="#111", lw=0.4, mutation_scale=4.5))
+    axB.text(-0.015, off + 0.35, X.replace("_", "/") + ("  ▼zoom" if X == TOP else ""), fontsize=7.0, ha="right", va="center", fontweight="bold", color="#C0392B" if X in WILD else "#222")
+    axB.text(-0.015, off - 0.78, f"chr{d['ch']}:{d['ps']:,}", fontsize=4.6, ha="right", va="center", color="#999")
+    axB.text(1.015, off + 0.25, f"FPM {FPM.loc[X].max():.1f} · {d['arch']}", fontsize=6.0, ha="left", va="center", color="#444")
+    axB.text(1.015, off - 0.45, f"{d['pct_at']:.0f}% AS→TE · {100*d['n1u']/max(1,d['ntot']):.0f}% 1U · TE↓", fontsize=5.4, ha="left", va="center", color="#777")
+axB.set_xlim(0, 1); axB.set_ylim(off_top - 1.8, 1.5); axB.axis("off")
+axB.text(0.5, 1.04, "B  Per-PRESENT-strain genomic-strand coverage (plus ↑ green / minus ↓ purple, POOLED over all timepoints — per-tp FPM in A) + each strain's TE track; example strain at bottom → zoom into C", fontsize=7.9, fontweight="bold", ha="center", transform=axB.transAxes)
+famset = list(dict.fromkeys(f for X in present for (_, _, _, f) in COV[X]["tes"]))[:6]
+fig.legend(handles=[Patch(facecolor="#33a02c", label="+ strand"), Patch(facecolor="#6a3d9a", label="− strand")] + [Patch(facecolor=TECOL.get(f, "#ddd"), label=f) for f in famset], fontsize=6.4, frameon=False, loc="lower center", ncol=8, bbox_to_anchor=(0.5, 0.012), title="genomic strand + TE families", title_fontsize=6.5)
 # C: nucleotide in TOP strain
 d = COV[TOP]; ps = d["ps"]; reads = d["reads"]; tst = d["tst"]; N = d["N"]; CH = d["ch"]
-five = Counter((r[1] - 1 if r[2] else r[0]) for r in reads); pk = five.most_common(1)[0][0] if five else ps + N // 2; z0, z1 = pk - 30, pk + 50
 def anti_te(rs, re, isrev):
     s = tst((rs + re) // 2); return None if s is None else ((s == "-") != isrev)
 zr = [r for r in reads if r[0] < z1 and r[1] > z0]; pr, mr = Counter(), Counter()
@@ -132,8 +148,10 @@ axC.set_yticks([]); axC.spines["bottom"].set_position(("data", ybot - 1.0))
 tk = np.linspace(z0, z1, 5).astype(int); axC.set_xticks(tk); axC.set_xticklabels([f"{t:,}" for t in tk], fontsize=6.5); axC.tick_params(axis="x", length=3)
 axC.set_xlabel(f"{TOP.replace('_','/')} chr{CH} position (bp) — every base at its true genomic coordinate", fontsize=7)
 axC.text(z0 - 0.6, ytop, "+ strand", fontsize=6.5, color="#33a02c", fontweight="bold", ha="right", va="center"); axC.text(z0 - 0.6, ybot, "− strand", fontsize=6.5, color="#6a3d9a", fontweight="bold", ha="right", va="center")
-axC.set_title(f"C  Base resolution in top strain {TOP.replace('_','/')}; bases at true coordinates; 5′-U = 1U; 5′ arrow RED = ANTISENSE-to-TE (silencing), grey = sense-to-TE", fontsize=8.0, fontweight="bold", loc="left")
-fig.suptitle(f"{GENE} — PICB piRNA cluster: pangenome comparison + per-strain coverage + nucleotide resolution", fontsize=11, fontweight="bold", y=0.975)
-fig.text(0.5, 0.945, pattern_auto if len(pattern_auto) < 130 else pattern_auto[:127] + "…", ha="center", fontsize=7.4, color="#555")
+axC.set_title(f"C  Base resolution in example strain {TOP.replace('_','/')} (zoom of the highlighted bar in B); 5′-U = 1U; 5′ arrow RED = ANTISENSE-to-TE (silencing), grey = sense-to-TE", fontsize=7.7, fontweight="bold", loc="left")
+for (xbr, xc) in [((z0 - psT) / NT_, z0), ((z1 - psT) / NT_, z1)]:   # zoom-out callout: bottom (example) track -> Panel C
+    fig.add_artist(ConnectionPatch(xyA=(xbr, off_top - 1.65), coordsA=axB.transData, xyB=(xc, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.9, ls=(0, (3, 2))))
+fig.suptitle(f"{GENE} — multi-strain PICB piRNA cluster", fontsize=12.5, fontweight="bold", y=0.985)
+fig.text(0.5, 0.95, pattern_auto if len(pattern_auto) < 120 else pattern_auto[:117] + "…", ha="center", fontsize=7.2, color="#555")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png ({len(present)} present strains)")
