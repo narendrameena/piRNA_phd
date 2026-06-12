@@ -84,8 +84,9 @@ pav = row[ORDER].max().reindex(ORDER).fillna(0) if len(row) else pd.Series(0.0, 
 # ---- (5) figure ----
 TECOL = {"LINE/L1": "#E69F00", "LTR/ERVK": "#6a3d9a", "LTR/ERVL-MaLR": "#b15928", "SINE/Alu": "#33a02c", "SINE/B2": "#1f78b4", "LTR/ERVL": "#a6cee3", "LTR/ERV1": "#cab2d6", "Simple_repeat": "#bbb"}
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none"})
-fig = plt.figure(figsize=(13, 9), dpi=300)
-gs = fig.add_gridspec(3, 1, height_ratios=[1.0, 1.5, 1.6], hspace=0.42)
+fig = plt.figure(figsize=(13.5, 10.2), dpi=300)
+gs = fig.add_gridspec(3, 1, height_ratios=[1.0, 1.5, 1.6], hspace=0.6)
+fig.subplots_adjust(top=0.91, bottom=0.06)
 # Panel A: presence strip
 axA = fig.add_subplot(gs[0]); xs = np.arange(len(ORDER))
 axA.bar(xs, pav.values, width=0.82, color=["#C0392B" if pav.values[i] >= 0.5 else "#bbb" for i in range(len(ORDER))], edgecolor="white", linewidth=0.4)
@@ -94,7 +95,7 @@ axA.set_xticklabels([s.replace("_", "/") for s in ORDER], rotation=90, fontsize=
 for t, X in zip(axA.get_xticklabels(), ORDER):
     if X in WILD: t.set_color("#C0392B"); t.set_fontweight("bold")
 axA.set_ylabel("cluster\ncoverage", fontsize=8); axA.spines[["top", "right"]].set_visible(False)
-axA.set_title(f"A  Cross-strain presence/absence of the {GENE} piRNA cluster (pangenome PAV, GRCm39) — {PATT}", fontsize=9.6, fontweight="bold", loc="left")
+axA.set_title(f"A  Cross-strain presence/absence (pangenome PAV, GRCm39) — {PATT}", fontsize=8.8, fontweight="bold", loc="left")
 # Panel B: strand-resolved coverage + TE
 axB = fig.add_subplot(gs[1]); xg = ps + (np.arange(nb) + 0.5) / nb * N
 axB.fill_between(xg, 0, fwd, color="#C0392B", alpha=0.75, step="mid", label="sense (+)")
@@ -135,14 +136,22 @@ def draw(items, y0, dirn):
 ytop = draw(sense.most_common(8), 1, 1)
 axC.axhline(0, color="#333", lw=0.7)
 ybot = draw(anti.most_common(8), -1, -1)
-axC.set_xlim(z0 - 3, z1 + 9); axC.set_ylim(ybot - 0.5, ytop + 0.5); axC.axis("off")
-# ping-pong check in window
+# ping-pong check in window (sense 5' and antisense 5' exactly 10 nt apart)
 fp_s = set(r[1] for r in zreads if not r[3]); fp_a = set(r[2] - 1 for r in zreads if r[3])
 pp = [(p, p + 9) for p in fp_s if (p + 9) in fp_a]
-ppnote = f"ping-pong 10-nt 5′ overlap pair found at ~{ps+0:,}" if pp else "phasing-dominant (no 10-nt overlap pair in this window)"
-axC.set_title(f"C  Base resolution at the coverage peak (chr{CH}:{z0:,}-{z1:,}) — individual piRNAs; 5′-U (1U) = primary signature; sense (top) vs antisense (bottom). {('PING-PONG pair present' if pp else 'phased')}", fontsize=9.0, fontweight="bold", loc="left")
-axC.text(z0 - 2, ytop + 0.3, "sense →", fontsize=7, color="#222", fontweight="bold")
-axC.text(z0 - 2, ybot - 0.2, "← antisense", fontsize=7, color="#2166AC", fontweight="bold")
-fig.suptitle(f"{GENE} — strain-variable piRNA cluster at nucleotide resolution  ·  {PATT}", fontsize=12.5, fontweight="bold", y=0.995)
+axC.set_xlim(z0 - 1, z1 + 8); axC.set_ylim(ybot - 1.6, ytop + 0.6)
+# coordinate ruler — every base sits at its TRUE genomic coordinate
+for sp in ("top", "left", "right"): axC.spines[sp].set_visible(False)
+axC.set_yticks([]); axC.spines["bottom"].set_position(("data", ybot - 1.0))
+tk = np.linspace(z0, z1, 5).astype(int); axC.set_xticks(tk); axC.set_xticklabels([f"{t:,}" for t in tk], fontsize=6.5)
+axC.tick_params(axis="x", length=3)
+axC.set_xlabel(f"{STR.replace('_','/')} chr{CH} position (bp) — every base aligned to its genomic coordinate", fontsize=7)
+axC.text(z0 - 0.6, ytop, "sense", fontsize=6.5, color="#C0392B", fontweight="bold", ha="right", va="center")
+axC.text(z0 - 0.6, ybot, "antisense", fontsize=6.5, color="#2166AC", fontweight="bold", ha="right", va="center")
+# zoom callout: connect Panel B's highlighted band to Panel C
+for xb in (z0, z1):
+    fig.add_artist(ConnectionPatch(xyA=(xb, -ymax * 1.25), coordsA=axB.transData, xyB=(xb, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
+axC.set_title(f"C  Base resolution — bases at true coordinates (zoom of the band in B); 5′-U = 1U primary signature; {'PING-PONG 10-nt pair present' if pp else 'phased (no 10-nt pair here)'}", fontsize=8.8, fontweight="bold", loc="left")
+fig.suptitle(f"{GENE} — strain-variable piRNA cluster at nucleotide resolution", fontsize=12.5, fontweight="bold", y=0.965)
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png")
