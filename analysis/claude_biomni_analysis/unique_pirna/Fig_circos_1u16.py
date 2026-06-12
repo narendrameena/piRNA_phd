@@ -32,7 +32,7 @@ for c in CHROMS:
 NB=len(bins); bth=np.array([(theta(c,s)+theta(c,e))/2 for c,s,e in bins]); bwd=np.array([theta(c,e)-theta(c,s) for c,s,e in bins])
 D=defaultdict(dict)   # (X,tp) -> bin -> (1Ufrac, depth)
 for l in open(f"{U}/active_1u_bias_tp.tsv"):
-    X,tp,c,b,frac,dep=l.rstrip("\n").split("\t")
+    X,tp,c,b,frac,dep=l.rstrip("\n").split("\t")[:6]   # tolerate optional 7th 10A column
     if X in CANON and (c,int(b)) in binmap: D[(X,tp)][binmap[(c,int(b))]]=(float(frac),int(dep))
 deps=[v[1] for k in D for v in D[k].values()]; DMAX=np.percentile(deps,99) if deps else 1.0; LD=math.log10(DMAX+1)
 CMAP=plt.get_cmap("viridis"); CN=mc.Normalize(0.40,0.95)   # 1U fraction range for contrast
