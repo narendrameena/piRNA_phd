@@ -90,7 +90,8 @@ for i, tp in enumerate(TPS):
     axB.axhline(off, color="#888", lw=0.4)
     at = 100 * d["nat"] / max(1, d["nte"])
     axB.text(ps - 0.012 * N, off, TPLAB[tp], fontsize=8, ha="right", va="center", fontweight="bold", color=TPCOL[tp])
-    axB.text(pe + 0.004 * N, off, f"FPM {fpm_tp[tp]:.1f} · {d['ntot']:,} reads · {at:.0f}% AS→TE · {100*d['n1u']/max(1,d['ntot']):.0f}% 1U", fontsize=6.2, ha="left", va="center", color="#555")
+    nm = sum(1 for r in d["reads"] if r[2]); mf = nm / max(1, d["ntot"]); dual = min(mf, 1 - mf) > 0.2; acol = "#1B7837" if dual else "#999"
+    axB.text(pe + 0.004 * N, off, f"{'⇄ DUAL-strand' if dual else '→ UNI-strand'} · FPM {fpm_tp[tp]:.1f} · {d['ntot']:,} reads · {at:.0f}% AS→TE · {100*d['n1u']/max(1,d['ntot']):.0f}% 1U", fontsize=6.2, ha="left", va="center", color=acol, fontweight="bold" if dual else "normal")
 tey = -2.6 * 3 + 0.4
 for (ts, te, st, fam) in tes:
     axB.add_patch(Rectangle((ts, tey), te - ts, 0.3, facecolor=TECOL.get(fam, "#ddd"), edgecolor="none"))

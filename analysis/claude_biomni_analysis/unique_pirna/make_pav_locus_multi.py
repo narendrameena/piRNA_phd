@@ -84,8 +84,8 @@ COV = {X: collect(X) for X in present}; COV = {X: d for X, d in COV.items() if d
 present = [X for X in present if X in COV]; TOP = present[-1] if present else TOP
 # ---- (3) figure ----
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none"})
-nP = max(1, len(present)); fig = plt.figure(figsize=(14, 7.2 + 0.95 * nP), dpi=300)
-gs = fig.add_gridspec(3, 1, height_ratios=[0.95, 0.9 * nP + 1.0, 2.1], hspace=0.78); fig.subplots_adjust(top=0.85, bottom=0.075)
+nP = max(1, len(present)); fig = plt.figure(figsize=(14, 8.2 + 1.05 * nP), dpi=300)
+gs = fig.add_gridspec(3, 1, height_ratios=[0.85, 0.82 * nP + 1.0, 2.6 + 0.18 * nP], hspace=0.62); fig.subplots_adjust(top=0.86, bottom=0.07)
 axA, axB, axC = fig.add_subplot(gs[0]), fig.add_subplot(gs[1]), fig.add_subplot(gs[2])
 x = np.arange(len(ORDER)); bw = 0.26
 for j, tp in enumerate(TPS):
@@ -119,7 +119,8 @@ for i, X in enumerate(present):
                 axB.annotate("", xy=(at, off - 1.44), xytext=(af, off - 1.44), arrowprops=dict(arrowstyle="-|>", color="#111", lw=0.4, mutation_scale=4.5))
     axB.text(-0.015, off + 0.35, X.replace("_", "/") + ("  ▼zoom" if X == TOP else ""), fontsize=7.0, ha="right", va="center", fontweight="bold", color="#C0392B" if X in WILD else "#222")
     axB.text(-0.015, off - 0.78, f"chr{d['ch']}:{d['ps']:,}", fontsize=4.6, ha="right", va="center", color="#999")
-    axB.text(1.015, off + 0.25, f"FPM {FPM.loc[X].max():.1f} · {d['arch']}", fontsize=6.0, ha="left", va="center", color="#444")
+    _dual = d["arch"] == "dual-strand"; _ac = "#1B7837" if _dual else "#888"
+    axB.text(1.015, off + 0.25, f"{'⇄ DUAL' if _dual else '→ UNI'}-strand · FPM {FPM.loc[X].max():.1f}", fontsize=6.0, ha="left", va="center", color=_ac, fontweight="bold" if _dual else "normal")
     axB.text(1.015, off - 0.45, f"{d['pct_at']:.0f}% AS→TE · {100*d['n1u']/max(1,d['ntot']):.0f}% 1U · TE↓", fontsize=5.4, ha="left", va="center", color="#777")
 axB.set_xlim(0, 1); axB.set_ylim(off_top - 1.8, 1.5); axB.axis("off")
 axB.text(0.5, 1.04, "B  Per-PRESENT-strain genomic-strand coverage (plus ↑ green / minus ↓ purple, POOLED over all timepoints — per-tp FPM in A) + each strain's TE track; example strain at bottom → zoom into C", fontsize=7.9, fontweight="bold", ha="center", transform=axB.transAxes)
