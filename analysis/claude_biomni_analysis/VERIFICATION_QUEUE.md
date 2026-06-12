@@ -182,3 +182,23 @@ _(date · agent · items queried · outcome)_
   PMID 16900446); Fthl17 (PMID 17349785 vs 10.1038/s41586-021-04332-0). Col13a1 (Yu 2019 PMID 31831843 - DOI looked malformed).
 - EVIDENCE: Fig_cluster_pav_examples + SourceData_cluster_pav_examples.csv; cluster_pav/pan_cluster_coverage_matrix.tsv.gz.
 - STATUS: data PAV clean + verified; gene functions + turnover concept BioMNI triple-verified; exact citations PENDING EuropePMC.
+
+## VERIFIED (mechanism, BioMNI triple) 2026-06-12 — strain-variable clusters are REGULATORY, not TE-insertion-driven
+- DATA FINDING (grounded): for the non-domesticus piRNA clusters (chr1:128Mb, Col13a1, Dgcr8 — present in
+  CAST/PWK/SPRET, absent in all domesticus), the locus is STRUCTURALLY CONSERVED in the ABSENT strains: halLiftover
+  GRCm39->C57BL_6NJ + RepeatMasker comparison shows C57 has IDENTICAL TE content at the syntenic locus (chr1: LTR/
+  ERVL-MaLR x6, LTR/ERVK x5, SINE/B2 x2 — same as CAST; Dgcr8: SINE/Alu+B2 same). So presence/absence is NOT a TE
+  insertion/deletion polymorphism. -> piRNA-cluster turnover here is REGULATORY (licensing of a conserved locus),
+  not structural. Consistent with [[project_te_driven_finding]] (strain-private piRNAs mostly divergence-driven).
+- BIOLOGY (BioMNI genomics+general+literature ALL AGREE): piRNA-cluster licensing/activation IS a regulatory/
+  epigenetic process — master TF A-MYB (MYBL1) + H3K4me3/H3K4me2 — that can diverge between strains while the DNA
+  locus stays conserved; regulatory divergence at conserved loci is a documented mechanism of cluster gain/loss
+  between closely related mouse lineages; A-MYB determines which loci become pachytene clusters in the male germline.
+- READ-LEVEL EVIDENCE (own-genome BAMs at lifted coords): clusters carry thousands of 1U-biased piRNAs in present
+  strains — chr1 110,858 reads/69% 1U/8% antisense (uni-strand), Dgcr8 38,132/78% 1U/39% antisense (dual-strand),
+  Col13a1 5,066/82% 1U/18% antisense, Fthl17 56,342/76% 1U/39% antisense (dual-strand, LINE/L1-dense). Bona fide piRNA.
+- CITATIONS UNVERIFIED (agents inconsistent/likely-wrong DOIs -> EuropePMC): A-MYB = Li XZ et al. 2013 (the agents
+  gave nature12317/nature25741/nature02317 — REAL paper is Mol Cell 2013 'An ancient transcription factor initiates
+  the burst of piRNA production', verify PMID/DOI before citing). Regulatory cluster evolution refs also unverified.
+- EVIDENCE: Fig_pav_locus_{Dgcr8,Col13a1,chr1wildtrio,Fthl17} (make_pav_locus.py).
+- STATUS: data + mechanism concept TRIPLE-verified; exact citations (esp. A-MYB Li 2013) PENDING EuropePMC.
