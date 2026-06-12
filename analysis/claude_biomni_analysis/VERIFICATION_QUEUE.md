@@ -154,3 +154,31 @@ _(date · agent · items queried · outcome)_
   lncRNA/intergenic-cluster-derived; (2) the E16.5->P20.5 TE->lncRNA driver switch is the established mouse
   programme; (3) piRNA biogenesis is not simply proportional to TE transcription. Each with PMID+DOI.
 - STATUS: queued; data switch is factual + striking (textbook-consistent), biological framing UNVERIFIED.
+
+## VERIFIED (concept, BioMNI triple) 2026-06-12 — locus-specific piRNA-CLUSTER PAV across 16 strains
+- METHOD: pangenome cluster PAV (per-strain merged PICB clusters -> GRCm39 via minigraph-cactus HAL); pan-cluster
+  union (merge -d 1000) = 42,384 intervals; per-strain coverage via bedtools coverage. CLEAN bimodal = present
+  >=0.6 cov / absent <=0.10 / <=2 ambiguous / size>=6kb -> 3,133 clean loci. Matrix persisted:
+  cluster_pav/pan_cluster_coverage_matrix.tsv.gz.
+- CAUTION LEARNED (grounding): a single 0.5 threshold MIS-CALLED partial-coverage gradients as absence — e.g.
+  chr10:86.36Mb had SPRET=0.46 (just under 0.5) with SPRET clusters extending INTO the region; wild strains 0.46-0.65
+  vs lab 0.73-0.94 = a gradient, NOT clean PAV. ALWAYS use strict bimodal + verify exact per-strain coverage before
+  calling any locus strain-specific.
+- KEY EXAMPLES (verified clean bimodal): NON-DOMESTICUS-specific (present ONLY CAST+PWK+SPRET, absent ALL 13
+  domesticus = domesticus-lineage LOSS, since M.spretus outgroup carries them): chr1:128,352,981-128,361,493 (near
+  Dars, intergenic; PWK=1.00,CAST/SPRET=0.75, all domesticus 0.00), chr10:61,709,613-61,717,676 (Col13a1),
+  chr16:18,107,107-18,120,723 (Dgcr8, +NOD), chr11:99,049,296 (Ccr7). DOMESTICUS-specific (absent in wild):
+  chrX:8,903,132-8,949,671 (Fthl17 X-linked multicopy germline family), chr8:78,244,620 (Prmt9). LARGE PRIVATE:
+  chr12:22,685,409 (LP_J 136kb), chr12:19,673,223 (C57BL/6NJ 109kb), chr2:104,127,905 (WSB_EiJ 95kb).
+- BIOLOGY (BioMNI genomics+general+literature ALL AGREE): Dgcr8 = Microprocessor/miRNA biogenesis; Fthl17 = X-linked
+  multicopy germline/testis family + known piRNA source; Col13a1 = collagen XIII; subspecies-specific piRNA-cluster
+  gain/loss is a documented phenomenon in Mus driven by TE insertion + sequence divergence (cluster birth/death);
+  'loss in domesticus' parsimonious given the SPRET outgroup carries the wild-trio clusters.
+- SPECULATIVE (NOT verified, do NOT assert): a functional piRNA<->Dgcr8 regulatory link (all 3 agents only "could
+  imply"). Report the cluster-over-Dgcr8 OVERLAP as an observation only.
+- CITATIONS UNVERIFIED (agents INCONSISTENT -> EuropePMC confirm before citing): Ozata/Özata 2020 Nat Ecol Evol
+  PMID 32704064 / 10.1038/s41559-020-01315-7 (piRNA-cluster evolution across Mus); Gainetdinov 2018 Mol Cell
+  PMID 30550686 / 10.1016/j.molcel.2018.09.023 (mouse piRNA clusters / Fthl17); Dgcr8 (nature04593 Denli2004 vs
+  PMID 16900446); Fthl17 (PMID 17349785 vs 10.1038/s41586-021-04332-0). Col13a1 (Yu 2019 PMID 31831843 - DOI looked malformed).
+- EVIDENCE: Fig_cluster_pav_examples + SourceData_cluster_pav_examples.csv; cluster_pav/pan_cluster_coverage_matrix.tsv.gz.
+- STATUS: data PAV clean + verified; gene functions + turnover concept BioMNI triple-verified; exact citations PENDING EuropePMC.
