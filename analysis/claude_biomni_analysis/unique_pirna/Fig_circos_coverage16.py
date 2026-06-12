@@ -52,10 +52,10 @@ def cov_bins(X,tp):                                  # per bin -> [plus-strand, 
 COV={(X,tp):cov_bins(X,tp) for X in CANON for _,tp in TPS}
 allv=[v[0]+v[1] for d in COV.values() for v in d.values()]
 VMAX=np.percentile(allv,99) if allv else 1.0; LV=math.log10(VMAX+1)
-SCOL={"sense":"#0072B2","antisense":"#D55E00","bidir":"#9467bd"}
-def cat(p,m):
+SCOL={"plus":"#0072B2","minus":"#D55E00","bidir":"#9467bd"}
+def cat(p,m):   # dominant GENOMIC strand of coverage (plus/minus bigwig) = cluster architecture, NOT sense/antisense
     if p>0 and m>0 and min(p,m)>=0.3*max(p,m): return "bidir"
-    return "sense" if p>=m else "antisense"
+    return "plus" if p>=m else "minus"
 print(f"coverage bins computed; VMAX(99pct)={VMAX:.1f}")
 plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.fonttype":"none"})
 fig=plt.figure(figsize=(15.5,15.5),dpi=300); ax=fig.add_subplot(111,projection="polar")
@@ -75,9 +75,9 @@ for k,X in enumerate(CANON):
     ax.text(THLAB,mid,X.replace("_","/"),fontsize=6.6,ha="center",va="center",fontweight="bold" if X in WILD else "normal",color="#C0392B" if X in WILD else "#222")
 ax.annotate("",xy=(THLAB,R_IN-0.02),xytext=(THLAB,R_OUT+0.02),arrowprops=dict(arrowstyle="-|>",color="#888",lw=1.2))
 ax.text(THLAB,R_OUT+0.05,"E16.5→P12.5→P20.5 (inward)",fontsize=6.3,ha="center",va="bottom",color="#888")
-fig.legend(handles=[Line2D([0],[0],color=SCOL["sense"],lw=7,label="sense (+ strand)"),Line2D([0],[0],color=SCOL["antisense"],lw=7,label="antisense (− strand)"),Line2D([0],[0],color=SCOL["bidir"],lw=7,label="bidirectional (both)")],loc="lower center",bbox_to_anchor=(0.5,0.04),ncol=3,fontsize=11,frameon=False,title="small-RNA coverage strand (colour); BAR HEIGHT ∝ log mean coverage per 2-Mb bin",title_fontsize=10.5)
-fig.suptitle("piRNA-read COVERAGE circos (sRNA bigwig) — STRAND-coloured, 16 strains × 3 timepoints in one GRCm39 circle\n"
-             "each strain = 3 nested timepoint sub-rings (inward); BAR HEIGHT ∝ log read density, COLOUR = strand (plus/minus bigwig); strain names (red = wild) at the spoke",
+fig.legend(handles=[Line2D([0],[0],color=SCOL["plus"],lw=7,label="plus (+) strand dominant"),Line2D([0],[0],color=SCOL["minus"],lw=7,label="minus (−) strand dominant"),Line2D([0],[0],color=SCOL["bidir"],lw=7,label="dual-strand (both)")],loc="lower center",bbox_to_anchor=(0.5,0.04),ncol=3,fontsize=11,frameon=False,title="dominant GENOMIC strand of small-RNA coverage = cluster architecture (NOT sense/antisense); BAR HEIGHT ∝ log mean coverage per 2-Mb bin",title_fontsize=10.5)
+fig.suptitle("piRNA-read COVERAGE circos (sRNA bigwig) — GENOMIC-STRAND-coloured (cluster architecture, NOT sense/antisense), 16 strains × 3 timepoints in one GRCm39 circle\n"
+             "each strain = 3 nested timepoint sub-rings (inward); BAR HEIGHT ∝ log read density, COLOUR = dominant genomic strand (plus/minus bigwig); strain names (red = wild) at the spoke",
              fontsize=12.5,fontweight="bold",y=0.99,linespacing=1.5)
 _rt=R_OUT-gap_g
 zoom_6nj(ax, rings=[("E16.5",_rt-0.5*sub_h),("P12.5",_rt-1.5*sub_h),("P20.5",_rt-2.5*sub_h)], theta_c=theta("1",0)-0.006)
