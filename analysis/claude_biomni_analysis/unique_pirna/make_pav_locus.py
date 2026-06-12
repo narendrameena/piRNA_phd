@@ -30,6 +30,7 @@ sub = P[(P.g39_chrom == G39C) & (P.start < G39E) & (P.end > G39S)]
 FPM = sub.groupby(["strain", "tp"])["all_primary_FPM"].max().unstack(fill_value=0.0).reindex(index=ORDER, columns=TPS).fillna(0.0)
 present = [X for X in ORDER if FPM.loc[X].max() > 0]
 TOP = max(ORDER, key=lambda X: FPM.loc[X].max())
+pattern_auto = f"PICB cluster present in {len(present)}/16 strains: " + ", ".join(s.replace("_", "/") for s in present)   # data-driven, not assumed
 print(f"{GENE}: PICB present strains={present}; top={TOP} (FPM={FPM.loc[TOP].max():.1f})")
 
 # ---- (2) TOP strain detail (own genome): back-lift locus, reads, TE-strand, antisense-to-TE ----
@@ -73,19 +74,23 @@ arch = "dual-strand" if min(nminus, ntot - nminus) / max(1, ntot) > 0.2 else "un
 
 # ---- (3) figure ----
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none"})
-fig = plt.figure(figsize=(13.5, 10.2), dpi=300); gs = fig.add_gridspec(3, 1, height_ratios=[1.1, 1.4, 1.5], hspace=0.62); fig.subplots_adjust(top=0.91, bottom=0.06)
+fig = plt.figure(figsize=(13.5, 10.2), dpi=300); gs = fig.add_gridspec(3, 1, height_ratios=[1.1, 1.4, 1.5], hspace=0.66); fig.subplots_adjust(top=0.88, bottom=0.06)
 axA, axB, axC = fig.add_subplot(gs[0]), fig.add_subplot(gs[1]), fig.add_subplot(gs[2])
 # A: pangenome FPM, strain x timepoint
 x = np.arange(len(ORDER)); bw = 0.26
 for j, tp in enumerate(TPS):
-    axA.bar(x + (j - 1) * bw, np.maximum(FPM[tp].values, 1e-3), width=bw, color=TPCOL[tp], edgecolor="white", linewidth=0.2, label=TPLAB[tp])
+    h = FPM[tp].values
+    axA.bar(x + (j - 1) * bw, np.maximum(h, 1e-3), width=bw, color=TPCOL[tp], edgecolor="white", linewidth=0.2, label=TPLAB[tp])
+    for xi in range(len(ORDER)):                      # FPM value atop each PRESENT bar (readability)
+        if h[xi] > 0:
+            axA.text(xi + (j - 1) * bw, h[xi] * 1.18, f"{h[xi]:.0f}" if h[xi] >= 1 else f"{h[xi]:.1f}", ha="center", va="bottom", fontsize=4.8, rotation=90, color=TPCOL[tp], fontweight="bold")
 axA.set_yscale("log"); mx = max(FPM.values.max(), 1)
-axA.set_ylim(0.1, mx * 2); axA.set_xticks(x); axA.set_xticklabels([s.replace("_", "/") for s in ORDER], rotation=90, fontsize=7.5)
+axA.set_ylim(0.1, mx * 4.5); axA.set_xticks(x); axA.set_xticklabels([s.replace("_", "/") for s in ORDER], rotation=90, fontsize=7.5)
 for t, X in zip(axA.get_xticklabels(), ORDER):
     if X in WILD: t.set_color("#C0392B"); t.set_fontweight("bold")
 axA.set_ylabel("PICB cluster\nFPM (log)", fontsize=8); axA.spines[["top", "right"]].set_visible(False)
-axA.legend(fontsize=7.5, frameon=False, ncol=3, loc="upper right", title="timepoint", title_fontsize=7)
-axA.set_title(f"A  PANGENOME cross-strain × timepoint comparison — PICB-combined cluster FPM at the locus (projected to GRCm39 frame) — {PATT}", fontsize=8.6, fontweight="bold", loc="left")
+axA.legend([TPLAB[t] for t in TPS], fontsize=7.5, frameon=False, ncol=1, loc="upper left", bbox_to_anchor=(1.005, 1.0), title="timepoint", title_fontsize=7, handlelength=1.2)
+axA.set_title("A  Pangenome cross-strain × timepoint comparison — PICB-combined cluster FPM (projected to GRCm39)", fontsize=8.8, fontweight="bold", loc="left")
 # B: top strain coverage + TE
 xg = ps + (np.arange(nb) + 0.5) / nb * N; ymax = max(plus.max(), minus.max(), 1)
 axB.fill_between(xg, 0, plus, color="#33a02c", alpha=0.8, step="mid"); axB.fill_between(xg, 0, -minus, color="#6a3d9a", alpha=0.8, step="mid")
@@ -98,8 +103,9 @@ famset = sorted({f for _, _, _, f in tes}, key=lambda f: -sum(te - ts for ts, te
 axB.legend(handles=[Patch(facecolor="#33a02c", label="+ strand"), Patch(facecolor="#6a3d9a", label="− strand")] + [Patch(facecolor=TECOL.get(f, "#ddd"), label=f) for f in famset], fontsize=6.4, frameon=False, loc="lower left", ncol=4, bbox_to_anchor=(0, -0.34), columnspacing=1.1, handlelength=1.1)
 five = Counter((r[1] - 1 if r[2] else r[0]) for r in reads); pk = five.most_common(1)[0][0] if five else ps + N // 2; z0, z1 = pk - 30, pk + 50
 axB.axvspan(z0, z1, color="#FDB863", alpha=0.35, zorder=0)
-axB.text(0.006, 0.96, f"GENOMIC STRAND (architecture): + {100-pct_minus:.0f}% / − {pct_minus:.0f}%  ({arch})\nRELATIVE TO TE (real sense/antisense): sense {100-pct_at:.0f}% / ANTISENSE {pct_at:.0f}% (silencing, n={nte:,})",
-         transform=axB.transAxes, fontsize=7.2, va="top", linespacing=1.5, bbox=dict(boxstyle="round,pad=0.35", fc="#fffbe6", ec="#E8A33D", lw=0.7))
+axB.text(0.006, 0.96, f"reads POOLED over all 3 timepoints · PICB FPM by tp: E16.5={FPM.loc[TOP,'16.5dpc']:.0f} / P12.5={FPM.loc[TOP,'12.5dpp']:.0f} / P20.5={FPM.loc[TOP,'20.5dpp']:.0f}\n"
+         f"GENOMIC STRAND (architecture): + {100-pct_minus:.0f}% / − {pct_minus:.0f}%  ({arch})\nRELATIVE TO TE (real sense/antisense): sense {100-pct_at:.0f}% / ANTISENSE {pct_at:.0f}% (silencing, n={nte:,})",
+         transform=axB.transAxes, fontsize=7.0, va="top", linespacing=1.5, bbox=dict(boxstyle="round,pad=0.35", fc="#fffbe6", ec="#E8A33D", lw=0.7))
 axB.set_title(f"B  Cluster in top strain {TOP.replace('_','/')} ({BAMC}:{ps:,}-{pe:,}) — PICB FPM {FPM.loc[TOP].max():.1f} · {ntot:,} piRNAs · {100*n1u/max(1,ntot):.0f}% 1U", fontsize=8.6, fontweight="bold", loc="left")
 axB.set_xlabel(f"{TOP.replace('_','/')} chr{CH} position (bp) · TE track below (arrow = TE orientation)", fontsize=7.5)
 # C: base resolution
@@ -127,6 +133,7 @@ axC.text(z0 - 0.6, ytop, "+ strand", fontsize=6.5, color="#33a02c", fontweight="
 for xb in (z0, z1):
     fig.add_artist(ConnectionPatch(xyA=(xb, -ymax * 1.28), coordsA=axB.transData, xyB=(xb, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
 axC.set_title(f"C  Base resolution in {TOP.replace('_','/')}; bases at true coordinates; 5′-U = 1U signature; 5′ arrow RED = ANTISENSE-to-TE (silencing), grey = sense-to-TE", fontsize=8.0, fontweight="bold", loc="left")
-fig.suptitle(f"{GENE} — PICB piRNA cluster: pangenome cross-strain × timepoint expression + nucleotide resolution", fontsize=12, fontweight="bold", y=0.965)
+fig.suptitle(f"{GENE} — PICB piRNA cluster: pangenome cross-strain × timepoint expression + nucleotide resolution", fontsize=11.5, fontweight="bold", y=0.98)
+fig.text(0.5, 0.952, pattern_auto if len(pattern_auto) < 130 else pattern_auto[:127] + "…", ha="center", fontsize=7.6, color="#555")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png")
