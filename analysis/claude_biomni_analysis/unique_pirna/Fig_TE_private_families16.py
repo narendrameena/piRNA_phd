@@ -43,9 +43,12 @@ M.to_csv(f"{PG}/SourceData_TE_private_families16.csv")
 plt.rcParams.update({"font.family":"Liberation Sans"})
 fig,(axH,axB)=plt.subplots(2,1,figsize=(12,8.4),dpi=300,gridspec_kw={"height_ratios":[3,1],"hspace":0.32})
 import matplotlib.colors as mc
-im=axH.imshow(np.log10(M.values+1),aspect="auto",cmap="magma")
+_Mlog=np.log10(M.values+1); _cmap=plt.get_cmap("magma").copy(); _cmap.set_bad("white")   # empty (zero) cells -> white
+im=axH.imshow(np.ma.masked_where(M.values==0,_Mlog),aspect="auto",cmap=_cmap,vmin=0,vmax=_Mlog.max())
 axH.set_xticks(range(len(CANON))); axH.set_xticklabels([s.replace("_","/") for s in CANON],rotation=45,ha="right",fontsize=7.5)
 axH.set_yticks(range(len(M))); axH.set_yticklabels(M.index,fontsize=7.5)
+axH.set_xticks(np.arange(-.5,len(CANON),1),minor=True); axH.set_yticks(np.arange(-.5,len(M),1),minor=True)
+axH.grid(which="minor",color="#e6e6e6",linewidth=0.5); axH.tick_params(which="minor",length=0)
 for i in range(len(M)):
     for j in range(len(CANON)):
         v=int(M.values[i,j])
