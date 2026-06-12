@@ -120,3 +120,18 @@ _(date · agent · items queried · outcome)_
   Per-insertion new-locus frequency NOT quantified in literature -> our number is novel.
 - CITATIONS: still UNVERIFIED (no PMID+DOI from any agent) -> EuropePMC before citing.
 - EVIDENCE: Fig_te_driven_coord; pangenome_te/TE_driven_coord_foldenrichment.csv; METHODS Step 8.
+
+## PROVISIONAL (2026-06-12) — piRNA genomic-region overlap, developmental shift (thesis genic-region method)
+- CLAIM A (unique piRNAs, coarse origin): strain-private piRNAs shift toward lncRNA origin at P20.5 vs
+  protein-coding-gene/intergenic at E16.5 (lncRNA fraction rises sharply at P20.5 across all 16 strains).
+  Framing: pachytene piRNAs are lncRNA-derived, so the P20.5 lncRNA expansion = pachytene onset.
+- CLAIM B (all piRNAs, gene-body feature): within genes, all-piRNA signal shifts toward 3'UTR at P20.5,
+  with CDS highest at E16.5. Framing: known 3'UTR-derived piRNA class emerging with development.
+- EVIDENCE: Fig_pirna_genic_regions (unique, list1 gene/lncRNA/intergenic) + Fig_pirna_genic_features_all
+  (all, list2 CDS/5'UTR/3'UTR/intron, exon-superset excluded); SourceData_pirna_genic_regions.csv +
+  SourceData_pirna_genic_features_all.csv. Source = thesis analysis/sRNA_deseq/genric_regions/*.
+- NOTE (no over-claim): intergenic fraction of unique piRNAs is NOT wild-enriched (SPRET 0.26 low) — do
+  not claim wild strains route more strain-private piRNAs through intergenic space.
+- TO VERIFY (BioMNI, triple): (1) pachytene piRNAs predominantly lncRNA-derived; (2) 3'UTR piRNA class
+  increases with spermatogenic development. Confirm both with PMID+DOI. Tier: framing of clear data shift.
+- STATUS: queued; data shifts are factual, biological framing UNVERIFIED.
