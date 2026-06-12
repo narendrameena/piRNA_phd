@@ -135,3 +135,22 @@ _(date · agent · items queried · outcome)_
 - TO VERIFY (BioMNI, triple): (1) pachytene piRNAs predominantly lncRNA-derived; (2) 3'UTR piRNA class
   increases with spermatogenic development. Confirm both with PMID+DOI. Tier: framing of clear data shift.
 - STATUS: queued; data shifts are factual, biological framing UNVERIFIED.
+
+## PROVISIONAL (2026-06-12) — unique-piRNA developmental driver SWITCH + timepoint + expression
+- CLAIM A (timepoint, Fig_unique_pirna_timepoint): strain-private piRNA timepoint composition is strain-specific;
+  SPRET pachytene-dominated (P20.5 = 23,275 / 62% of its private piRNAs), CAST prepachytene-dominated (E16.5
+  5,243); several lab strains make ZERO P20.5 private piRNAs. Wild strains dominate counts (SPRET 37k, CAST 11.5k,
+  PWK 8.4k vs lab 50-400) = open pan-piRNA-ome.
+- CLAIM B (driver SWITCH, Fig_unique_pirna_drivers + Fig_TE_timepoint_strain): driver of strain-private piRNAs
+  switches across development — E16.5 TE 83.8% (LTR/ERVK 4555, LINE/L1 1207, LTR 1716), P12.5 TE 76.7%, P20.5 TE
+  26.0% with lncRNA 23.2% + intergenic 47.2%. = prepachytene TE-silencing programme -> pachytene lncRNA/intergenic
+  cluster programme. SINE/B2,Alu peak at P12.5 (not E16.5). BALB_cJ unusually lncRNA-rich; wild strains more intergenic.
+- CLAIM C (expression vs origin, Fig_TE_private_families16 Panel C): TE families broadly + similarly RNA-expressed
+  (~1e7; SINEs HIGHEST ~13M), but piRNA ORIGIN selectively LTR/ERVK + LINE/L1 -> piRNA targeting is selective, NOT
+  expression-proportional.
+- METHOD NOTE: driver = mutually-exclusive priority TE > lncRNA > protein-coding > intergenic (RepeatMasker +
+  per-strain v3.2 Ensembl gene models, chrN; coord-consistency sanity-checked: CAST loci 25%/10% overlap pc/lnc).
+- TO VERIFY (BioMNI triple): (1) prepachytene piRNAs = TE-silencing (IAP/L1/ERVK), pachytene piRNAs =
+  lncRNA/intergenic-cluster-derived; (2) the E16.5->P20.5 TE->lncRNA driver switch is the established mouse
+  programme; (3) piRNA biogenesis is not simply proportional to TE transcription. Each with PMID+DOI.
+- STATUS: queued; data switch is factual + striking (textbook-consistent), biological framing UNVERIFIED.
