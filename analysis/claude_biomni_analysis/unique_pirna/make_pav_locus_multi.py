@@ -59,26 +59,29 @@ def collect(X):
         for ts, te, s, fam in tes:
             if ts <= p < te: return s
         return None
-    plus = np.zeros(nb); minus = np.zeros(nb); reads = []; nat = nte = n1u = 0
-    for b in bams_for(X):
-        try:
-            bam = pysam.AlignmentFile(b, "rb")
-            for a in bam.fetch(BAMC, ps, pe):
-                if a.is_unmapped or not a.query_sequence: continue
-                L = a.reference_end - a.reference_start
-                if not (24 <= L <= 32): continue
-                b0 = max(0, min(nb - 1, int((a.reference_start - ps) / N * nb))); b1 = max(0, min(nb, int((a.reference_end - ps) / N * nb)))
-                seq = a.query_sequence.upper(); (minus if a.is_reverse else plus)[b0:b1] += 1
-                reads.append((a.reference_start, a.reference_end, a.is_reverse, seq)); n1u += ((comp.get(seq[-1], "N") if a.is_reverse else seq[0]) == "T")
-                s = tst((a.reference_start + a.reference_end) // 2)
-                if s is not None: nte += 1; nat += ((s == "-") != a.is_reverse)
-            bam.close()
-        except (OSError, ValueError):
-            try: bam.close()
-            except Exception: pass
+    plus = np.zeros(nb); minus = np.zeros(nb); reads = []; nat = nte = n1u = 0; ntp = {tp: 0 for tp in TPS}
+    for tp in TPS:
+        for r in (1, 2, 3):
+            b = f"{ROOT}/results/STAR_srna_strain_wise/{X}/{X}-{tp}.{r}/Aligned.sortedByCoord.out.bam"
+            if not os.path.exists(b): continue
+            try:
+                bam = pysam.AlignmentFile(b, "rb")
+                for a in bam.fetch(BAMC, ps, pe):
+                    if a.is_unmapped or not a.query_sequence: continue
+                    L = a.reference_end - a.reference_start
+                    if not (24 <= L <= 32): continue
+                    b0 = max(0, min(nb - 1, int((a.reference_start - ps) / N * nb))); b1 = max(0, min(nb, int((a.reference_end - ps) / N * nb)))
+                    seq = a.query_sequence.upper(); (minus if a.is_reverse else plus)[b0:b1] += 1
+                    reads.append((a.reference_start, a.reference_end, a.is_reverse, seq)); n1u += ((comp.get(seq[-1], "N") if a.is_reverse else seq[0]) == "T"); ntp[tp] += 1
+                    s = tst((a.reference_start + a.reference_end) // 2)
+                    if s is not None: nte += 1; nat += ((s == "-") != a.is_reverse)
+                bam.close()
+            except (OSError, ValueError):
+                try: bam.close()
+                except Exception: pass
     ntot = len(reads); nminus = sum(1 for r in reads if r[2])
     return dict(ch=ch, ps=ps, pe=pe, BAMC=BAMC, N=N, tes=tes, tst=tst, plus=plus, minus=minus, reads=reads,
-                ntot=ntot, nminus=nminus, n1u=n1u, nat=nat, nte=nte, pct_at=100 * nat / max(1, nte),
+                ntot=ntot, nminus=nminus, n1u=n1u, nat=nat, nte=nte, ntp=ntp, pct_at=100 * nat / max(1, nte),
                 arch="dual-strand" if min(nminus, ntot - nminus) / max(1, ntot) > 0.2 else "uni-strand")
 COV = {X: collect(X) for X in present}; COV = {X: d for X, d in COV.items() if d}
 present = [X for X in present if X in COV]; TOP = present[-1] if present else TOP
@@ -120,8 +123,13 @@ for i, X in enumerate(present):
     axB.text(-0.015, off + 0.35, X.replace("_", "/") + ("  ▼zoom" if X == TOP else ""), fontsize=7.0, ha="right", va="center", fontweight="bold", color="#C0392B" if X in WILD else "#222")
     axB.text(-0.015, off - 0.78, f"chr{d['ch']}:{d['ps']:,}", fontsize=4.6, ha="right", va="center", color="#999")
     _dual = d["arch"] == "dual-strand"; _ac = "#1B7837" if _dual else "#888"
-    axB.text(1.015, off + 0.25, f"{'⇄ DUAL' if _dual else '→ UNI'}-strand · FPM {FPM.loc[X].max():.1f}", fontsize=6.0, ha="left", va="center", color=_ac, fontweight="bold" if _dual else "normal")
-    axB.text(1.015, off - 0.45, f"{d['pct_at']:.0f}% AS→TE · {100*d['n1u']/max(1,d['ntot']):.0f}% 1U · TE↓", fontsize=5.4, ha="left", va="center", color="#777")
+    axB.text(1.015, off + 0.5, f"{'⇄ DUAL' if _dual else '→ UNI'}-strand · FPM {FPM.loc[X].max():.1f}", fontsize=6.0, ha="left", va="center", color=_ac, fontweight="bold" if _dual else "normal")
+    axB.text(1.015, off + 0.05, f"{d['pct_at']:.0f}% AS→TE · {100*d['n1u']/max(1,d['ntot']):.0f}% 1U · TE↓", fontsize=5.3, ha="left", va="center", color="#777")
+    _xr = 1.015                                           # reads BY TIMEPOINT (coloured per tp = creative)
+    for _tp in TPS:
+        _c = d["ntp"][_tp]; _lab = (f"{_c//1000}k" if _c >= 1000 else str(_c))
+        axB.text(_xr, off - 0.5, f"{TPLAB[_tp]} {_lab}", fontsize=5.0, ha="left", va="center", color=TPCOL[_tp], fontweight="bold")
+        _xr += 0.055
 axB.set_xlim(0, 1); axB.set_ylim(off_top - 1.8, 1.5); axB.axis("off")
 axB.text(0.5, 1.04, "B  Per-PRESENT-strain genomic-strand coverage (plus ↑ green / minus ↓ purple, POOLED over all timepoints — per-tp FPM in A) + each strain's TE track; example strain at bottom → zoom into C", fontsize=7.9, fontweight="bold", ha="center", transform=axB.transAxes)
 famset = list(dict.fromkeys(f for X in present for (_, _, _, f) in COV[X]["tes"]))[:6]
