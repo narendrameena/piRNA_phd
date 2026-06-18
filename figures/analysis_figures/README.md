@@ -67,7 +67,7 @@ symlinked) + per-figure **`*.note.md`**. **225 unique figures** organized, none 
 | 04 | picb_method_qc | 3 | ✓ (library-size QC) |
 | 05 | C57BL_6NJ_pangenome | 7 | ✓ pilot |
 | 06 | zamore_coverage | 5 | ✓ (+black6 QC; external data) |
-| 07 | unique_piRNA_identification | 18 | ✓ BioMNI-verified routes |
+| 07 | unique_piRNA_identification | 22 | ✓ BioMNI-verified routes; **≥2-read absence ADOPTED 2026-06-18** (BioMNI 3/3; genuinely-unique 100% preserved → TE-origin/depth/PCA unchanged) |
 | 08 | unique_piRNA_TE_origin_and_strand | 8 | ✓ |
 | 09 | TE_driven_evolution | 24 (+17 locus gallery) | ✓ finding |
 | 10 | cluster_pangenome_PAV | 6 | ✓ two-mechanism (BioMNI) |
