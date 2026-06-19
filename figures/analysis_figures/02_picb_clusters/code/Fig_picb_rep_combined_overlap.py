@@ -18,6 +18,10 @@ BASE="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomn
 d=pd.read_csv(f"{BASE}/source_data/SourceData_PICB_rep_combined_overlap.csv")
 TPMAP={"16.5dpc":"E16.5","12.5dpp":"P12.5","20.5dpp":"P20.5"}; TPO=["E16.5","P12.5","P20.5"]
 d["tp"]=d.timepoint.map(TPMAP)
+# data-integrity: drop groups containing a concurrency-corrupted PICB run (complete=False; e.g. NZO_HlLtJ 12.5dpp rep3 — missing chromosomes)
+_cc=pd.read_csv(f"{BASE}/source_data/SourceData_PICB_cluster_counts.csv")
+_gc=_cc.groupby(["strain","timepoint"]).complete.all().rename("group_complete").reset_index()
+d=d.merge(_gc,on=["strain","timepoint"],how="left"); d=d[d.group_complete.fillna(True)].copy()
 
 fig,(axA,axB)=plt.subplots(1,2,figsize=(7.6,3.6),dpi=300,gridspec_kw={"width_ratios":[1,1.1]})
 

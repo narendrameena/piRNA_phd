@@ -22,6 +22,7 @@ d=pd.read_csv(f"{BASE}/source_data/SourceData_PICB_cluster_counts.csv")
 TPMAP={"16.5dpc":"E16.5","12.5dpp":"P12.5","20.5dpp":"P20.5"}; TPO=["E16.5","P12.5","P20.5"]
 COL={"E16.5":"#F0C9A0","P12.5":"#E69F00","P20.5":"#B4500A"}
 d["tp"]=d.timepoint.map(TPMAP)
+d=d[d.complete].copy()   # data-integrity: drop concurrency-corrupted PICB runs (complete=False; e.g. NZO_HlLtJ 12.5dpp rep3 — missing chromosomes)
 rep=d[d.replicate!="combined"].copy()
 comb=d[d.replicate=="combined"][["strain","timepoint","n_clusters"]].rename(columns={"n_clusters":"combined"})
 rep=rep.merge(comb,on=["strain","timepoint"])          # each rep row gets its group's combined
