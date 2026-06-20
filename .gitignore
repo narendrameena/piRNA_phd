@@ -72,3 +72,4 @@ __pycache__/
 *.pyo
 .DS_Store
 *.swp
+analysis/claude_biomni_analysis/unique_pirna/cluster_pav/picb_pangenome_fpm.tsv
