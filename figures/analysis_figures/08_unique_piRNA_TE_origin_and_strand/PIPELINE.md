@@ -43,3 +43,48 @@ lncRNAs by divergence (not locus gain) — mirrors the TE finding. → `Fig_ncrn
 - Strand is **TE-relative** (verified in the sense/antisense builder), never genomic ±.
 - lncRNA calls gated by the protein-coding read-level confounding audit.
 - Divergence-vs-gain origin = **[finding]** (`VERIFICATION_QUEUE.md`); 1U + antisense rest on *established* biology.
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# S2 TE origin (bedtools ∩ RepeatMasker):
+bash analysis/claude_biomni_analysis/unique_pirna/run_coord_te16.sh
+# S3 strand = sense/antisense relative to the TE (never genomic +/-):
+bash analysis/claude_biomni_analysis/unique_pirna/run_sense_antisense.sh
+bash analysis/claude_biomni_analysis/unique_pirna/te_sa_array.sh
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_TE_private_families.py
+$PY figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_TE_private_families16.py
+$PY figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_TE_timepoint_strain.py
+$PY figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_concept_four_routes_lncRNA.py
+$PY figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_ncrna_driven_test.py
+$PY figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_ncrna_driven_test16.py
+$PY figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_sense_antisense.py
+$PY figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_unique_pirna_drivers.py
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_TE_private_families.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_TE_private_families16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_TE_timepoint_strain.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_concept_four_routes_lncRNA.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_ncrna_driven_test.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_ncrna_driven_test16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_sense_antisense.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/code/Fig_unique_pirna_drivers.py`
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/run_coord_te16.sh` — S2 strain-private piRNA x TE-family overlap
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/run_sense_antisense.sh` — S3 TE-relative sense/antisense driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/te_sa_array.sh` — S3 sense/antisense SLURM array

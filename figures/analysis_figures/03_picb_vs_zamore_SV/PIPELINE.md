@@ -118,3 +118,71 @@ Data tables: `data/` (matrices `*_PANGENOME.csv`, `zamore_fraction_lifted.csv`, 
 - **Caveat:** locus FPM = Σ overlapping clusters (aggregate; rank/scale conclusions are robust).
 - BioMNI literature agent was degenerate (no PMIDs) → citations confirmed from the papers folder
   (`VERIFICATION_QUEUE.md`).
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# S2 PICB combined clusters:
+bash analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh
+# S4 Zamore loci mm10->mm39 (ONLY UCSC use):
+liftOver zamore_mm10.bed mm10ToMm39.over.chain.gz loci_mm39.bed unmapped -minMatch=0.95
+# S5 cross-strain projection (pangenome, per locus x strain):
+singularity exec --bind /mnt <cactus.sif> halLiftover <HAL> GRCm39 <loci.bed> <strain> <out.bed>
+# S7 SVs from 17-strain pangenome VCF:
+bcftools view -H -R loci.bed results/pangenome/output/mouse_17strain_pangenome.raw.vcf.gz
+# S3/S6/S8-S10 BEDs, expression, TE/region, stats + figures = the code/ scripts below.
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_PICB_vs_Zamore.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_SV_TE.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_SV_mechanism.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_expr_divergence_tests.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_expression_pangenome.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_retention_heatmap.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_retention_pangenome.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_stage_time_heatmap.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/all_strains_SV_figure.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/all_strains_all_timepoints_figure.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/annotate_zamore_loci.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/build_replicate_pct_expressed.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/pangenome_fraction_lifted.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/rebuild_picb_COMBINED.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/rebuild_zamore_COMBINED.py
+$PY figures/analysis_figures/03_picb_vs_zamore_SV/code/zamore_expression_tests.py
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_PICB_vs_Zamore.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_SV_TE.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_SV_mechanism.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_expr_divergence_tests.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_expression_pangenome.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_retention_heatmap.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_retention_pangenome.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/Fig_zamore_stage_time_heatmap.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/all_strains_SV_figure.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/all_strains_all_timepoints_figure.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/annotate_zamore_loci.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/build_replicate_pct_expressed.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/pangenome_fraction_lifted.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/rebuild_picb_COMBINED.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/rebuild_zamore_COMBINED.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/strain_order.py`  _(imported helper)_
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/code/zamore_expression_tests.py`
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/run_picb_analysis_chunked.sh` — per-replicate PICB driver (cutadapt->STAR->PICB)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_script_chunked.R` — PICB cluster calling (chunked, genome-wide LIBRARY.SIZE)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh` — combined (replicate-pooled) PICB driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_combine_script.R` — PICB on pooled BAM
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/build_picb_pangenome_fpm.py` — cluster -> GRCm39 pangenome projection + FPM

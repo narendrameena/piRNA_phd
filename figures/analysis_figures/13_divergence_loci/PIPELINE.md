@@ -35,3 +35,37 @@ the divergence visible). **Result #:** **12** figures.
   distinct from absence (the theme-03 lesson applied at the cluster level).
 - Mechanism (divergence-driven, broad across wild+classical, ~83 % of strain-restricted loci) is
   **BioMNI-verified** (theme 10 / `project_te_driven_finding`); cross-ref theme 09 (insertion-driven).
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# project each strain's combined PICB clusters -> GRCm39 via cactus halLiftover:
+python analysis/claude_biomni_analysis/unique_pirna/build_picb_pangenome_fpm.py   # -> picb_pangenome_clusters.tsv
+# present-genome ∩ silent-expression selection -> make_pav_locus_multi.py below.
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/13_divergence_loci/code/make_pav_locus_multi.py
+bash figures/analysis_figures/13_divergence_loci/code/render_divergence.sh
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/13_divergence_loci/code/make_pav_locus_multi.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/13_divergence_loci/code/pav_clusters.py`  _(imported helper)_
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/13_divergence_loci/code/render_divergence.sh`
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/build_picb_pangenome_fpm.py` — cluster -> GRCm39 pangenome projection + FPM
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/run_picb_analysis_chunked.sh` — per-replicate PICB driver (cutadapt->STAR->PICB)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_script_chunked.R` — PICB cluster calling (chunked, genome-wide LIBRARY.SIZE)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh` — combined (replicate-pooled) PICB driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_combine_script.R` — PICB on pooled BAM

@@ -38,3 +38,29 @@ clusters; detection rate per stage; per-stage CDFs; pachytene heatmap. **Result 
 - Stage counts recomputed (Pachytene 99 / Prepachytene 83 / Hybrid 32) — identical to themes 03 & 15.
 - mm10→mm39 liftover enforced; coverage from BAMs (not inferred).
 - **Caveat:** external C57BL/6 data with duplicate-file "replicates" — recovery QC only, excluded from thesis.
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# cutadapt -> STAR (GRCm39 unmasked, piRNA params); Zamore loci mm10->mm39:
+liftOver zamore_mm10.bed mm10ToMm39.over.chain.gz zamore_mm39.bed unmapped -minMatch=0.95
+# per-gene + per-cluster coverage (bedtools/samtools) is done inside the figure scripts below.
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/06_zamore_coverage/code/Fig_black6_pirna_qc_persample.py
+$PY figures/analysis_figures/06_zamore_coverage/code/generate_P12_5_P20_5_figures.py
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/06_zamore_coverage/code/Fig_black6_pirna_qc_persample.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/06_zamore_coverage/code/generate_P12_5_P20_5_figures.py`

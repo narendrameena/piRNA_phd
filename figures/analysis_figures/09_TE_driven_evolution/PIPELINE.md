@@ -47,3 +47,45 @@ silencing bar) / C (base-resolution 1U); plus pangenome TE-driven test + locus g
 - Candidate filter (real-TE + 1U≥80 % + antisense) documented + shown to reject artefacts.
 - Coordinate-based (not sequence-containment) test; cross-ref theme 13 (divergence, the contrasting mechanism).
 - Causal "TE-driven creation" = **[finding]** (`VERIFICATION_QUEUE.md`); 1U/antisense = *established*.
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# S2 strain-private TE insertions from the pangenome SV VCF:
+python analysis/claude_biomni_analysis/unique_pirna/parse_insertions16.py
+bash analysis/claude_biomni_analysis/unique_pirna/run_pangenome_insertions16.sh
+# S3 coordinate TE-driven test (insertion ∩ PICB cluster; real-TE + 1U>=80% + antisense filter):
+python analysis/claude_biomni_analysis/unique_pirna/te_driven_coord_test.py
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/09_TE_driven_evolution/code/Fig_te_driven_coord16.py
+$PY figures/analysis_figures/09_TE_driven_evolution/code/Fig_te_driven_corrected16.py
+$PY figures/analysis_figures/09_TE_driven_evolution/code/Fig_te_driving_divergence16.py
+$PY figures/analysis_figures/09_TE_driven_evolution/code/make_locus_full.py
+$PY figures/analysis_figures/09_TE_driven_evolution/code/make_te_driven_locus.py
+$PY figures/analysis_figures/09_TE_driven_evolution/code/make_te_driven_locus_multi.py
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/code/Fig_te_driven_coord16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/code/Fig_te_driven_corrected16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/code/Fig_te_driving_divergence16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/code/make_locus_full.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/code/make_te_driven_locus.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/code/make_te_driven_locus_multi.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/code/pav_clusters.py`  _(imported helper)_
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/parse_insertions16.py` — S2 parse pangenome SV insertions (singleton, >=40 bp)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/run_pangenome_insertions16.sh` — S2 insertion-calling driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/te_driven_coord_test.py` — S3 coordinate TE-driven candidate test

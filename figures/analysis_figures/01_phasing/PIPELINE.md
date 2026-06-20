@@ -47,3 +47,50 @@ Source data: `data/SourceData_Fig_phasing_*.csv`.
 - 1-random controls multimapper inflation; method matches the cited Almeida protocol (*established* biology —
   phasing rises to the pachytene stage; no novel claim).
 - Excluded earlier non-1-random attempts (`phasing_test/`, `phasing_C57BL_6NJ_exact/`).
+
+
+script: /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/phasing_analysis.R
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# (A) one command: SLURM array = cutadapt -> STAR 1-random -> phasing, all 144 samples:
+bash analysis/claude_biomni_analysis/phasing_allstrains_1random/run_array.sh
+# (B) what each task runs explicitly (S0 trim, S1 align, S2 length + S3 phasing):
+cutadapt --minimum-length 20 --maximum-length 36 --discard-untrimmed -a TGGAATTCTCGGGTGCCAAGG -o S.trim.fastq raw.fastq.gz
+STAR --runThreadN 6 --genomeDir results/indexs/<strain> --readFilesIn S.trim.fastq \
+     --outFilterMismatchNmax 0 --outFilterMultimapNmax 800 --winAnchorMultimapNmax 1600 --alignIntronMax 1 \
+     --alignEndsType EndToEnd --scoreDelOpen -10000 --scoreInsOpen -10000 \
+     --outSAMmultNmax 1 --outMultimapperOrder Random --runRNGseed 777 --outSAMtype BAM SortedByCoordinate --outFileNamePrefix S.
+samtools index S.Aligned.sortedByCoord.out.bam
+Rscript workflow/scripts/R/phasing_analysis.R  S.Aligned.sortedByCoord.out.bam  <out_prefix>  24 32 50 0 all follow
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/01_phasing/code/Fig_phasing_allstrains.py
+$PY figures/analysis_figures/01_phasing/code/Fig_phasing_allstrains_1panel.py
+$PY figures/analysis_figures/01_phasing/code/Fig_phasing_allstrains_lines.py
+$PY figures/analysis_figures/01_phasing/code/Fig_phasing_perReplicate.py
+$PY figures/analysis_figures/01_phasing/code/Fig_phasing_timepoints.py
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/code/Fig_phasing_allstrains.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/code/Fig_phasing_allstrains_1panel.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/code/Fig_phasing_allstrains_lines.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/code/Fig_phasing_perReplicate.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/code/Fig_phasing_timepoints.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/code/strain_order.py`  _(imported helper)_
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/phasing_allstrains_1random/run_array.sh` — SLURM driver: 16 strains x 3 tp x reps (cutadapt->STAR 1-random->phasing)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/phasing_C57BL_6NJ_1random/run_1random.sh` — C57BL/6NJ deep-coverage phasing driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/phasing_analysis.R` — BAM -> phasing distance histogram + frac_plus1/zscore CSV (the core)

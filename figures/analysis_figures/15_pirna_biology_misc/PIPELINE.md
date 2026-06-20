@@ -44,3 +44,49 @@ strains; a **read-level confounding audit (exclude protein_coding)** gates any l
   figures **measure** them (characterisation/QC), not novel claims.
 - lncRNA calls gated by the protein-coding confounding audit (`project_ncrna_driven_finding`).
 - The divergence-driven origin of strain-private lncRNA piRNAs is the **[finding]** in theme 08, not here.
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# cutadapt -> STAR (unmasked) -> PICB; 1U/ping-pong (pysam) + genic overlap (bedtools)
+# are computed inside the figure scripts below.
+bash workflow/scripts/run_picb_analysis_chunked.sh
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/15_pirna_biology_misc/code/Fig_biogenesis16.py
+$PY figures/analysis_figures/15_pirna_biology_misc/code/Fig_developmental_program16.py
+$PY figures/analysis_figures/15_pirna_biology_misc/code/Fig_gm10505_16strains.py
+$PY figures/analysis_figures/15_pirna_biology_misc/code/Fig_locus_example_ncRNA.py
+$PY figures/analysis_figures/15_pirna_biology_misc/code/Fig_pachytene_cluster.py
+$PY figures/analysis_figures/15_pirna_biology_misc/code/Fig_pirna_genic_features_all.py
+$PY figures/analysis_figures/15_pirna_biology_misc/code/Fig_pirna_genic_regions.py
+$PY figures/analysis_figures/15_pirna_biology_misc/code/Fig_pirna_regions_alllists.py
+$PY figures/analysis_figures/15_pirna_biology_misc/code/make_ncrna_examples.py
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/Fig_biogenesis16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/Fig_developmental_program16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/Fig_gm10505_16strains.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/Fig_locus_example_ncRNA.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/Fig_pachytene_cluster.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/Fig_pirna_genic_features_all.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/Fig_pirna_genic_regions.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/Fig_pirna_regions_alllists.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/code/make_ncrna_examples.py`
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/run_picb_analysis_chunked.sh` — per-replicate PICB driver (cutadapt->STAR->PICB)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_script_chunked.R` — PICB cluster calling (chunked, genome-wide LIBRARY.SIZE)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh` — combined (replicate-pooled) PICB driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_combine_script.R` — PICB on pooled BAM

@@ -63,3 +63,108 @@ strain-specific-DA / decomposition / coverage / class-by-strain×timepoint set (
 - Four-route classification **BioMNI triple-verified** (METHODS §Biological grounding).
 - Uniqueness rechecked (pool-level 100 % true-unique; raw-per-rep caveat in `project_locus_figure_redesign`).
 - **≥2-read absence adoption (2026-06-18) is robustness-validated:** it removes ONLY "expressed-elsewhere (exact)" candidates (87,441→40,238); every genuinely-unique class is 100 % preserved (strain-private 20,846, conserved-but-silent 86,115, SNP-variant 217,559) → TE-origin / depth-confound / PCA figures are byte-identical and unchanged. BioMNI 3/3 signed off; full per-figure audit in the `Fig_strain_specific_DA16` note.
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# S3 edgeR QL-DA (>=2-read presence/absence intersection):
+bash analysis/claude_biomni_analysis/unique_pirna/run_edger16.sh
+# S4 sequence-level uniqueness (STAR mismatch 0->3) + step-4 classification:
+bash analysis/claude_biomni_analysis/unique_pirna/cand_self16.sh
+bash analysis/claude_biomni_analysis/unique_pirna/run_classify_step4.sh
+# S6 locus orthology by pangenome (halLiftover) -> conserved-but-silent vs strain-private:
+bash analysis/claude_biomni_analysis/unique_pirna/lift_presence16.sh
+python analysis/claude_biomni_analysis/unique_pirna/classify_unique16_locus.py
+# S7 PCA (DESeq2):
+bash analysis/claude_biomni_analysis/unique_pirna/run_pca.sh
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_concept_four_routes.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pca_classes16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pca_numbers_summary.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pca_unique.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pca_unique16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pilot_unique_pirna_counts.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pirna_length_window.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_snp_variant_coord.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_snp_variant_nucleotide.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_spret_split.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_step4_class_by_strain_timepoint16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_step4_class_strain_timepoint16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_step4_classification.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_step4_classification16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_strain_specific_DA.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_strain_specific_DA16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_strain_specific_DA16_decomposition.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_strain_specific_coverage16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_timepoint_combos16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique16_class_breakdown.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique_pirna_length.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique_pirna_length16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique_pirna_length_byclass16.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique_pirna_timepoint.py
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/build_replicate_DA_detection.py
+Rscript figures/analysis_figures/07_unique_piRNA_identification/code/combine_pca16_byclass.R
+Rscript figures/analysis_figures/07_unique_piRNA_identification/code/combine_pca16_classes.R
+Rscript figures/analysis_figures/07_unique_piRNA_identification/code/coverage_probe.R
+$PY figures/analysis_figures/07_unique_piRNA_identification/code/depth_confound_check.py
+Rscript figures/analysis_figures/07_unique_piRNA_identification/code/edger16_2read.R
+Rscript figures/analysis_figures/07_unique_piRNA_identification/code/edger16_coverage.R
+Rscript figures/analysis_figures/07_unique_piRNA_identification/code/presence_only_counts.R
+Rscript figures/analysis_figures/07_unique_piRNA_identification/code/threshold_probe.R
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_concept_four_routes.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pca_classes16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pca_numbers_summary.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pca_unique.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pca_unique16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pilot_unique_pirna_counts.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_pirna_length_window.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_snp_variant_coord.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_snp_variant_nucleotide.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_spret_split.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_step4_class_by_strain_timepoint16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_step4_class_strain_timepoint16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_step4_classification.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_step4_classification16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_strain_specific_DA.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_strain_specific_DA16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_strain_specific_DA16_decomposition.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_strain_specific_coverage16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_timepoint_combos16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique16_class_breakdown.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique_pirna_length.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique_pirna_length16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique_pirna_length_byclass16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/Fig_unique_pirna_timepoint.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/build_replicate_DA_detection.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/combine_pca16_byclass.R`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/combine_pca16_classes.R`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/coverage_probe.R`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/depth_confound_check.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/edger16_2read.R`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/edger16_coverage.R`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/presence_only_counts.R`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/code/threshold_probe.R`
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/run_edger16.sh` — S3 edgeR quasi-likelihood DA (16 strains)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/cand_self16.sh` — S4 STAR genome-anchored uniqueness (mismatch 0->3)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/run_classify_step4.sh` — S4 step-4 expressed/SNP-variant/unique split driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/run_step4_map16.sh` — S4 step-4 mapping (16 strains)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/lift_presence16.sh` — S6 locus halLiftover GRCm39->each strain
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/classify_unique16_locus.py` — S6 conserved-but-silent vs strain-private locus classifier
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/run_pca.sh` — S7 DESeq2 PCA driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/run_classify_unique16.sh` — 16-strain unique classification driver

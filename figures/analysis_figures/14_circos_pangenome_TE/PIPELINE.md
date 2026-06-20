@@ -37,3 +37,51 @@ combined TE×ping-pong `Fig_circos_combined16`).
 - sense = TE expression, antisense = piRNA silencing — strand **relative to the TE** (RepeatMasker), the
   corrected definition (`session_resume` lesson); genomic strand = cluster architecture, not sense/antisense.
 - TE expression (RNA) and piRNA silencing (sRNA) are independent measurements (cross-checked).
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# S1 TE RNA expression (featureCounts) + sRNA PICB; S2 project clusters/bins -> GRCm39:
+python analysis/claude_biomni_analysis/unique_pirna/build_picb_pangenome_fpm.py
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_1u16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_clusters16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_combined16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_coverage16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_integrated16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_picb16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_pingpong16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_private16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_te16.py
+$PY figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_te_pirna16.py
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_1u16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_clusters16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_combined16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_coverage16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_integrated16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_picb16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_pingpong16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_private16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_te16.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/code/Fig_circos_te_pirna16.py`
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/build_picb_pangenome_fpm.py` — cluster -> GRCm39 pangenome projection + FPM
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/run_picb_analysis_chunked.sh` — per-replicate PICB driver (cutadapt->STAR->PICB)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_script_chunked.R` — PICB cluster calling (chunked, genome-wide LIBRARY.SIZE)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh` — combined (replicate-pooled) PICB driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_combine_script.R` — PICB on pooled BAM

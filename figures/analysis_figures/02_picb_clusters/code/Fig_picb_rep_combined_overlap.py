@@ -32,8 +32,13 @@ cols={"comb_support3":"#1b7837","comb_support2":"#7fbf7b","comb_support1":"#d9f0
 labs={"comb_support3":"in all 3 reps","comb_support2":"in 2 reps","comb_support1":"in 1 rep","comb_support0":"unique to combined"}
 x=np.arange(3); bottom=np.zeros(3)
 for k in ["comb_support3","comb_support2","comb_support1","comb_support0"]:
-    axA.bar(x,frac[k].values,bottom=bottom,width=0.62,color=cols[k],edgecolor="white",linewidth=0.4,label=labs[k],zorder=3)
-    bottom+=frac[k].values
+    vals=frac[k].values
+    axA.bar(x,vals,bottom=bottom,width=0.62,color=cols[k],edgecolor="white",linewidth=0.4,label=labs[k],zorder=3)
+    for xi,v,b in zip(x,vals,bottom):
+        if v>=2:   # label each segment in its centre (tiny 'unique to combined' is shown as '% new' above)
+            axA.text(xi,b+v/2,f"{v:.1f}",ha="center",va="center",fontsize=6.2,fontweight="bold",
+                     color="white" if k=="comb_support3" else "#222",zorder=4)
+    bottom+=vals
 for xi in x:  # annotate the tiny 'unique' slice
     u=frac["comb_support0"].values[xi]
     axA.text(xi,101,f"{u:.1f}% new",ha="center",va="bottom",fontsize=5.6,color="#b2182b")

@@ -46,3 +46,41 @@ FPM, antisense-to-TE fraction (TE-relative strand).
 - sense/antisense is **TE-relative** (RepeatMasker strand), not genomic ± (memory `session_resume` lesson).
 - Coverage flips by TE strand; pangenome FPM is the ground-truth presence (verified before any PAV claim).
 - Second-bar geometry locked after read-count verification (`project_locus_figure_redesign`).
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# project each strain's combined PICB clusters -> GRCm39 via cactus halLiftover:
+python analysis/claude_biomni_analysis/unique_pirna/build_picb_pangenome_fpm.py   # -> picb_pangenome_clusters.tsv
+# per-locus 3-panel views are rendered by the make_pav_locus*.py scripts below.
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/11_locus_catalogue/code/make_pav_locus.py
+$PY figures/analysis_figures/11_locus_catalogue/code/make_pav_locus_multi.py
+$PY figures/analysis_figures/11_locus_catalogue/code/make_pav_locus_single.py
+bash figures/analysis_figures/11_locus_catalogue/code/render_catalogue_updated.sh
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/code/make_pav_locus.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/code/make_pav_locus_multi.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/code/make_pav_locus_single.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/code/pav_clusters.py`  _(imported helper)_
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/code/render_catalogue_updated.sh`
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/build_picb_pangenome_fpm.py` — cluster -> GRCm39 pangenome projection + FPM
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/run_picb_analysis_chunked.sh` — per-replicate PICB driver (cutadapt->STAR->PICB)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_script_chunked.R` — PICB cluster calling (chunked, genome-wide LIBRARY.SIZE)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh` — combined (replicate-pooled) PICB driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_combine_script.R` — PICB on pooled BAM

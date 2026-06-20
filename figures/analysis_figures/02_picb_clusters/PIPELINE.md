@@ -48,3 +48,40 @@ single-rep-vs-combined, and the support-composition / recovery overlap. → **3*
   per-rep example C57BL/6NJ E16.5 = 19933/18810/18786, combined 18855 (combined ≈ rep mean → ±SD error bars valid).
 - The "combining replicates doesn't change which clusters are found" conclusion is read directly from the
   >99 % overlap — a **method-QC** result, not a biological claim. Cross-ref theme 04 (PICB library-size QC).
+
+---
+
+## SCRIPTS & COMMANDS (full paths)
+
+Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`export PATH="/mnt/home3/miska/nm667/miniconda3/bin:$PATH"`; `PY=/mnt/home3/miska/nm667/miniconda3/envs/snakemake/bin/python`).
+
+**Compute steps — (re)generate the data the figures read:**
+```bash
+# PICB clusters per replicate (cutadapt -> STAR -> PICB; calls picb_script_chunked.R):
+bash workflow/scripts/run_picb_analysis_chunked.sh
+# PICB on replicate-pooled BAM (combined run; calls picb_combine_script.R):
+bash analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh
+# S3 replicate<->combined overlap is computed inside the figure scripts (interval overlap).
+```
+
+**Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
+```bash
+cd /mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA
+$PY figures/analysis_figures/02_picb_clusters/code/Fig_picb_combined_clusters.py
+$PY figures/analysis_figures/02_picb_clusters/code/Fig_picb_rep_combined_overlap.py
+$PY figures/analysis_figures/02_picb_clusters/code/Fig_picb_rep_vs_combined.py
+```
+
+**All scripts (full paths):**
+
+*Figure / analysis (`code/`):*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/02_picb_clusters/code/Fig_picb_combined_clusters.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/02_picb_clusters/code/Fig_picb_rep_combined_overlap.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/02_picb_clusters/code/Fig_picb_rep_vs_combined.py`
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/02_picb_clusters/code/strain_order.py`  _(imported helper)_
+
+*Upstream / compute:*
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/run_picb_analysis_chunked.sh` — per-replicate PICB driver (cutadapt->STAR->PICB)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_script_chunked.R` — PICB cluster calling (chunked, genome-wide LIBRARY.SIZE)
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh` — combined (replicate-pooled) PICB driver
+- `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts/R/picb_combine_script.R` — PICB on pooled BAM

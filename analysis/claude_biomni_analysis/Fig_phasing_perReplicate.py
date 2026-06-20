@@ -39,13 +39,15 @@ COL={"E16.5":"#F0C9A0","P12.5":"#E69F00","P20.5":"#B4500A"}
 n=len(df); y=np.arange(n)[::-1]      # first sorted row at the top
 fig,ax=plt.subplots(figsize=(6.2, max(8.0, n*0.135)), dpi=300)
 ax.barh(y, df["pct"].values, color=[COL[t] for t in df["tp"]], height=0.78, edgecolor="none", zorder=2)
+for yy, v in zip(y, df["pct"].values):                       # value at the tip of each bar
+    ax.text(v + 0.6, yy, f"{v:.0f}", va="center", ha="left", fontsize=4.2, color="#333", zorder=3)
 ax.set_yticks(y)
 labels=[f"{r.strain}-{r.tp}.{r.rep}" for r in df.itertuples()]
 ax.set_yticklabels(labels, fontsize=4.4)
 for tick,(_,r) in zip(ax.get_yticklabels(), df.iterrows()):
     tick.set_color("#C0392B" if r.strain in WILD else "#222222")
 ax.set_xlabel("+1-nt directly-adjacent piRNA pairs (% of all adjacent pairs)", fontsize=7.5)
-ax.set_xlim(0, max(70, df["pct"].max()*1.06)); ax.set_ylim(-0.6, n-0.4)
+ax.set_xlim(0, max(74, df["pct"].max()*1.10)); ax.set_ylim(-0.6, n-0.4)
 ax.xaxis.grid(True, lw=0.3, color="#e8e8e8", zorder=0); ax.set_axisbelow(True)
 # thin separators + strain name at block centre (left margin)
 prev=None; block_start=0
