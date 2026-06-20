@@ -73,3 +73,15 @@ __pycache__/
 .DS_Store
 *.swp
 analysis/claude_biomni_analysis/unique_pirna/cluster_pav/picb_pangenome_fpm.tsv
+
+# --- rendered figures + data: regenerable from code; kept on disk, NOT in git (2026-06-20) ---
+*.png
+*.pdf
+*.svg
+*.csv
+*.tsv
+*.tsv.gz
+*.gz
+*.bed
+example_locus.json
+figures/analysis_figures/03_picb_vs_zamore_SV/data/zamore_expression_tests.txt
