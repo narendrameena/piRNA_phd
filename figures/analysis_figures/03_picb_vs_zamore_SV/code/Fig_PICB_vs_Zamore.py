@@ -208,8 +208,8 @@ ax_b.set_ylabel("% loci not lifted (structural rearrangement)", fontsize=8)
 ax_b.set_ylim(0, max(nl_pcts) * 1.35)
 ax_b.axvline(1.5, color='#cccccc', lw=0.8, ls='--', zorder=1)
 ax_b.set_title(
-    "B   SVs predict liftOver failure in both locus sets\n"
-    "    3x enrichment in PICB, 5x in Zamore (pangenome SV = rearrangement)",
+    "B   SVs CO-OCCUR with liftOver failure in both locus sets\n"
+    "    (enrichment is partly definitional: not-lifted = a structural change; see audit note)",
     fontsize=7.5, fontweight='bold', loc='left')
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -253,8 +253,8 @@ ax_c.text(0.97, 0.06, f"r = {r_p:.2f}\np = {pv_p:.1e}",
 ax_c.set_xlabel("PICB loci with direct SV", fontsize=8)
 ax_c.set_ylabel("% PICB loci not lifted", fontsize=8)
 ax_c.set_title(
-    "C   PICB: SV burden predicts locus rearrangement\n"
-    f"    (all 16 strains; r={r_p:.2f}; colour = subspecies)",
+    "C   PICB: SV burden ASSOCIATES with locus rearrangement\n"
+    f"    (all 16 strains; r={r_p:.2f}, associational; colour = subspecies)",
     fontsize=7.5, fontweight='bold', loc='left')
 ax_c.legend(fontsize=6.5, frameon=False, loc='upper left',
             labelspacing=0.3, handlelength=1.2)

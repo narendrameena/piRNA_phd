@@ -36,11 +36,11 @@ for i,t in enumerate(TPO):
     if t in ppP:
         axA.bar(x+(i-1)*bw,ppP[t].values,bw,color=TCOL[t],label=t)
         for xi,v in zip(x+(i-1)*bw,ppP[t].values):
-            if pd.notna(v): axA.text(xi,v+0.03,f"{v:.1f}",ha="center",va="bottom",fontsize=3.9,rotation=90,color=TCOL[t])
+            if pd.notna(v): axA.text(xi,v-0.06,f"{v:.1f}",ha="center",va="top",fontsize=3.8,rotation=90,color="white",fontweight="bold")   # number INSIDE its own bar → separated by bar width, no inter-bar overlap/clipping
     if t in phP:
         axB.bar(x+(i-1)*bw,phP[t].values,bw,color=TCOL[t],label=t)
         for xi,v in zip(x+(i-1)*bw,phP[t].values):
-            if pd.notna(v): axB.text(xi,v+0.5,f"{v:.0f}",ha="center",va="bottom",fontsize=3.9,rotation=90,color=TCOL[t])
+            if pd.notna(v): axB.text(xi,v-1.0,f"{v:.0f}",ha="center",va="top",fontsize=3.8,rotation=90,color="white",fontweight="bold")   # number INSIDE its own bar → separated by bar width, no inter-bar overlap/clipping
 axA.axhline(1.96,ls="--",lw=0.8,color="#888"); axA.set_ylim(0,4.95); axB.set_ylim(0,69)
 axA.set_xticks(x); axA.set_xticklabels([s.replace("_","/") for s in CANON],rotation=45,ha="right",fontsize=7.5)
 axA.set_ylabel("ping-pong 10-nt z-score",fontsize=9); axA.legend(fontsize=7.5,frameon=True,facecolor="white",framealpha=0.9,edgecolor="none",title="timepoint",ncol=3,loc="upper left")

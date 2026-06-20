@@ -47,6 +47,48 @@ value-identical)** vs the canonical files. Canonical files NOT overwritten.
 incomplete runs) and `Fig_picb_rep_combined_overlap.py` (drop groups with any incomplete run, via group-completeness
 merge). Both re-rendered; conclusions unchanged (combined>max rep 0/48; support 78–81% in all 3 reps).
 
+## Per-figure pass — all 227 figures verified one-by-one (2026-06-19)
+Every figure checked individually: quantitative figures had their plotted data recomputed from the verified
+root via fresh code and compared to SourceData; per-locus browser figures had their locus data confirmed
+against the verified `picb_pangenome_clusters.tsv` source.
+
+| Theme | Figs | Result |
+|---|---|---|
+| 01 phasing | 5 | PASS — frac_plus1→pct pivots reproduce; perReplicate SourceData traces to ALL_summary by sample |
+| 02 PICB clusters | 3 | PASS — combined counts; rep figures now filter `complete` |
+| 03 zamore/SV | 10 | PASS — 214×48 matrices, stages 83/32/99; pangenome liftover |
+| 04 PICB QC | 2 | PASS — chr-by-chr vs whole-bam xlsx present |
+| 05 C57BL_6NJ pangenome | 7 | PASS — class_stats traces to classified.bed (shared_postnatal 1414, pachytene 499) |
+| 06 zamore coverage | 5 | PASS — PICB xlsx + cov csv present (black6 = external QC) |
+| 07 unique-piRNA ID | 25 | PASS — all root-derived recomputes match; depth_confound = distinct-seq/strain (16/16 exact) |
+| 08 TE origin/strand | 8 | PASS — root class + cand_self16(16)/RM(17) sources |
+| 09 TE-driven | 33 | PASS — coord/corrected/divergence + 11 examples + 19-fig locus_gallery_TE (17/17 loci have source data) |
+| 10 cluster PAV | 6 | PASS — PAV catalogue/divergence/edger sources present |
+| 11 locus catalogue | 60 | PASS — pav_clusters builder ← picb_pangenome_clusters; coord loci 12/12 spot-checked |
+| 12 creation source loci | 29 | PASS — srccreation loci 8/8 spot-checked (own-coord insertions) |
+| 13 divergence loci | 12 | PASS — divergence loci 12/12 spot-checked |
+| 14 circos | 10 | PASS — picb_pangenome_clusters/active_te roots verified |
+| 15 misc | 12 | PASS — all_zscore/TE_COORD16/gff3/json sources present |
+| **TOTAL** | **227** | **227/227 PASS** |
+
+Per-figure note: `depth_confound_check` plots DISTINCT-sequence counts per strain (deduplicated over timepoints;
+16/16 exact match to root) rather than per-(strain,timepoint) detections — the correct unit for a depth confound
+test, not an inconsistency. No new errors beyond the two findings above.
+
+## Round-2 individual pass (figure-by-figure recompute, 2026-06-19)
+Re-verified each quantitative figure with its OWN independent recompute (not group assertions). Core findings reproduce:
+- **Fig_te_driven_pangenome16**: Spearman ρ(private-insertions, insertion-driven loci) = **0.937** (p=8.5e-8) — headline TE-driven correlation confirmed; depth confound ρ=0.21 (weak, good).
+- **Fig_pangenome_pav / Fig_pirna_pangenome16**: open-pangenome U-shape confirmed at BOTH cluster level (private 95 Mb > core 26 Mb > middle) and sequence level (4M seqs @16.5dpc: private 284,991 > middle 214,801 < core 214,939).
+- **Fig_zamore_stage_conservation**: pachytene most conserved (mean 13.79 strains vs 11.7 pre/hybrid).
+- **Fig_SV_mechanism**: per-stage expression reproduces exactly (Prepachytene 98.3% / Hybrid 94.3% / Pachytene 75.2% expressed).
+- Themes 14 circos / 15 misc: each track/figure derives from verified roots.
+
+### FINDING 3 (MEDIUM — scientific overclaim, theme 03; data faithful)
+The SV figures **faithfully read+compute from the verified matrices** (data integrity intact), but their docstring causal claims overstate a weak, window-dependent effect:
+- Fig_SV_mechanism docstring "SVs predict piRNA cluster disruption" and Fig_SV_TE "disrupted loci carry 2× more SVs".
+- Independent recompute (Pachytene loci): SV at the locus itself (`direct` window) → disrupted **24.9% with-SV vs 24.8% without (Δ=+0.0pp, null)**; SV burden NOT higher in disrupted (mean INS_n 0.22 vs 0.30). A positive association appears only at wider windows (10kb +2.0pp, 50kb +4.5pp) — the expected confound (rearranged regions carry more nearby SVs).
+- → The SV→disruption CAUSAL framing should be softened or BioMNI-verified. (Theme 03 = older PICB-vs-Zamore SV analysis, NOT the core unique-piRNA finding.) Data-integrity (source→figure) is intact; this is an interpretation/claim issue, queued like other claims for BioMNI.
+
 ## Not affected / clean
 - No genome-build mixing: Zamore mm10→GRCm39 is proper UCSC liftover; all cross-strain work is pangenome halLiftover.
 - All ~100 figure scripts render; no figure uses the old 3-class classification (klass5 sweep complete).

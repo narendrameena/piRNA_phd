@@ -2,7 +2,7 @@
 """Circos #10 — TE ARMS-RACE x PING-PONG BIOGENESIS combined, strain- and timepoint-resolved. Per strain x 3
 timepoints, each timepoint shows the same threat-vs-response pair as te_pirna16, but the RESPONSE is recoloured by
 the ping-pong signature so three signatures live in one view:
-  * OUTER half = active-TE EXPRESSION (RNA-seq, threat) — STACKED by family (L1/ERVK/IAP greens), grows outward
+  * OUTER half = active-TE EXPRESSION (small-RNA sense-to-TE, threat) — STACKED by family (L1/ERVK/ERVL greens), grows outward
   * INNER half = piRNA-on-TE (sRNA response), HEIGHT = log piRNA reads, COLOUR = 10A fraction (PING-PONG secondary-
     piRNA signature; plasma: dark = phasing/low-ping-pong, bright = ping-pong-active), grows inward
 1U (primary-piRNA hallmark) is near-uniformly high genome-wide (see 1u16), so 10A is the informative axis here:
@@ -20,7 +20,7 @@ from matplotlib.lines import Line2D
 ROOT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U=f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"
 PG=f"{U}/pangenome_te"; FAI=f"{ROOT}/results/ref_genome/GRCm39.106.fasta.fai"
 CANON=[s for s in STRAIN_ORDER if s!="C57BL_6"]; TPS=["E16.5","P12.5","P20.5"]; CHROMS=[str(i) for i in range(1,20)]+["X"]; BIN=2_000_000
-TEFAM=[("L1","#1B7837"),("ERVK","#5AAE61"),("IAP","#A6DBA0")]   # TE threat = green family shades
+TEFAM=[("L1","#1B7837"),("ERVK","#5AAE61"),("ERVL","#A6DBA0")]   # TE expression (SENSE-to-TE small RNA) = green family shades
 clen={}
 for ln in open(FAI):
     f=ln.split("\t")
@@ -42,7 +42,7 @@ def loadfam(fn):
             X,tp,c,b,g,v=l.rstrip("\n").split("\t")
             if X in CANON and (c,int(b)) in binmap: D[(X,tp)][binmap[(c,int(b))]][g]=float(v)
     return D
-TE=loadfam(f"{U}/active_te_expression_byfamily_tp.tsv"); PI=loadfam(f"{U}/active_pirna_on_te_byfamily_tp.tsv")
+TE=loadfam(f"{U}/active_te_expression_sRNA_tp.tsv"); PI=loadfam(f"{U}/active_pirna_on_te_sRNA_tp.tsv")   # sRNA-only: sense-to-TE=expression, antisense-to-TE=piRNA (no small-RNA sense-to-TE, no liftover)
 A10=defaultdict(dict)   # (X,tp) -> bin -> 10A fraction
 if os.path.exists(f"{U}/active_1u_bias_tp.tsv"):
     for l in open(f"{U}/active_1u_bias_tp.tsv"):
@@ -87,7 +87,7 @@ zoom_6nj(ax, rings=[("E16.5",_t-0.5*tp_h),("P12.5",_t-1.5*tp_h),("P20.5",_t-2.5*
 sm=cm.ScalarMappable(norm=PN,cmap=PPMAP); sm.set_array([])
 cbar=fig.colorbar(sm,ax=ax,orientation="vertical",fraction=0.03,pad=0.02,shrink=0.5)
 cbar.set_label("piRNA-on-TE 10A fraction = PING-PONG signature (bright = ping-pong-active response)",fontsize=8.5); cbar.ax.tick_params(labelsize=7)
-leg=[Line2D([0],[0],color="#1B7837",lw=7,label="TE threat: L1"),Line2D([0],[0],color="#5AAE61",lw=7,label="TE: ERVK"),Line2D([0],[0],color="#A6DBA0",lw=7,label="TE: IAP"),Line2D([0],[0],color=PPMAP(0.85),lw=7,label="piRNA-on-TE response (colour = 10A ping-pong)")]
+leg=[Line2D([0],[0],color="#1B7837",lw=7,label="TE threat: L1"),Line2D([0],[0],color="#5AAE61",lw=7,label="TE: ERVK"),Line2D([0],[0],color="#A6DBA0",lw=7,label="TE: ERVL"),Line2D([0],[0],color=PPMAP(0.85),lw=7,label="piRNA-on-TE response (colour = 10A ping-pong)")]
 fig.legend(handles=leg,loc="lower center",bbox_to_anchor=(0.5,0.05),ncol=2,fontsize=10.5,frameon=False,title="per strain × 3 timepoints: GREEN TE-expression threat (out, family) + piRNA-on-TE response (in, HEIGHT = log reads, COLOUR = 10A ping-pong)",title_fontsize=9.5)
 fig.suptitle("TE ARMS-RACE × PING-PONG circos — TE-expression threat vs piRNA-on-TE response, response coloured by 10A ping-pong signature, 16 strains × 3 timepoints\n"
              "outer = TE-family RNA expression (green, threat); inner = piRNA-on-TE (height = log reads, colour = 10A = ping-pong activity); bright inner meeting tall green = active ping-pong silencing of that TE family",

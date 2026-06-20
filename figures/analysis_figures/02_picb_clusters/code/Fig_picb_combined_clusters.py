@@ -13,7 +13,7 @@ import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
-from strain_order import STRAIN_ORDER, WILD, TIMEPOINT_ORDER
+from strain_order import STRAIN_ORDER, WILD, TIMEPOINT_ORDER, add_classical_wild_companion
 
 plt.rcParams.update({"font.family":"Liberation Sans","font.size":8,"axes.linewidth":0.6,
     "axes.spines.top":False,"axes.spines.right":False,"pdf.fonttype":42,"svg.fonttype":"none"})
@@ -45,7 +45,7 @@ for j,t in enumerate(TPO):
                     va="bottom", fontsize=4.2, color="#333", zorder=4)
 ax.set_ylim(0, ymax*1.28)
 ax.set_xticks(x)
-labs=ax.set_xticklabels(order, rotation=55, ha="right", fontsize=6.6)
+labs=ax.set_xticklabels([])   # strain labels carried by the classical/wild companion below
 for lab,s in zip(labs,order): lab.set_color("#C0392B" if s in WILD else "#222222")
 ax.set_ylabel("PICB clusters (combined replicates)", fontsize=8.5)
 ax.set_xlim(-0.6, n-0.4)
@@ -59,6 +59,12 @@ fig.text(0.5,-0.10,
     "clusters = PICB final `clusters` sheet, reps pooled before PICB · error bar = ±SD across the 3 single-replicate PICB runs",
     ha="center", fontsize=5.6, color="#666")
 fig.tight_layout()
+# classical(blue)/wild(orange) total-count companion per strain (subspecies colour scheme)
+fig.subplots_adjust(bottom=0.34)
+_cax=add_classical_wild_companion(fig,ax,order,piv.sum(1).reindex(order).values,gap=0.13,height_frac=0.20,ylabel="total\nclusters")
+_cax.set_xticks(np.arange(len(order))); _cax.set_xticklabels(order,rotation=55,ha="right",fontsize=6.6)
+for lab,s in zip(_cax.get_xticklabels(),order): lab.set_color("#C0392B" if s in WILD else "#333")
+_cax.set_title("classical (blue) vs wild-derived (orange) — total PICB clusters per strain (Σ timepoints)",fontsize=7.5,fontweight="bold",loc="left")
 out=f"{BASE}/Fig_picb_combined_clusters"
 for ext in ("pdf","svg","png"): fig.savefig(f"{out}.{ext}", bbox_inches="tight")
 print("wrote", out+".{pdf,svg,png}")

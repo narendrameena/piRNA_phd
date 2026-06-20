@@ -18,7 +18,7 @@ plt.rcParams.update({"font.family":"Liberation Sans"})
 fig,ax=plt.subplots(figsize=(9.8,9.6),dpi=300); ax.set_xlim(0,10); ax.set_ylim(0,17.4); ax.axis("off")
 L,R=2.4,8.8; ins0,ins1=4.6,6.0; ctr=(ins0+ins1)/2
 # ---- title ----
-ax.text(5,17.1,"A strain-private IAP (endogenous retrovirus) insertion creates a strain-specific piRNA cluster",ha="center",fontsize=10.5,fontweight="bold")
+ax.text(5,17.1,"A strain-private IAP (endogenous retrovirus) insertion creates a strain-specific piRNA SOURCE LOCUS (individual piRNAs; not a PICB-called cluster)",ha="center",fontsize=9.6,fontweight="bold")
 ax.text(5,16.7,f"real example: SPRET/EiJ {CHROM}:{S:,}-{E:,}  (IAP = the most active mouse LTR retrotransposon)",ha="center",fontsize=8,color="#555")
 # ---- detailed SPRET locus (top) ----
 yD=14.7

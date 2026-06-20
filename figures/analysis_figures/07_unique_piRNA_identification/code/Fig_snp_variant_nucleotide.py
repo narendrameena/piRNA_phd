@@ -9,8 +9,10 @@ from matplotlib.patches import Rectangle
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
 comp={"A":"T","T":"A","C":"G","G":"C","N":"N"}
 def rc(s): return "".join(comp.get(c,"N") for c in reversed(s))
-d=pd.read_csv(f"{U}/step4/SPRET_EiJ.step4_classified.csv.gz")
-sv=set(d.loc[d.klass=="SNP-variant of expressed (1-3mm)","id"])
+d=pd.read_csv(f"{U}/step4/SPRET_EiJ.step4_classified.csv.gz")   # id<->sequence bridge (BAMs are keyed by candidate id)
+_fc=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["sequence","strain","klass5"])
+_snp=set(_fc.loc[(_fc.strain=="SPRET_EiJ")&(_fc.klass5=="SNP-variant (1-3mm)"),"sequence"])   # klass5-defined SNP-variant set (≥2-read)
+sv=set(d.loc[d.sequence.isin(_snp),"id"])
 bam=pysam.AlignmentFile(f"{U}/step4/SPRET_EiJ.cand_to_CAST_EiJ.Aligned.sortedByCoord.out.bam","rb")
 pick=None
 for a in bam.fetch(until_eof=True):

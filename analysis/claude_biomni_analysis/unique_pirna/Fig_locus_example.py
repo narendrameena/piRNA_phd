@@ -48,7 +48,7 @@ for xx in (ins0,ins1):
 ax.text((L+ins0)/2,8.95,"shared flank",ha="center",fontsize=6.5,color="#999")
 ax.text((ins1+R)/2,8.95,"shared flank",ha="center",fontsize=6.5,color="#999")
 # title + mechanism caption
-ax.text(5,10.9,"A strain-private LINE/L1 insertion creates a strain-specific piRNA cluster",ha="center",fontsize=11,fontweight="bold")
+ax.text(5,10.9,"A strain-private LINE/L1 insertion creates a strain-specific piRNA SOURCE LOCUS (individual piRNAs; not a PICB-called cluster)",ha="center",fontsize=9.6,fontweight="bold")
 ax.text(5,10.5,f"real example: SPRET/EiJ chr2:{ex['ins_start']:,}-{ex['ins_end']:,}",ha="center",fontsize=8,color="#555")
 ax.text(5,1.9,"Mechanism: an L1 (LINE) element inserted in the SPRET lineage (absent at the orthologous locus in the 15 other strains) becomes a piRNA\n"
               "source — the locus is transcribed and processed into piRNAs that are predominantly ANTISENSE to the L1, poised to silence it.\n"

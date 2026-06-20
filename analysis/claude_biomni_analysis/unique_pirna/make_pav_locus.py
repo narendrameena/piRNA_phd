@@ -1,116 +1,94 @@
 #!/usr/bin/env python3
-"""PICB piRNA-CLUSTER at one locus: pangenome cross-strain x timepoint comparison + nucleotide detail.
-  (A) PANGENOME-frame comparison: PICB-combined cluster EXPRESSION (FPM, multimapping-aware) at this locus for
-      every strain x timepoint, read straight from picb_pangenome_fpm.tsv (all strains' PICB clusters projected
-      once into the common GRCm39 frame via the cactus HAL — NOT pairwise locus liftover). Grouped bars, wild red.
-  (B) the cluster in the TOP-expressing strain (own genome): genomic-strand read coverage (plus up / minus down)
-      + RepeatMasker TE track; reports PICB FPM, % ANTISENSE-to-TE (silencing) and 1U.
-  (C) base resolution in the top strain: piRNAs as coloured bases on a true-coordinate ruler.
-TERMINOLOGY: genomic + / - strand != sense/antisense. SENSE/ANTISENSE is RELATIVE TO THE TE (RM .out strand);
-antisense-to-TE = silencing-competent. Source = PICB COMBINED run (results/picb_result_combined). Usage:
-make_pav_locus.py <g39chrom> <g39start> <g39end> <gene_label> <pattern_label> <outbase>."""
-import sys, os, glob, subprocess, numpy as np, pysam
+"""Locus plot for a PICB piRNA cluster (top-expressing strain detail). DATA SOURCES ONLY: pangenome cluster
+projection (picb_pangenome_clusters.tsv = PICB-COMBINED clusters with own+GRCm39 coords), sRNA BAMs (PRIMARY
+reads inside the cluster), RepeatMasker TE annotation, pangenome genome-PAV. NO per-figure liftover; NO spillover.
+  (A) PANGENOME cross-strain × timepoint PICB FPM (all 16 strains) + genome presence (● in genome / ○ absent);
+  (B) the cluster in the TOP strain: PRIMARY-read coverage INSIDE the cluster (plus ↑ green / minus ↓ purple) +
+      TE track + dominant TE; right margin = per-timepoint ON (strand split) / OFF (no cluster);
+  (C) base resolution in the top strain.
+TERMINOLOGY: genomic +/- = architecture ≠ sense/antisense (relative to TE; antisense-to-TE = silencing).
+Usage: make_pav_locus.py <g39chrom> <g39start> <g39end> <gene_label> <unused> <outbase>."""
+import sys, os, numpy as np
 sys.path.insert(0, "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
+sys.path.insert(0, "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna")
 from strain_order import STRAIN_ORDER, WILD
 from collections import Counter
 import pandas as pd
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, ConnectionPatch, Patch
-ROOT = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U = f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; PG = f"{U}/pangenome_te"; CP = f"{U}/cluster_pav"
-SIF = f"{ROOT}/cactus_v2.9.3.sif"; HAL = f"{ROOT}/results/pangenome/output/mouse_17strain_pangenome.full.hal"
-ORDER = [s for s in STRAIN_ORDER if s != "C57BL_6"]; TPS = ["16.5dpc", "12.5dpp", "20.5dpp"]
-TPLAB = {"16.5dpc": "E16.5", "12.5dpp": "P12.5", "20.5dpp": "P20.5"}; TPCOL = {"16.5dpc": "#4393C3", "12.5dpp": "#FDB863", "20.5dpp": "#B2182B"}
+import pav_clusters as pc
+from pav_clusters import TPS, TPLAB, TPCOL, clusters_at, present_strains, fpm_by_tp, cluster_extent, fetch_primary, te_at, dom_te_family, genome_pav
+ROOT = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U = f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; PG = f"{U}/pangenome_te"
+ORDER = [s for s in STRAIN_ORDER if s != "C57BL_6"]
 NT = {"A": "#33a02c", "C": "#1f78b4", "G": "#ff7f00", "T": "#e31a1c", "N": "#999"}; comp = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
 TECOL = {"LINE/L1": "#E69F00", "LTR/ERVK": "#6a3d9a", "LTR/ERVL-MaLR": "#b15928", "SINE/Alu": "#33a02c", "SINE/B2": "#1f78b4", "LTR/ERVL": "#a6cee3", "LTR/ERV1": "#cab2d6", "Simple_repeat": "#bbbbbb"}
-G39C, G39S, G39E, GENE, PATT, OUT = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4], sys.argv[5], sys.argv[6]
-
-# ---- (1) PANGENOME-frame PICB FPM at the locus (cross-strain x timepoint) ----
-P = pd.read_csv(f"{CP}/picb_pangenome_fpm.tsv", sep="\t", dtype={"g39_chrom": str})
-sub = P[(P.g39_chrom == G39C) & (P.start < G39E) & (P.end > G39S)]
+G39C, G39S, G39E, GENE, OUT = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4], sys.argv[6]
+nb = 200
+sub = clusters_at(G39C, G39S, G39E)
 FPM = sub.groupby(["strain", "tp"])["all_primary_FPM"].max().unstack(fill_value=0.0).reindex(index=ORDER, columns=TPS).fillna(0.0)
-present = [X for X in ORDER if FPM.loc[X].max() > 0]
-TOP = max(ORDER, key=lambda X: FPM.loc[X].max())
-pattern_auto = f"PICB cluster present in {len(present)}/16 strains: " + ", ".join(s.replace("_", "/") for s in present)   # data-driven, not assumed
-print(f"{GENE}: PICB present strains={present}; top={TOP} (FPM={FPM.loc[TOP].max():.1f})")
-
-# ---- (2) TOP strain detail (own genome): back-lift locus, reads, TE-strand, antisense-to-TE ----
-def bams_for(X): return [b for tp in TPS for r in (1, 2, 3) for b in [f"{ROOT}/results/STAR_srna_strain_wise/{X}/{X}-{tp}.{r}/Aligned.sortedByCoord.out.bam"] if os.path.exists(b)]
-lc = f"{PG}/.lift_{G39C}_{G39S}_{TOP}.bed"
-if not os.path.exists(lc):
-    open(f"/tmp/_g39_{OUT}.bed", "w").write(f"{G39C}\t{G39S}\t{G39E}\tx\n")
-    subprocess.run(f"singularity exec --bind /mnt {SIF} halLiftover {HAL} GRCm39 /tmp/_g39_{OUT}.bed {TOP} {lc}", shell=True, capture_output=True)
-lift = [l.split("\t") for l in open(lc) if l.strip()]
-CH = Counter(r[0] for r in lift).most_common(1)[0][0]; ps = min(int(r[1]) for r in lift if r[0] == CH); pe = max(int(r[2]) for r in lift if r[0] == CH)
-BAMC = f"{TOP}#1#chr{CH}"; N = max(1, pe - ps); nb = 200
-outf = glob.glob(f"{ROOT}/resources/repeatMasker/{TOP}_*.out"); tes = []
-if outf:
-    aw = subprocess.run("awk -v c=%s -v s=%d -v e=%d 'NR>3 && $5==c && $7>s && $6<e{st=($9==\"C\")?\"-\":\"+\"; print $6\"\\t\"$7\"\\t\"st\"\\t\"$11}' %s" % (BAMC, ps, pe, outf[0]), shell=True, capture_output=True, text=True).stdout
-    for ln in aw.splitlines():
-        f = ln.split("\t"); tes.append((int(f[0]), int(f[1]), f[2], f[3]))
-tes.sort()
-def testr(pos):
+present = present_strains(sub, ORDER)
+TOP = max(present, key=lambda X: FPM.loc[X].max()) if present else ORDER[0]
+PAV = {X: ("present" if FPM.loc[X].max() > 0 else genome_pav(G39C, G39S, G39E, X)) for X in ORDER}   # expression PROVES presence: a PICB cluster with reads => locus IS there (halLiftover g39->strain can false-negative)
+nabs = sum(1 for X in ORDER if PAV[X] == "absent"); nsil = sum(1 for X in ORDER if PAV[X] == "present" and FPM.loc[X].max() == 0)
+print(f"{GENE}: PICB present strains={present}; top={TOP} (FPM={FPM.loc[TOP].max():.1f}); PAV absent={nabs} silent={nsil}")
+SF = {}                                                          # (strain, tp) -> +strand fraction, for the Panel A strand height-split (solid + / pale −)
+for _X in present:
+    _ex = cluster_extent(sub, _X); _fX = fpm_by_tp(sub, _X)
+    if not _ex: continue
+    for _tp in TPS:
+        if _tp in _fX:
+            _dd = fetch_primary(_X, _ex[0], _ex[1], _ex[2], _tp, nb)
+            if _dd and _dd["ntot"] > 0: SF[(_X, _tp)] = _dd["nplus"] / _dd["ntot"]
+fps = fpm_by_tp(sub, TOP); ext = cluster_extent(sub, TOP); CH, ps, pe = ext[0], ext[1], ext[2]; BAMC = f"{TOP}#1#chr{CH}"; N = max(1, pe - ps)
+per = {}; plus = np.zeros(nb); minus = np.zeros(nb); reads = []; nat = nte = n1u = npl = nmi = 0; tes = None
+for tp in TPS:
+    if tp not in fps: per[tp] = None; continue
+    d = fetch_primary(TOP, CH, ps, pe, tp, nb); per[tp] = d
+    plus += d["plus"]; minus += d["minus"]; reads += d["reads"]; nat += d["nat"]; nte += d["nte"]; n1u += d["n1u"]; npl += d["nplus"]; nmi += d["nminus"]; tes = d["tes"]
+if tes is None: tes = te_at(TOP, CH, ps, pe)
+ntot = npl + nmi; pct_minus = 100 * nmi / max(1, ntot); arch = "dual-strand" if min(nmi, ntot - nmi) / max(1, ntot) > 0.2 else "uni-strand"; pct_at = 100 * nat / max(1, nte); domTE = dom_te_family(tes, ps, pe)
+def testr(p):
     for ts, te, st, fam in tes:
-        if ts <= pos < te: return st
+        if ts <= p < te: return st
     return None
-plus = np.zeros(nb); minus = np.zeros(nb); reads = []; nat = nte = n1u = 0
-for b in bams_for(TOP):
-    try:
-        bam = pysam.AlignmentFile(b, "rb")
-        for a in bam.fetch(BAMC, ps, pe):
-            if a.is_unmapped or not a.query_sequence: continue
-            L = a.reference_end - a.reference_start
-            if not (24 <= L <= 32): continue
-            b0 = max(0, min(nb - 1, int((a.reference_start - ps) / N * nb))); b1 = max(0, min(nb, int((a.reference_end - ps) / N * nb)))
-            seq = a.query_sequence.upper(); (minus if a.is_reverse else plus)[b0:b1] += 1
-            reads.append((a.reference_start, a.reference_end, a.is_reverse, seq)); n1u += ((comp.get(seq[-1], "N") if a.is_reverse else seq[0]) == "T")
-            st = testr((a.reference_start + a.reference_end) // 2)
-            if st is not None: nte += 1; nat += ((st == "-") != a.is_reverse)
-        bam.close()
-    except (OSError, ValueError):
-        try: bam.close()
-        except Exception: pass
-ntot = len(reads); nminus = sum(1 for r in reads if r[2]); pct_minus = 100 * nminus / max(1, ntot)
-arch = "dual-strand" if min(nminus, ntot - nminus) / max(1, ntot) > 0.2 else "uni-strand"; pct_at = 100 * nat / max(1, nte)
-
-# ---- (3) figure ----
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none"})
-fig = plt.figure(figsize=(13.5, 10.2), dpi=300); gs = fig.add_gridspec(3, 1, height_ratios=[1.1, 1.4, 1.5], hspace=0.66); fig.subplots_adjust(top=0.88, bottom=0.06)
+fig = plt.figure(figsize=(13, 11.5), dpi=300); gs = fig.add_gridspec(3, 1, height_ratios=[1.0, 2.0, 1.4], hspace=0.55); fig.subplots_adjust(top=0.9, bottom=0.07)
 axA, axB, axC = fig.add_subplot(gs[0]), fig.add_subplot(gs[1]), fig.add_subplot(gs[2])
-# A: pangenome FPM, strain x timepoint
 x = np.arange(len(ORDER)); bw = 0.26
 for j, tp in enumerate(TPS):
-    h = FPM[tp].values
-    axA.bar(x + (j - 1) * bw, np.maximum(h, 1e-3), width=bw, color=TPCOL[tp], edgecolor="white", linewidth=0.2, label=TPLAB[tp])
-    for xi in range(len(ORDER)):                      # FPM value atop each PRESENT bar (readability)
-        if h[xi] > 0:
-            axA.text(xi + (j - 1) * bw, h[xi] * 1.18, f"{h[xi]:.0f}" if h[xi] >= 1 else f"{h[xi]:.1f}", ha="center", va="bottom", fontsize=4.8, rotation=90, color=TPCOL[tp], fontweight="bold")
-axA.set_yscale("log"); mx = max(FPM.values.max(), 1)
-axA.set_ylim(0.1, mx * 4.5); axA.set_xticks(x); axA.set_xticklabels([s.replace("_", "/") for s in ORDER], rotation=90, fontsize=7.5)
+    h = FPM[tp].values; axA.bar(x + (j - 1) * bw, np.maximum(h, 1e-3), width=bw, color=TPCOL[tp], edgecolor="white", linewidth=0.2, label=TPLAB[tp])
+    for xi, X in enumerate(ORDER):       # split each FPM bar by HEIGHT → solid + (bottom) / pale − (top)
+        if h[xi] > 0 and (X, tp) in SF: pc.panelA_strand(axA, xi + (j - 1) * bw, h[xi], bw, SF[(X, tp)], TPCOL[tp])
+    for xi in range(len(ORDER)):
+        if h[xi] > 0: axA.text(xi + (j - 1) * bw, h[xi] * 1.18, f"{h[xi]:.0f}" if h[xi] >= 1 else f"{h[xi]:.1f}", ha="center", va="bottom", fontsize=4.8, rotation=90, color=TPCOL[tp], fontweight="bold")
+axA.set_yscale("log"); axA.set_ylim(0.1, max(FPM.values.max(), 1) * 9); axA.set_xticks(x); axA.set_xticklabels([s.replace("_", "/") for s in ORDER], rotation=90, fontsize=7.5)
 for t, X in zip(axA.get_xticklabels(), ORDER):
     if X in WILD: t.set_color("#C0392B"); t.set_fontweight("bold")
+for xi, X in enumerate(ORDER):
+    pv = PAV[X]; fc = ("#333" if pv == "present" else "white"); ec = ("#333" if pv == "present" else ("#C0392B" if pv == "absent" else "#ccc"))
+    axA.plot(xi, 0.135, marker="o", markersize=4.2, markerfacecolor=fc, markeredgecolor=ec, markeredgewidth=0.9, clip_on=False)
 axA.set_ylabel("PICB cluster\nFPM (log)", fontsize=8); axA.spines[["top", "right"]].set_visible(False)
 axA.legend([TPLAB[t] for t in TPS], fontsize=7.5, frameon=False, ncol=1, loc="upper left", bbox_to_anchor=(1.005, 1.0), title="timepoint", title_fontsize=7, handlelength=1.2)
-axA.set_title("A  Pangenome cross-strain × timepoint comparison — PICB-combined cluster FPM (projected to GRCm39)", fontsize=8.8, fontweight="bold", loc="left")
-# B: top strain coverage + TE
-xg = ps + (np.arange(nb) + 0.5) / nb * N; ymax = max(plus.max(), minus.max(), 1)
-axB.fill_between(xg, 0, plus, color="#33a02c", alpha=0.8, step="mid"); axB.fill_between(xg, 0, -minus, color="#6a3d9a", alpha=0.8, step="mid")
-axB.axhline(0, color="#333", lw=0.8); axB.set_xlim(ps, pe)
-for (ts, te, st, fam) in tes:
-    axB.add_patch(Rectangle((ts, -ymax * 1.2), te - ts, ymax * 0.12, facecolor=TECOL.get(fam, "#ddd"), edgecolor="none"))
-    axB.annotate("", xy=(te if st == "+" else ts, -ymax * 1.14), xytext=(ts if st == "+" else te, -ymax * 1.14), arrowprops=dict(arrowstyle="-|>", color="#444", lw=0.5))
-axB.set_ylim(-ymax * 1.28, ymax * 1.12); axB.set_ylabel("piRNA reads\n(genomic strand)", fontsize=8)
-famset = sorted({f for _, _, _, f in tes}, key=lambda f: -sum(te - ts for ts, te, _, ff in tes if ff == f))[:5]
-axB.legend(handles=[Patch(facecolor="#33a02c", label="+ strand"), Patch(facecolor="#6a3d9a", label="− strand")] + [Patch(facecolor=TECOL.get(f, "#ddd"), label=f) for f in famset], fontsize=6.4, frameon=False, loc="lower left", ncol=4, bbox_to_anchor=(0, -0.34), columnspacing=1.1, handlelength=1.1)
-five = Counter((r[1] - 1 if r[2] else r[0]) for r in reads); pk = five.most_common(1)[0][0] if five else ps + N // 2; z0, z1 = pk - 30, pk + 50
-axB.axvspan(z0, z1, color="#FDB863", alpha=0.35, zorder=0)
-axB.text(0.006, 0.96, f"reads POOLED over all 3 timepoints · PICB FPM by tp: E16.5={FPM.loc[TOP,'16.5dpc']:.0f} / P12.5={FPM.loc[TOP,'12.5dpp']:.0f} / P20.5={FPM.loc[TOP,'20.5dpp']:.0f}\n"
-         f"GENOMIC STRAND (architecture): + {100-pct_minus:.0f}% / − {pct_minus:.0f}%  ({arch})\nRELATIVE TO TE (real sense/antisense): sense {100-pct_at:.0f}% / ANTISENSE {pct_at:.0f}% (silencing, n={nte:,})",
-         transform=axB.transAxes, fontsize=7.0, va="top", linespacing=1.5, bbox=dict(boxstyle="round,pad=0.35", fc="#fffbe6", ec="#E8A33D", lw=0.7))
-axB.set_title(f"B  Cluster in top strain {TOP.replace('_','/')} ({BAMC}:{ps:,}-{pe:,}) — PICB FPM {FPM.loc[TOP].max():.1f} · {ntot:,} piRNAs · {100*n1u/max(1,ntot):.0f}% 1U", fontsize=8.6, fontweight="bold", loc="left")
-axB.set_xlabel(f"{TOP.replace('_','/')} chr{CH} position (bp) · TE track below (arrow = TE orientation)", fontsize=7.5)
-# C: base resolution
+axA.plot([], [], "o", markersize=4.2, markerfacecolor="#333", markeredgecolor="#333", label="locus in genome")
+axA.plot([], [], "o", markersize=4.2, markerfacecolor="white", markeredgecolor="#C0392B", label="locus absent (loss)")
+axA.legend(fontsize=6.0, frameon=False, ncol=1, loc="upper left", bbox_to_anchor=(1.005, 0.42), handlelength=1.0, handletextpad=0.3)
+pc.pbadge(axA, "A", "Pangenome × timepoint — PICB cluster expression across 16 strains (FPM, log)   ·   ● locus present in genome   ○ lost", fs=8.4, y=1.10)
+axA.text(0.012, 1.02, "each FPM bar split by HEIGHT (proportion):  solid = + strand  ·  pale = − strand", transform=axA.transAxes, fontsize=6.0, color="#777", style="italic", ha="left", va="center")
+# B: TOP strain — per-timepoint sRNA coverage block (canonical multi-figure style, shared helper)
+N = max(1, pe - ps)
+axB.set_xlim(0, 1); axB.set_ylim(-3.5, 2.1); axB.axis("off"); fig.canvas.draw()   # 0–1 fractional x (like the multi figure); lims fixed before pc.rtext()
+_f5 = Counter(r[0] for r in reads if not r[2]); _r5 = Counter(r[1] - 1 for r in reads if r[2]); _rn = lambda i: sum(_r5[j] for j in range(i - 2, i + 13))   # PRIORITISE Panel C zoom on a BOTH-strands region (sense+antisense), so both red and grey show
+_cd = [(min(_f5[i], _rn(i)), _f5[i] + _rn(i), i + 5) for i in _f5 if _rn(i) > 0]   # rank by min(fwd,rev) → both strands strongest, then by total
+pk = max(_cd)[2] if _cd else ((Counter((r[1] - 1 if r[2] else r[0]) for r in reads).most_common(1)[0][0]) if reads else ps + N // 2); z0, z1 = pk - 30, pk + 50
+ztpL = " + ".join(TPLAB[t] for t in TPS if per[t] is not None and any(r[0] < z1 and r[1] > z0 for r in per[t]["reads"])) or "—"   # timepoints pooled into Panel C
+_ntot, _domTE, _arch, _pas, _p1u = pc.draw_strain_block(axB, per, tes, CH, ps, pe, fps, 0.0, z0, z1, name=TOP, is_top=True, wild=(TOP in WILD), TECOL=TECOL)
+_fams = list(dict.fromkeys((f.split("|")[-1] if "|" in f else f) for _, _, _, f in tes))[:5]
+_lh = [Patch(facecolor=pc.PLUS_COL[t], label=TPLAB[t]) for t in TPS] + [Patch(facecolor="#6a3d9a", label="solid = + strand"), Patch(facecolor=pc.pale("#6a3d9a", 0.55), label="pale = − strand"), Patch(facecolor="#efefef", label="non-TE piRNA"), Patch(facecolor="#C0392B", label="antisense-to-TE = silencing (red outline); bars = TE family"), Patch(facecolor="#cfcfcf", label="sense-to-TE"), Patch(facecolor="#c9d6ea", edgecolor=pc.C_GENE, label="gene model")] + [Patch(facecolor=pc.famcol(f), label=f) for f in _fams]
+pc.color_legend(axB.legend(handles=_lh, fontsize=6.0, frameon=False, loc="lower center", ncol=6, bbox_to_anchor=(0.5, -0.06), columnspacing=1.0, handlelength=1.0), _lh)   # right-margin element: TOP = TE families ranked × strand + non-TE; BOTTOM = antisense/sense-to-TE (silencing) of TE-mapped piRNA
+pc.pbadge(axB, "B", f"Top strain {TOP.replace('_','/')} ({BAMC}:{ps:,}–{pe:,}) — per-timepoint sRNA coverage (height = expression, colour = timepoint) above TE + gene tracks · {_ntot:,} primary piRNAs · {_p1u:.0f}% 1U", fs=7.4, y=1.07)
+axB.text(0.012, 1.02, "‘primary reads’ = each sRNA read (24–32 nt) counted once at its STAR primary locus (multimappers kept, not double-counted) · architecture (genomic strand) ≠ sense/antisense (relative to TE)", transform=axB.transAxes, fontsize=5.2, color="#8a8a8a", style="italic", ha="left", va="center")
 def anti_te(rs, re, isrev):
-    st = testr((rs + re) // 2); return None if st is None else ((st == "-") != isrev)
+    s = testr((rs + re) // 2); return None if s is None else ((s == "-") != isrev)
 zr = [r for r in reads if r[0] < z1 and r[1] > z0]; pr, mr = Counter(), Counter()
 for rs, re, isrev, seq in zr: (mr if isrev else pr)[(rs, re, seq, isrev)] += 1
 def draw(items, y0, dirn):
@@ -119,7 +97,7 @@ def draw(items, y0, dirn):
         for k, ch in enumerate(seq):
             xx = rs + k
             if z0 - 2 <= xx <= z1 + 2: axC.text(xx, y, ch, fontsize=4.6, ha="center", va="center", family="monospace", color="white", bbox=dict(boxstyle="square,pad=0.02", fc=NT.get(ch, "#999"), ec="none"))
-        at = anti_te(rs, re, isrev); acol = "#C0392B" if at else ("#888" if at is not None else "#ccc"); fp = re - 1 if isrev else rs
+        a = anti_te(rs, re, isrev); acol = "#C0392B" if a else ("#888" if a is not None else "#ccc"); fp = re - 1 if isrev else rs
         axC.annotate("", xy=(fp + (0.5 if not isrev else -0.5), y), xytext=(fp + (-2.6 if not isrev else 2.6), y), arrowprops=dict(arrowstyle="-|>", color=acol, lw=1.0))
         axC.text(z1 + 4, y, f"×{cnt}", fontsize=4.6, va="center", color="#666"); y += dirn
     return y
@@ -130,10 +108,9 @@ axC.set_yticks([]); axC.spines["bottom"].set_position(("data", ybot - 1.0))
 tk = np.linspace(z0, z1, 5).astype(int); axC.set_xticks(tk); axC.set_xticklabels([f"{t:,}" for t in tk], fontsize=6.5); axC.tick_params(axis="x", length=3)
 axC.set_xlabel(f"{TOP.replace('_','/')} chr{CH} position (bp) — every base at its true genomic coordinate", fontsize=7)
 axC.text(z0 - 0.6, ytop, "+ strand", fontsize=6.5, color="#33a02c", fontweight="bold", ha="right", va="center"); axC.text(z0 - 0.6, ybot, "− strand", fontsize=6.5, color="#6a3d9a", fontweight="bold", ha="right", va="center")
-for xb in (z0, z1):
-    fig.add_artist(ConnectionPatch(xyA=(xb, -ymax * 1.28), coordsA=axB.transData, xyB=(xb, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
-axC.set_title(f"C  Base resolution in {TOP.replace('_','/')}; bases at true coordinates; 5′-U = 1U signature; 5′ arrow RED = ANTISENSE-to-TE (silencing), grey = sense-to-TE", fontsize=8.0, fontweight="bold", loc="left")
-fig.suptitle(f"{GENE} — PICB piRNA cluster: pangenome cross-strain × timepoint expression + nucleotide resolution", fontsize=11.5, fontweight="bold", y=0.98)
-fig.text(0.5, 0.952, pattern_auto if len(pattern_auto) < 130 else pattern_auto[:127] + "…", ha="center", fontsize=7.6, color="#555")
+fig.add_artist(ConnectionPatch(xyA=((z0 - ps) / N, -1.30), coordsA=axB.transData, xyB=(z0, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
+fig.add_artist(ConnectionPatch(xyA=((z1 - ps) / N, -1.30), coordsA=axB.transData, xyB=(z1, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
+pc.pbadge(axC, "C", f"Base resolution, {TOP.replace('_','/')} — pooled {ztpL}   ·   5′-U = 1U   ·   5′ arrow RED = antisense-to-TE (silencing), grey = sense-to-TE", fs=7.6)
+fig.suptitle(f"{GENE} — PICB piRNA cluster: pangenome cross-strain × timepoint + nucleotide resolution", fontsize=12, fontweight="bold", y=0.965)
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png")

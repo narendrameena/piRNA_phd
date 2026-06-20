@@ -2,7 +2,7 @@
 """Circos #5 — INTEGRATED multi-omic circos, STRAIN- and TIMEPOINT-resolved, all 16 strains in ONE GRCm39 circle.
 Each strain is a labelled group of SIX nested rings (outer→inner), every bar HEIGHT ∝ its metric (log-scaled):
   band 1  CONSERVATION  — this strain's cluster bins shaded + scaled by # of 16 strains sharing the bin (viridis)
-  band 2  active-TE LOAD — young/active L1Md/IAP/ERVK bp per 2-Mb bin (Oranges)   [genomic]
+  band 2  active-TE LOAD — young/active L1Md/ERVL/ERVK bp per 2-Mb bin (Oranges)   [genomic]
   band 3  STRAIN-PRIVATE — # genuinely-unique piRNAs per bin (teal)               [pooled over timepoints]
   rings 4-6  piRNA-CLUSTER EXPRESSION at E16.5 → P12.5 → P20.5 (height ∝ log FPM, colour = strand)
 So for every strain you read its conservation context, its active-TE load, its strain-private innovation, and how
@@ -47,7 +47,14 @@ def binexpr(bed):
                 st=f[5].strip(); mid=(int(f[1])+int(f[2]))//2; b=mid//BIN
                 if (f[0],b) in binmap: d[binmap[(f[0],b)]][0 if st=="+" else (1 if st=="-" else 2)]+=fpm
     return d
-CL={(X,tp):binexpr(f"{PAV}/{X}.{tp}.expr.in_GRCm39.bed") for X in CANON for _,tp in TPS}
+import pandas as _pd   # piRNA clusters from CURRENT pangenome projection (NOT past bytp liftover)
+_PC=_pd.read_csv(f"{U}/cluster_pav/picb_pangenome_clusters.tsv",sep="\t",dtype={"g39_chrom":str})
+CL=defaultdict(lambda:defaultdict(lambda:[0.0,0.0,0.0]))
+for _r in _PC.itertuples(index=False):
+    if _r.strain not in CANON or _r.g39_chrom not in CHROMS: continue
+    _b=((int(_r.start)+int(_r.end))//2)//BIN
+    if (_r.g39_chrom,_b) in binmap:
+        CL[(_r.strain,_r.tp)][binmap[(_r.g39_chrom,_b)]][0 if _r.strand=="+" else (1 if _r.strand=="-" else 2)]+=float(_r.all_primary_FPM)
 GMAX=max([sum(v) for d in CL.values() for v in d.values()]+[1.0]); LGM=math.log10(GMAX+1)
 def cat(v):
     s,a,b=v
@@ -62,8 +69,8 @@ for X in CANON:
     OCC[X]=occ
     for b in occ: cons[b]+=1
 # active-TE load (genomic)
-TE=defaultdict(lambda:defaultdict(dict))   # X -> bin -> {family: RNA-seq expression}
-for l in open(f"{U}/active_te_expression_byfamily.tsv"):
+TE=defaultdict(lambda:defaultdict(dict))   # X -> bin -> {family: small-RNA sense-to-TE expression}
+for l in open(f"{U}/active_te_expression_sRNA.tsv"):
     X,c,b,g,v=l.rstrip("\n").split("\t"); b=int(b)
     if X in CANON and (c,b) in binmap: TE[X][binmap[(c,b)]][g]=float(v)
 TETOT={(X,b):sum(TE[X][b].values()) for X in CANON for b in TE[X]}
@@ -99,12 +106,12 @@ for k,X in enumerate(CANON):
     top=R_OUT-k*grp_h; r=top-gap_g
     # band 1: conservation — flat GOLD (TE now uses green), bar HEIGHT ∝ # strains sharing the bin
     r-=bh; bars(r,bh,{b:cons[b]/16 for b in OCC[X]},lambda b:"#E6AB02",floor=0.18)
-    # band 2: active-TE family EXPRESSION (RNA-seq) — STACKED L1/ERVK/IAP, total HEIGHT ∝ log RNA reads
+    # band 2: active-TE family EXPRESSION (small-RNA sense-to-TE) — STACKED L1/ERVK/ERVL, total HEIGHT ∝ log RNA reads
     r-=bh; td=TE.get(X,{})
     if td:
         bbA=np.array(sorted(td)); tot=np.array([TETOT[(X,b)] for b in bbA])
         Hh=np.array([bh*min(1.0,max(0.12,math.log10(t+1)/LT)) for t in tot]); bot=np.full(len(bbA),r,dtype=float)
-        for g,gc in [("L1","#117733"),("ERVK","#44AA99"),("IAP","#882255")]:
+        for g,gc in [("L1","#117733"),("ERVK","#44AA99"),("ERVL","#882255")]:
             seg=np.array([Hh[i]*(TE[X][bbA[i]].get(g,0)/tot[i] if tot[i]>0 else 0.0) for i in range(len(bbA))])
             ax.bar(bth[bbA],height=seg,width=bwd[bbA],bottom=bot,color=gc,align="center",edgecolor="none",linewidth=0,rasterized=True); bot=bot+seg
     # band 3: strain-private density — flat magenta, bar HEIGHT ∝ log count
@@ -116,9 +123,9 @@ for k,X in enumerate(CANON):
     ax.text(THLAB,top-gap_g-(grp_h-gap_g)*0.5,X.replace("_","/"),fontsize=6.4,ha="center",va="center",fontweight="bold" if X in WILD else "normal",color="#C0392B" if X in WILD else "#222")
 ax.annotate("",xy=(THLAB,R_IN-0.02),xytext=(THLAB,R_OUT+0.02),arrowprops=dict(arrowstyle="-|>",color="#888",lw=1.0))
 ax.text(THLAB,R_OUT+0.05,"cons·TE·private bands, then E16.5→P12.5→P20.5",fontsize=5.4,ha="center",va="bottom",color="#888")
-leg=[Line2D([0],[0],color="#E6AB02",lw=7,label="conservation (gold, height = # strains)"),Line2D([0],[0],color="#117733",lw=7,label="TE expr: L1"),Line2D([0],[0],color="#44AA99",lw=7,label="TE expr: ERVK"),Line2D([0],[0],color="#882255",lw=7,label="TE expr: IAP"),Line2D([0],[0],color="#C51B7D",lw=7,label="strain-private piRNA (magenta)"),
-     Line2D([0],[0],color=SCOL["sense"],lw=7,label="cluster sense (+)"),Line2D([0],[0],color=SCOL["antisense"],lw=7,label="cluster antisense (−)"),Line2D([0],[0],color=SCOL["bidir"],lw=7,label="cluster bidirectional")]
-fig.legend(handles=leg,loc="lower center",bbox_to_anchor=(0.5,0.05),ncol=4,fontsize=10,frameon=False,title="per strain (outer→inner): conservation · active-TE family EXPRESSION (RNA-seq, L1/ERVK/IAP stacked) · strain-private BANDS, then 3 timepoint cluster-expression rings — every bar HEIGHT ∝ log metric",title_fontsize=9.5)
+leg=[Line2D([0],[0],color="#E6AB02",lw=7,label="conservation (gold, height = # strains)"),Line2D([0],[0],color="#117733",lw=7,label="TE expr: L1"),Line2D([0],[0],color="#44AA99",lw=7,label="TE expr: ERVK"),Line2D([0],[0],color="#882255",lw=7,label="TE expr: ERVL"),Line2D([0],[0],color="#C51B7D",lw=7,label="strain-private piRNA (magenta)"),
+     Line2D([0],[0],color=SCOL["sense"],lw=7,label="+ strand (uni-strand cluster)"),Line2D([0],[0],color=SCOL["antisense"],lw=7,label="− strand (uni-strand cluster)"),Line2D([0],[0],color=SCOL["bidir"],lw=7,label="dual-strand (bidirectional)")]
+fig.legend(handles=leg,loc="lower center",bbox_to_anchor=(0.5,0.05),ncol=4,fontsize=10,frameon=False,title="per strain (outer→inner): conservation · active-TE family EXPRESSION (small-RNA sense-to-TE, L1/ERVK/ERVL stacked) · strain-private BANDS, then 3 timepoint cluster-expression rings — every bar HEIGHT ∝ log metric",title_fontsize=9.5)
 fig.text(0.5,0.012,"every band/ring HEIGHT ∝ its metric (conservation = # strains; TE = log RNA expression, colour = family; private = log count; expression = log FPM, colour = strand) — colour never duplicates height",ha="center",fontsize=8.5,color="#333")
 fig.suptitle("INTEGRATED multi-omic piRNA circos — STRAIN- and TIMEPOINT-resolved, 16 strains × 3 timepoints in one GRCm39 circle\n"
              "per strain: conservation · active-TE · strain-private BANDS + 3 timepoint cluster-expression sub-rings (strand colour); every bar HEIGHT ∝ log metric; strain names (red = wild) at the spoke",

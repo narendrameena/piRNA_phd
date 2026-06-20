@@ -10,7 +10,7 @@ instant re-plot). Biology framing queued for BioMNI. Linked: [[project_te_driven
 import warnings; warnings.filterwarnings("ignore")
 import sys, subprocess, tempfile, os
 sys.path.insert(0, "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
-from strain_order import STRAIN_ORDER, WILD
+from strain_order import STRAIN_ORDER, WILD, add_classical_wild_companion
 import pandas as pd, numpy as np, pysam
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
@@ -23,14 +23,16 @@ cache = f"{PG}/SourceData_unique_pirna_drivers.csv"
 if os.path.exists(cache):
     T = pd.read_csv(cache); print("loaded cached driver table")
 else:
-    d = pd.read_csv(f"{U}/unique16/final_classified_clean.csv.gz")   # mm0-clean strain-private (klass5)
+    d = pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz")   # mm0-clean strain-private (klass5)
     def ids_overlapping(locibed, bed):
         if not os.path.exists(bed) or os.path.getsize(bed) == 0: return set()
         out = subprocess.run(f"sort -k1,1 -k2,2n {locibed} | {BT} intersect -a - -b {bed} -u", shell=True, capture_output=True, text=True).stdout
         return {ln.split('\t')[3] for ln in out.splitlines() if ln}
+    KU = {"unique: conserved-but-silent": "conserved-but-silent", "unique: strain-private locus": "strain-private"}
     rows = []
     for X in CANON:
-        g = d[(d.strain == X) & (d.klass5 == "unique: strain-private locus")].copy(); g["id"] = X + "|" + g.timepoint + "|" + g.sequence
+        g = d[(d.strain == X) & (d.klass5.isin(KU))].copy(); g["id"] = X + "|" + g.timepoint + "|" + g.sequence
+        id2cls = dict(zip(g.id, g.klass5.map(KU)))
         sp = set(g.id); rm = f"{ROOT}/resources/repeatMasker/{X}_repeatmasker.bed"
         if not sp: continue
         bam = pysam.AlignmentFile(f"{U}/cand_self16/{X}.cand_self16.bam", "rb")
@@ -44,19 +46,16 @@ else:
         for locid in seen:
             tp = TPMAP.get(locid.split("|")[1], locid.split("|")[1])
             drv = "TE" if locid in TEset else "lncRNA" if locid in LNCset else "protein-coding" if locid in PCset else "intergenic"
-            rows.append((X, tp, drv))
+            rows.append((X, tp, id2cls[locid], drv))
         print(f"{X}: n={len(seen):,} TE={len(TEset):,} lnc={len(LNCset):,} pc={len(PCset):,}")
-    T = pd.DataFrame(rows, columns=["strain", "tp", "driver"]); T.to_csv(cache, index=False)
+    T = pd.DataFrame(rows, columns=["strain", "tp", "klass", "driver"]); T.to_csv(cache, index=False)
 def comp(df, idx):  # fraction matrix
     m = df.groupby([idx, "driver"]).size().unstack(fill_value=0).reindex(columns=DCOLS).fillna(0)
     return m.div(m.sum(1).replace(0, np.nan), axis=0) * 100
-Afrac = comp(T, "strain").reindex(CANON)
-Bfrac = comp(T, "tp").reindex(TPS)
-Cfrac = {tp: comp(T[T.tp == tp], "strain").reindex(CANON) for tp in TPS}
 plt.rcParams.update({"font.family": "Liberation Sans", "font.size": 8, "axes.linewidth": 0.6, "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42, "svg.fonttype": "none"})
-fig = plt.figure(figsize=(16.5, 9.4), dpi=300)
-gs = fig.add_gridspec(2, 3, height_ratios=[1.15, 1.0], hspace=0.7, wspace=0.22)
-axA = fig.add_subplot(gs[0, 0:2]); axB = fig.add_subplot(gs[0, 2]); axC = [fig.add_subplot(gs[1, j]) for j in range(3)]
+KLS = [("strain-private", "unique: strain-private — locus NEW", "#7a3b9a"), ("conserved-but-silent", "unique: conserved-but-silent — locus SHARED", "#0072B2")]
+fig = plt.figure(figsize=(16.5, 9.2), dpi=300)
+gs = fig.add_gridspec(2, 3, height_ratios=[1, 1], hspace=0.62, wspace=0.22)
 def stack(ax, frac, cats, labels, wild_red=True, w=0.82):
     xx = np.arange(len(cats)); bottom = np.zeros(len(cats))
     for k, col in DRIVERS:
@@ -66,19 +65,26 @@ def stack(ax, frac, cats, labels, wild_red=True, w=0.82):
     if wild_red:
         for t, X in zip(ax.get_xticklabels(), cats):
             if X in WILD: t.set_color("#C0392B"); t.set_fontweight("bold")
-stack(axA, Afrac, CANON, [s.replace("_", "/") for s in CANON])
-axA.set_ylabel("driver composition (%)", fontsize=9)
-axA.set_title("A  Driver per strain (pooled timepoints) — TE > lncRNA > protein-coding > intergenic", fontsize=9.6, fontweight="bold", loc="left")
-stack(axB, Bfrac, TPS, TPS, wild_red=False, w=0.7)
-axB.set_title("B  by timepoint (pooled strains)", fontsize=9.6, fontweight="bold", loc="left")
-for ax, tp in zip(axC, TPS):
-    stack(ax, Cfrac[tp], CANON, [s.replace("_", "/") for s in CANON])
-    ax.set_title(f"C — {tp}", fontsize=9.4, fontweight="bold", loc="left")
-axC[0].set_ylabel("driver composition (%)", fontsize=9)
-for ax in axC[1:]: ax.set_yticklabels([])
-fig.legend(handles=[Patch(facecolor=c, label=k) for k, c in DRIVERS], ncol=4, fontsize=9.5, frameon=False, loc="lower center", bbox_to_anchor=(0.5, -0.01))
-fig.suptitle("What drives UNIQUE (strain-private) piRNAs — TE vs ncRNA(lncRNA) vs protein-coding vs intergenic; strain × timepoint together\n"
-             "C: each strain's prepachytene(TE) → pachytene(lncRNA + intergenic) switch, 16 strains × 3 windows", fontsize=11, fontweight="bold", y=1.0)
-fig.tight_layout(rect=[0, 0.03, 1, 0.96])
+for ri, (kl, ktitle, kc) in enumerate(KLS):
+    Tk = T[T.klass == kl]
+    axA = fig.add_subplot(gs[ri, 0:2]); axB = fig.add_subplot(gs[ri, 2])
+    stack(axA, comp(Tk, "strain").reindex(CANON), CANON, [s.replace("_", "/") for s in CANON])
+    axA.set_ylabel("driver composition (%)", fontsize=9)
+    axA.set_title(f"{'AB'[ri]}  {ktitle}  (n={len(Tk):,}) — driver per strain (pooled timepoints)", fontsize=9.3, fontweight="bold", loc="left", color=kc)
+    stack(axB, comp(Tk, "tp").reindex(TPS), TPS, TPS, wild_red=False, w=0.7); axB.set_ylim(0, 100)
+    axB.set_title("by timepoint (pooled strains)", fontsize=8.6, fontweight="bold", loc="left")
+fig.legend(handles=[Patch(facecolor=c, label=k) for k, c in DRIVERS], ncol=4, fontsize=9.5, frameon=False, loc="lower center", bbox_to_anchor=(0.5, -0.005))
+fig.suptitle("What drives the two genuinely-unique subcategories — strain-private (locus NEW) vs conserved-but-silent (locus SHARED)\n"
+             "TE > lncRNA > protein-coding > intergenic; per strain (canonical order, wild red) + per timepoint", fontsize=11, fontweight="bold", y=1.0)
+axA.set_xticklabels([])   # bottom-row strain labels carried by the classical/wild companion below
+fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+# classical(blue)/wild(orange) companion below the bottom composition row: candidates per strain (subspecies colour scheme)
+fig.subplots_adjust(bottom=0.20)
+_tot=Tk.groupby("strain").size().reindex(CANON).fillna(0).values   # Tk = bottom-row class subset after loop
+_cax=add_classical_wild_companion(fig, axA, CANON, _tot, gap=0.085, height_frac=0.22, ylabel="n per\nstrain (log)")
+_cax.set_xticks(np.arange(len(CANON))); _cax.set_xticklabels([s.replace("_","/") for s in CANON], rotation=90, fontsize=6.5)
+for lab,s in zip(_cax.get_xticklabels(),CANON): lab.set_color("#C0392B" if s in WILD else "#333")
+_cax.set_title(f"classical (blue) vs wild-derived (orange) — {ktitle} candidates per strain", fontsize=7.5, fontweight="bold", loc="left")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/Fig_unique_pirna_drivers.{e}", bbox_inches="tight")
-print("wrote Fig_unique_pirna_drivers (with strain×timepoint Panel C)")
+print("wrote Fig_unique_pirna_drivers (split: strain-private vs conserved-but-silent)")
+print(T.groupby(["klass", "driver"]).size().unstack(fill_value=0).to_string())

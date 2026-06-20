@@ -1,58 +1,48 @@
 #!/usr/bin/env python3
-"""SPRET SNP-variant-vs-locus split, per timepoint. Classifies each SPRET presence/absence
-candidate by its min mismatch to a piRNA EXPRESSED in C57BL_6NJ/CAST:
-  0mm   = exact sequence expressed-low in others (below RPM threshold) -> NOT truly unique
-  1-3mm = SNP-variant of a conserved expressed piRNA                   -> NOT truly unique
-  no hit= genuinely SPRET-novel sequence (no <=3mm expressed match)    -> REAL
-"""
+"""SPRET_EiJ unique-piRNA 5-class composition per timepoint (klass5, ≥2-read; pilot-strain view).
+Stacked bars per timepoint with the adopted 5-class system: expressed-elsewhere / SNP-variant /
+low-quality / unique:conserved-but-silent / unique:strain-private. The two genuinely-unique classes
+(blue + purple) are the real strain-private set; grey/amber/tan are NOT truly unique (expressed exactly,
+expressed as a SNP-variant, or low-quality with no clean mm0 own-genome locus). This replaces the old
+naive min-mismatch (0/1-3/no-hit) split with the pangenome-anchored klass5 used genome-wide."""
 import sys
 sys.path.insert(0,"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
 import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
-# sN -> sequence
-sN2seq={}
-with open(f"{U}/SPRET_candidates.fasta") as fh:
-    sid=None
-    for ln in fh:
-        if ln[0]==">": sid=ln[1:].strip()
-        else: sN2seq[sid]=ln.strip()
-mm=pd.read_csv(f"{U}/SPRET_candidate_minmm_to_others_expressed.tsv",sep="\t",header=None,names=["sN","mm"])
-seq2mm={sN2seq[s]:m for s,m in zip(mm.sN,mm.mm)}
-cand=pd.read_csv(f"{U}/strain_specific_presenceAbsence_candidates.csv.gz")
-sp=cand[cand.strain=="SPRET_EiJ"].copy()
-def cls(seq):
-    m=seq2mm.get(seq)
-    if m is None: return "genuinely novel (no <=3mm)"
-    return "expressed-low in others (0mm)" if m==0 else "SNP-variant (1-3mm)"
-sp["klass"]=sp.sequence.map(cls)
+U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"; PG=f"{U}/pangenome_te"
+ORDER=["expressed elsewhere (exact)","SNP-variant (1-3mm)","low-quality: no mm0 own-genome locus","unique: conserved-but-silent","unique: strain-private locus"]
+COL={"expressed elsewhere (exact)":"#9e9e9e","SNP-variant (1-3mm)":"#E69F00","low-quality: no mm0 own-genome locus":"#cdb892",
+     "unique: conserved-but-silent":"#0072B2","unique: strain-private locus":"#7a3b9a"}
+LAB={"expressed elsewhere (exact)":"expressed-elsewhere (not unique)","SNP-variant (1-3mm)":"SNP-variant (allelic — not unique)","low-quality: no mm0 own-genome locus":"low-quality (no mm0 own locus)",
+     "unique: conserved-but-silent":"unique: conserved-but-silent","unique: strain-private locus":"unique: strain-private locus (clean)"}
+WHITE={"expressed elsewhere (exact)","SNP-variant (1-3mm)","unique: conserved-but-silent","unique: strain-private locus"}
 TPMAP={"16.5dpc":"E16.5","12.5dpp":"P12.5","20.5dpp":"P20.5"}; TPO=["E16.5","P12.5","P20.5"]
-sp["tp"]=sp.timepoint.map(TPMAP)
-ORDER=["expressed-low in others (0mm)","SNP-variant (1-3mm)","genuinely novel (no <=3mm)"]
-COLS={"expressed-low in others (0mm)":"#bdbdbd","SNP-variant (1-3mm)":"#E69F00","genuinely novel (no <=3mm)":"#C0392B"}
-tab=sp.groupby(["tp","klass"]).size().unstack(fill_value=0).reindex(TPO)[ORDER]
-fig,ax=plt.subplots(figsize=(6.2,4.2),dpi=300)
+sp=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["strain","timepoint","klass5"])
+sp=sp[sp.strain=="SPRET_EiJ"].copy(); sp["tp"]=sp.timepoint.map(TPMAP)
+tab=sp.groupby(["tp","klass5"]).size().unstack(fill_value=0).reindex(TPO)[ORDER]
 plt.rcParams.update({"font.family":"Liberation Sans"})
+fig,ax=plt.subplots(figsize=(6.8,4.8),dpi=300)
 x=np.arange(3); bottom=np.zeros(3)
 for k in ORDER:
-    ax.bar(x,tab[k].values,bottom=bottom,width=0.62,color=COLS[k],edgecolor="white",linewidth=0.5,label=k,zorder=3)
-    bottom+=tab[k].values
+    vals=tab[k].values
+    ax.bar(x,vals,width=0.6,bottom=bottom,color=COL[k],edgecolor="white",linewidth=0.6,label=LAB[k],zorder=3)
+    for xi,v,b in zip(x,vals,bottom):
+        if v>0: ax.text(xi,b+v/2,f"{int(v):,}",ha="center",va="center",fontsize=6.0,fontweight="bold",color="white" if k in WHITE else "#222",zorder=4)
+    bottom+=vals
 for xi,t in zip(x,TPO):
-    nov=tab.loc[t,"genuinely novel (no <=3mm)"]; tot=tab.loc[t].sum()
-    ax.text(xi,tot+500,f"novel: {nov:,}\n({100*nov/tot:.1f}%)",ha="center",va="bottom",fontsize=6.5,color="#C0392B",fontweight="bold")
-ax.set_xticks(x); ax.set_xticklabels(TPO,fontsize=9); ax.set_ylabel("SPRET presence/absence candidates",fontsize=9)
-ax.legend(fontsize=6.8,frameon=False,loc="upper left",bbox_to_anchor=(0.0,-0.10),ncol=1)
-ax.set_title("SPRET_EiJ: naive 'unique' candidates split by expression in other strains",fontsize=9.5,fontweight="bold")
-fig.text(0.5,-0.20,"~99% are expressed (exactly or as a SNP-variant) in C57BL_6NJ/CAST -> not truly unique. "
-  "Only the red sliver is genuinely SPRET-novel (no <=3mm expressed match). Mismatch cutoff <=3 (sensitivity: <=1mm gives more novel).",
+    gu=tab.loc[t,["unique: conserved-but-silent","unique: strain-private locus"]].sum(); tot=tab.loc[t].sum()
+    pv=tab.loc[t,"unique: strain-private locus"]
+    ax.text(xi,tot+tab.sum(1).max()*0.02,f"genuinely unique {gu/1000:.0f}k ({100*gu/tot:.0f}%)\nstrain-private locus {pv:,}",ha="center",va="bottom",fontsize=6.6,fontweight="bold",color="#222")
+ax.set_xticks(x); ax.set_xticklabels(TPO,fontsize=9); ax.set_ylabel("SPRET_EiJ strain-specific candidates",fontsize=9)
+ax.set_ylim(0,tab.sum(1).max()*1.22)
+ax.legend(fontsize=6.8,frameon=False,loc="upper left",ncol=1)
+ax.set_title("SPRET_EiJ — unique-piRNA 5-class composition per timepoint (klass5, ≥2-read)",fontsize=9.2,fontweight="bold")
+fig.text(0.5,-0.04,"Genuinely unique = conserved-but-silent (blue, locus shared but silent elsewhere — divergence) + strain-private locus (purple, locus absent in all other strains — insertion). "
+  "Grey/amber/tan are expressed elsewhere exactly / as a SNP-variant / low-quality (no clean mm0 own-genome locus) and are NOT truly unique. Pangenome-anchored klass5 (replaces the old naive ≤3mm split).",
   ha="center",fontsize=5.3,color="#666")
+ax.spines[['top','right']].set_visible(False)
 fig.tight_layout()
-out=f"{U}/Fig_spret_split"
-for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-tab.to_csv(f"{U}/SourceData_spret_split.csv")
-print(tab.to_string()); print("\nTOTAL by class:\n", sp.klass.value_counts().to_string())
-print("\nSensitivity (genuinely-novel = no expressed match within cutoff):")
-for c in (1,2,3):
-    nov=sum(1 for seq in sp.sequence.unique() if seq2mm.get(seq,99)> c-1 and seq2mm.get(seq,99)>=c)  # placeholder
-print("  <=1mm cutoff novel (no 0/1mm match):", (~sp.sequence.map(lambda s: seq2mm.get(s,99)<=1)).sum(),
-      "| <=3mm novel:", (~sp.sequence.map(lambda s: seq2mm.get(s,99)<=3)).sum())
+for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_spret_split.{e}",bbox_inches="tight")
+tab.to_csv(f"{PG}/SourceData_spret_split.csv")
+print(tab.to_string()); print("\nTOTAL by class:\n", sp.klass5.value_counts().to_string())
+print("wrote Fig_spret_split (klass5)")

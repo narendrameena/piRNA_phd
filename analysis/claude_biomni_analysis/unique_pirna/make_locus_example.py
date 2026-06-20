@@ -40,7 +40,9 @@ for lab,tp in TPS:
             b0=int((a.reference_start-S)/N*nb); b1=int((a.reference_end-S)/N*nb)
             for b in range(max(0,b0),min(nb,b1+1)): (rev if a.is_reverse else fwd)[b]+=1
             tot+=1
-            if a.is_reverse: anti_seq[a.reference_end-1][rc(a.query_sequence)]+=1   # pool antisense piRNAs across all tps for the representative
+            if (TEST=="-")!=a.is_reverse:                  # ANTISENSE-TO-TE (silencing), relative to TE strand — NOT genomic +/-
+                if a.is_reverse: anti_seq[a.reference_end-1][rc(a.query_sequence)]+=1
+                else: anti_seq[a.reference_start][a.query_sequence]+=1
         bam.close()
     cov[lab]=((fwd,rev) if TEST=="-" else (rev,fwd)); totreads[lab]=tot   # antisense-to-TE = silencing
 ymax=max(max(c[0].max(),c[1].max()) for c in cov.values()) or 1.0
@@ -57,7 +59,7 @@ x=np.linspace(S,E,nb)
 # TE composition bar
 axTE.set_xlim(S,E); axTE.set_ylim(0,1); axTE.axis("off"); axTE.text(S-N*0.012,0.5,"TEs",fontsize=7.5,ha="right",va="center",fontweight="bold")
 for _,r in TE.iterrows(): axTE.add_patch(Rectangle((max(r.s,S),0.2),min(r.e,E)-max(r.s,S),0.6,fc=TECOL.get(r.fam.split("|")[-1],"#ccc"),ec="none"))
-axTE.set_title(f"Strain-private {TELAB} insertion → a strain-specific piRNA cluster  (real example: SPRET/EiJ {CHRLAB}:{S:,}–{E:,})",fontsize=10.2,fontweight="bold",loc="left")
+axTE.set_title(f"Strain-private {TELAB} insertion → a strain-specific piRNA SOURCE LOCUS (individual piRNA sequences; not a PICB cluster)  (real example: SPRET/EiJ {CHRLAB}:{S:,}–{E:,})",fontsize=9.2,fontweight="bold",loc="left")
 # timepoint coverage tracks (shared coords + y-scale; reps pooled)
 for ax,lab in [(axE,"E16.5"),(axP,"P12.5"),(axA,"P20.5")]:
     antiC,senseC=cov[lab]

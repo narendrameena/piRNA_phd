@@ -44,6 +44,7 @@ for i,s in enumerate(order):
         v=d.loc[d.tp==t,"pct"].values
         if len(v)==0: continue
         ax.bar(j,v.mean(),width=0.66,color=COL[t],edgecolor="none",zorder=1)
+        ax.errorbar(j,v.mean(),yerr=(v.std(ddof=1) if len(v)>1 else 0),fmt="none",ecolor="#333",elinewidth=0.6,capsize=2,zorder=2)
         ax.scatter(np.full(len(v),j)+(np.arange(len(v))-(len(v)-1)/2)*0.13,v,s=7,color="#222",zorder=3,linewidths=0)
     ax.set_xticks(range(3)); ax.set_xticklabels(TPO,fontsize=5.6)
     ax.set_ylim(0,72); ax.set_yticks([0,25,50])
@@ -55,7 +56,7 @@ for i,s in enumerate(order):
 for k in range(len(order),len(axes)): axes[k].axis("off")
 
 fig.suptitle("piRNA phasing across spermatogenesis in 16 mouse strains",fontsize=10,fontweight="bold",y=1.060)
-fig.text(0.5,1.022,"bars = mean +1-nt phasing fraction · dots = replicates · ● = wild-derived strain (CAST/PWK/SPRET/WSB)",
+fig.text(0.5,1.022,"bars = mean +1-nt phasing fraction · error bar = ±SD · dots = replicates · ● = wild-derived strain (CAST/PWK/SPRET/WSB)",
          ha="center",fontsize=6,color="#444")
 fig.text(0.5,-0.018,"1 random coordinate/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random) · 24–32 nt · GenomicRanges::follow 3′→5′ adjacency · timepoints E16.5→P12.5→P20.5",
          ha="center",fontsize=5.6,color="#666")

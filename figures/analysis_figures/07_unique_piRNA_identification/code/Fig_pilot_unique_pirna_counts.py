@@ -7,7 +7,7 @@ sys.path.insert(0,"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis
 import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from strain_order import STRAIN_ORDER, WILD
+from strain_order import STRAIN_ORDER, WILD, add_classical_wild_companion
 plt.rcParams.update({"font.family":"Liberation Sans","font.size":9,"axes.linewidth":0.6,
     "axes.spines.top":False,"axes.spines.right":False,"pdf.fonttype":42,"svg.fonttype":"none"})
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
@@ -24,7 +24,7 @@ for j,t in enumerate(TPO):
     ax.bar(xs,v,width=bw,color=COL[t],edgecolor="white",linewidth=0.4,label=t,zorder=3)
     for xi,val in zip(xs,v): ax.text(xi,val+400,f"{int(val/1000)}k",ha="center",va="bottom",fontsize=6)
 ax.set_xticks(x)
-labs=ax.set_xticklabels(order,fontsize=8)
+labs=ax.set_xticklabels([])   # strain labels carried by the classical/wild companion below
 for lab,s in zip(labs,order): lab.set_color("#C0392B" if s in WILD else "#222")
 ax.set_ylabel("strain-specific unique piRNA\ncandidates (presence/absence)",fontsize=8.5)
 ax.legend(title="timepoint",fontsize=7.5,title_fontsize=8,frameon=False,ncol=3,loc="upper center",bbox_to_anchor=(0.5,1.14))
@@ -32,6 +32,12 @@ ax.set_title("PILOT: strain-specific unique piRNAs (3-strain, presence/absence)"
 fig.text(0.5,-0.06,"CANDIDATES only: ≥1 RPM in ≥2/3 reps of one strain, absent in the others (3-strain comparison) · "
   "pre-edgeR-DA, pre-SNP/locus split · counts will shrink after those",ha="center",fontsize=5.4,color="#666")
 fig.tight_layout()
+# classical(blue)/wild(orange) total-count companion per strain (subspecies colour scheme)
+fig.subplots_adjust(bottom=0.34)
+_cax=add_classical_wild_companion(fig,ax,order,piv.sum(1).reindex(order).values,gap=0.13,height_frac=0.20,ylabel="total\ncands")
+_cax.set_xticks(np.arange(len(order))); _cax.set_xticklabels(order,rotation=45,ha="right",fontsize=7)
+for lab,s in zip(_cax.get_xticklabels(),order): lab.set_color("#C0392B" if s in WILD else "#333")
+_cax.set_title("classical (blue) vs wild-derived (orange) — total candidates per strain",fontsize=7.5,fontweight="bold",loc="left")
 out=f"{U}/Fig_pilot_unique_pirna_counts"
 for ext in ("pdf","svg","png"): fig.savefig(f"{out}.{ext}",bbox_inches="tight")
 piv.to_csv(f"{U}/SourceData_pilot_unique_pirna_counts.csv")

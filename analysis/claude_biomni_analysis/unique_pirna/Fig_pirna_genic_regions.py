@@ -2,7 +2,7 @@
 """piRNA genomic-REGION overlap, in parallel across 16 strains x 3 timepoints (the thesis genic-region analysis,
 restricted to UNIQUE / strain-private piRNAs). Each sample's unique-piRNA signal partitions into 3 mutually-exclusive
 region classes from featureCounts: protein-coding GENE / lncRNA / INTERGENIC. Source = thesis output
-analysis/sRNA_deseq/genric_regions/uniq_piRNA_list1_count.csv (already summed per sample x class). Replicates are
+analysis/sRNA_deseq/genric_regions/uniq_piRNA_list1_count_v3.3.csv (already summed per sample x class). Replicates are
 summed per strain x timepoint, then converted to a fraction. Layout = three timepoint panels (E16.5/P12.5/P20.5),
 strains side-by-side in the canonical thesis order (wild strains in red). The biological question this answers:
 do wild strains (CAST/SPRET/PWK), which carry the large open pan-piRNA-ome, route MORE of their strain-private
@@ -15,7 +15,7 @@ import pandas as pd, numpy as np
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 ROOT = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"
-SRC = f"{ROOT}/analysis/sRNA_deseq/genric_regions/uniq_piRNA_list1_count.csv"
+SRC = f"{ROOT}/analysis/sRNA_deseq/genric_regions/uniq_piRNA_list1_count_v3.3.csv"
 U = f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"
 SD = f"{ROOT}/analysis/claude_biomni_analysis/source_data"
 CANON = [s for s in STRAIN_ORDER if s != "C57BL_6"]          # C57BL_6 = external public data, absent here

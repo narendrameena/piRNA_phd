@@ -4,7 +4,7 @@ Fig_step4_classification16 show only the two 2-way marginals: strain×tp and cla
 class; 16 strains (canonical order) × 3 timepoints, stacked proportion; text = n per strain."""
 import warnings; warnings.filterwarnings("ignore")
 import sys; sys.path.insert(0, "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
-from strain_order import STRAIN_ORDER
+from strain_order import STRAIN_ORDER, WILD, add_classical_wild_companion
 import pandas as pd, numpy as np
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 U = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"; PG = f"{U}/pangenome_te"
@@ -34,6 +34,14 @@ for ax, k in zip(axes, KL):
 axes[0].legend(fontsize=7.5, frameon=False, ncol=3, loc="lower left", bbox_to_anchor=(0, 1.18))
 fig.suptitle("Developmental timepoint origin for EACH class × strain — 16-strain pangenome unique-piRNA classification (3-way breakdown)", fontsize=11, fontweight="bold", y=0.999)
 pd.concat(src).to_csv(f"{PG}/SourceData_step4_class_strain_timepoint16.csv")
+axes[-1].set_xticklabels([])   # bottom-facet labels carried by the classical/wild companion below
 fig.tight_layout(rect=[0, 0, 1, 0.99])
+# classical(blue)/wild(orange) companion: total candidates per strain (subspecies colour scheme)
+fig.subplots_adjust(bottom=0.13)
+_tot=d.strain.value_counts().reindex(CANON).fillna(0).values
+_cax=add_classical_wild_companion(fig, axes[-1], CANON, _tot, gap=0.045, height_frac=0.55, ylabel="total\n(log)")
+_cax.set_xticks(x); _cax.set_xticklabels([s.replace("_","/") for s in CANON], rotation=45, ha="right", fontsize=6.5)
+for lab,s in zip(_cax.get_xticklabels(),CANON): lab.set_color("#C0392B" if s in WILD else "#333")
+_cax.set_title("classical (blue) vs wild-derived (orange) — total candidates per strain", fontsize=7.5, fontweight="bold", loc="left")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/Fig_step4_class_strain_timepoint16.{e}", bbox_inches="tight")
 print("wrote Fig_step4_class_strain_timepoint16.{png,pdf,svg} + source data")

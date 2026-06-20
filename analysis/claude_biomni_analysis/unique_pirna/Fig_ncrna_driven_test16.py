@@ -14,8 +14,8 @@ CANON=["C57BL_6NJ","BALB_cJ","A_J","FVB_NJ","C3H_HeJ","LP_J","129S1_SvImJ","DBA_
 MAIN={str(i) for i in range(1,20)}|{"X"}
 CLS=["unique: conserved-but-silent","unique: strain-private locus"]; LAB=["conserved-but-silent","strain-private locus"]; COL=["#0072B2","#7a3b9a"]
 def stripc(c): return c.split("#")[-1].replace("chr","")
-d=pd.read_csv(f"{U}/unique16/final_classified.csv.gz")
-kl={f"{s}|{t}|{q}":k for s,t,q,k in zip(d.strain,d.timepoint,d.sequence,d.klass)}
+d=pd.read_csv(f"{U}/unique16/final_classified_clean.csv.gz")   # CANONICAL 5-class (klass5): CBS excl SNP-variants; strain-private = mm0-clean
+kl={f"{s}|{t}|{q}":k for s,t,q,k in zip(d.strain,d.timepoint,d.sequence,d.klass5)}
 def clean_space(X):
     lnc=defaultdict(list); pcg=defaultdict(list)
     for ln in open(f"{ANN}/{X}_v3.5.gff3"):

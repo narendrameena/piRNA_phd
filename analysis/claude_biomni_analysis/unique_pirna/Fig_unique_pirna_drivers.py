@@ -23,14 +23,14 @@ cache = f"{PG}/SourceData_unique_pirna_drivers.csv"
 if os.path.exists(cache):
     T = pd.read_csv(cache); print("loaded cached driver table")
 else:
-    d = pd.read_csv(f"{U}/unique16/final_classified.csv.gz")
+    d = pd.read_csv(f"{U}/unique16/final_classified_clean.csv.gz")   # mm0-clean strain-private (klass5)
     def ids_overlapping(locibed, bed):
         if not os.path.exists(bed) or os.path.getsize(bed) == 0: return set()
         out = subprocess.run(f"sort -k1,1 -k2,2n {locibed} | {BT} intersect -a - -b {bed} -u", shell=True, capture_output=True, text=True).stdout
         return {ln.split('\t')[3] for ln in out.splitlines() if ln}
     rows = []
     for X in CANON:
-        g = d[(d.strain == X) & (d.klass == "unique: strain-private locus")].copy(); g["id"] = X + "|" + g.timepoint + "|" + g.sequence
+        g = d[(d.strain == X) & (d.klass5 == "unique: strain-private locus")].copy(); g["id"] = X + "|" + g.timepoint + "|" + g.sequence
         sp = set(g.id); rm = f"{ROOT}/resources/repeatMasker/{X}_repeatmasker.bed"
         if not sp: continue
         bam = pysam.AlignmentFile(f"{U}/cand_self16/{X}.cand_self16.bam", "rb")

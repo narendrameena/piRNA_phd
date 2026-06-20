@@ -3,9 +3,9 @@
 # DESeq2 size-factor normalisation -> PCA). TWO feature sets, side by side:
 #   all_expressed = every 24-32 nt piRNA passing filterByExpr (top-500 most-variable, DESeq2 plotPCA
 #                   convention) -> reproduces Fig 5.21 with our data.
-#   unique        = genuinely-unique (Step-4) piRNAs specific at this timepoint (union over strains),
-#                   ALL of them. Normalised with the SAME full-library size factors (valid; the unique
-#                   set alone would violate DESeq2's most-features-not-DE assumption).
+#   unique        = genuinely-unique piRNAs (klass5: conserved-but-silent + strain-private, ADOPTED >=2-read)
+#                   specific at this timepoint (union over strains). Normalised with the SAME full-library
+#                   size factors (valid; the unique set alone would violate DESeq2's most-features-not-DE assumption).
 # DESeq2 1.42.1 (= thesis v1.42). filterByExpr = the data-driven floor used in the DA step.
 suppressMessages({library(edgeR); library(DESeq2); library(data.table)})
 a<-commandArgs(TRUE); tp<-a[1]; lab<-a[2]
@@ -23,14 +23,12 @@ cat(sprintf("[%s] %d features after filterByExpr\n",lab,nrow(cnt)))
 cd<-DataFrame(strain=strain,row.names=samp$sample)
 dds<-DESeqDataSetFromMatrix(cnt,cd,~strain); dds<-estimateSizeFactors(dds)
 logn<-log2(counts(dds,normalized=TRUE)+1); rownames(logn)<-seqs
-# genuinely-unique seqs specific at this timepoint (union over strains)
-uni<-character(0)
-for(X in c("C57BL_6NJ","CAST_EiJ","SPRET_EiJ")){
-  d<-fread(cmd=paste("zcat",file.path(S4,paste0(X,".step4_classified.csv.gz"))))
-  d<-d[grepl("^unique",klass) & grepl(lab,timepoints,fixed=TRUE)]
-  uni<-union(uni,d$sequence)
-}
-uni<-intersect(uni,seqs)
+# genuinely-unique seqs (klass5: conserved-but-silent + strain-private; ADOPTED >=2-read clean set) at this timepoint (union over the 3 pilot strains)
+FC<-"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/unique16/final_classified_clean_2read.csv.gz"
+fc<-fread(cmd=paste("zcat",FC),select=c("sequence","strain","timepoint","klass5"))
+fc<-fc[strain %in% c("C57BL_6NJ","CAST_EiJ","SPRET_EiJ") & timepoint==tp &
+       klass5 %in% c("unique: conserved-but-silent","unique: strain-private locus")]
+uni<-intersect(unique(fc$sequence),seqs)
 do_pca<-function(M,tag){
   if(tag=="all_expressed"){v<-rowSums((M-rowMeans(M))^2); M<-M[order(-v)[1:min(500,nrow(M))],,drop=FALSE]}
   p<-prcomp(t(M),scale.=FALSE); ve<-round(100*p$sdev^2/sum(p$sdev^2),1)

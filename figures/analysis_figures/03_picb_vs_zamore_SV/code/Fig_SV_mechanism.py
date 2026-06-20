@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
-Pangenome SVs predict piRNA cluster disruption through genomic rearrangement.
+Pangenome SVs CO-OCCUR with piRNA cluster disruption (association, not established causation).
+NOTE (2026-06-19 data-integrity audit): at the locus itself (direct window, used here) the SV vs
+no-SV disruption difference is weak/null (Pachytene ~24.9% vs ~24.8%); a positive association appears
+only at wider windows (10-50 kb), consistent with a regional rearrangement confound rather than a
+direct causal effect. Causal framing softened; SV->disruption claim queued for BioMNI (VERIFICATION_QUEUE.md).
 
 Panel A:  Stacked proportion bars — expressed/not_expressed/not_lifted,
           SV vs no-SV loci, by stage (M.m. domesticus, P20.5)
@@ -152,10 +156,10 @@ legend_patches = [
 ax_a.legend(handles=legend_patches, fontsize=7.5, frameon=False,
             loc='upper right', ncol=3)
 ax_a.set_title(
-    "A   Structural variants drive piRNA locus rearrangement, not transcriptional silencing  "
+    "A   Disrupted piRNA loci CO-OCCUR with structural variants — disruption is mostly genomic rearrangement, not silencing  "
     "(M. musculus domesticus, n=12 strains, P20.5)\n"
-    "    Outlined bar = loci with SV · nearly all disruption is genomic rearrangement (orange), "
-    "not expression loss in intact loci (amber)",
+    "    Outlined bar = loci with SV · among disrupted loci, most are liftover-failure/rearrangement (orange), "
+    "not expression loss in intact loci (amber). Direct-window SV vs no-SV difference is weak (see docstring).",
     fontsize=7.5, fontweight='bold', loc='left')
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -187,7 +191,7 @@ for tp in TIMEPOINTS:
 ax_b.set_xlim(-1, maxv); ax_b.set_ylim(-1, maxv)
 ax_b.set_xlabel("% disrupted — no SV", fontsize=8)
 ax_b.set_ylabel("% disrupted — has SV", fontsize=8)
-ax_b.set_title("B   SV-associated disruption is consistent\nacross all stage × timepoint groups",
+ax_b.set_title("B   SV vs no-SV disruption (direct window): weak,\nlargely on the diagonal across stage × timepoint groups",
                fontsize=8, fontweight='bold', loc='left')
 ax_b.text(maxv * 0.96, maxv * 0.04, "SV worse\n(above line)",
           ha='right', va='bottom', fontsize=6.5, color='#D55E00')

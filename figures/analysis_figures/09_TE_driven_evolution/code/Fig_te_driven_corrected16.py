@@ -21,6 +21,28 @@ plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.
 fig, ax = plt.subplots(1, 3, figsize=(14, 4.7), dpi=300)
 def xt(a): a.set_xticks(x); a.set_xticklabels(xl, rotation=90, fontsize=6.3); [t.set_color(CW) or t.set_fontweight("bold") for t, wd in zip(a.get_xticklabels(), df.wild) if wd]
 def ns(a): a.spines[["top", "right"]].set_visible(False); a.tick_params(labelsize=7)
+def _smart_labels(ax, xs, ys, labels, colors, fs=5.6, off=0.085):
+    "greedy leader-arrow labels (log-log): place each label in the candidate direction farthest from points + placed labels"
+    lx = np.log10(np.asarray(xs, float)); ly = np.log10(np.asarray(ys, float))
+    xr = (lx.max() - lx.min()) or 1.0; yr = (ly.max() - ly.min()) or 1.0
+    nx = lx / xr; ny = ly / yr
+    dirs = [(np.cos(t), np.sin(t)) for t in np.linspace(0, 2*np.pi, 16, endpoint=False)]
+    cand = [(d[0]*r, d[1]*r) for r in (off, off*1.7, off*2.5) for d in dirs]
+    placed = []; pos = {}
+    for i in sorted(range(len(nx)), key=lambda i: ny[i]):
+        best = None; bs = -1
+        for dx, dy in cand:
+            cx, cy = nx[i] + dx, ny[i] + dy
+            dmin = min([(cx-nx[j])**2 + (cy-ny[j])**2 for j in range(len(nx))] +
+                       [(cx-p[0])**2 + (cy-p[1])**2 for p in placed] + [99])
+            if dmin > bs: bs = dmin; best = (cx, cy)
+        placed.append(best); pos[i] = best
+    for i in range(len(nx)):
+        cx, cy = pos[i]
+        ax.annotate(labels[i], xy=(xs[i], ys[i]), xytext=(10**(cx*xr), 10**(cy*yr)),
+                    fontsize=fs, color=colors[i], ha="center", va="center",
+                    fontweight=("bold" if colors[i] == CW else "normal"),
+                    arrowprops=dict(arrowstyle="-", color="#aaaaaa", lw=0.45, shrinkA=0, shrinkB=2.5), zorder=5)
 # a: per-strain stacked creation + propagation
 a = ax[0]; a.bar(x, df.est_creation, color=C_CRE, label="creation (new locus, breadth ≤3)")
 a.bar(x, df.est_propagation, bottom=df.est_creation, color=C_PROP, label="propagation (insertion in conserved cluster, ≥10)")
@@ -29,8 +51,10 @@ a.legend(fontsize=6.6, frameon=False, loc="upper left")
 a.set_title(f"a   Insertion-driven loci split: creation vs propagation\noverall ≈{df.frac_creation.mean()*100:.0f}% creation / {df.frac_propagation.mean()*100:.0f}% propagation", fontsize=8.4, fontweight="bold", loc="left")
 # b: creation vs insertion burden
 b = ax[1]; b.scatter(df.private_ins, df.est_creation, c=cols, s=34, edgecolor="white", linewidth=0.5, zorder=3)
-for _, r in df.iterrows(): b.annotate(r.strain.replace("_", "/"), (r.private_ins, r.est_creation), fontsize=5, color=(CW if r.wild else "#666"), xytext=(3, 1), textcoords="offset points")
-b.set_xscale("log"); b.set_yscale("log"); ns(b); b.set_xlabel("private insertions ≥150 bp (log)", fontsize=8.5); b.set_ylabel("CREATION loci (new strain-private, log)", fontsize=8.5)
+b.set_xscale("log"); b.set_yscale("log")
+_smart_labels(b, df.private_ins.values, df.est_creation.values, [s.replace("_", "/") for s in df.strain], [CW if w else "#444" for w in df.wild])
+b.margins(0.18)   # room for the offset leader-arrow labels
+ns(b); b.set_xlabel("private insertions ≥150 bp (log)", fontsize=8.5); b.set_ylabel("CREATION loci (new strain-private, log)", fontsize=8.5)
 b.set_title(f"b   True new loci (creation) still track insertion burden\nSpearman ρ = {rho_cre:.2f}, P = {pc_cre:.1e}", fontsize=8.4, fontweight="bold", loc="left")
 # c: wild vs classical, creation & propagation (grouped)
 cc = ax[2]; ww = 0.36

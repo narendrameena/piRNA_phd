@@ -10,20 +10,29 @@ U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_a
 CHROM,S,E="SPRET_EiJ#1#chr2",150450743,150521192
 d=pd.read_csv(f"{U}/step4/SPRET_EiJ.step4_classified.csv.gz"); id2seq=dict(zip(d.id,d.sequence))
 sp=set(d.loc[d.klass=="unique: strain-private locus","id"])
+# TEs in region (stranded RM) — loaded FIRST so SENSE/ANTISENSE is computed RELATIVE TO THE TE STRAND, not genomic +/-
+te=pd.read_csv(f"{U}/sense_antisense/SPRET_EiJ.TE_stranded.bed",sep="\t",header=None,names=["c","s","e","fam","sc","st"])
+te=te[(te.c==CHROM)&(te.s<E)&(te.e>S)].copy()
+_tes=sorted((int(r.s),int(r.e),r.st) for _,r in te.iterrows())
+def te_strand_at(p):
+    for ts,tee,st in _tes:
+        if ts<=p<tee: return st
+    return None
 bam=pysam.AlignmentFile(f"{U}/step4/SPRET_EiJ.cand_self.Aligned.sortedByCoord.out.bam","rb")
-nb=240; bins_s=np.zeros(nb); bins_a=np.zeros(nb); first=[]
+nb=240; bins_s=np.zeros(nb); bins_a=np.zeros(nb); first=[]; n_te=0; n_at=0
 for a in bam.fetch(CHROM,S,E):
     if a.is_unmapped or a.query_name not in sp: continue
+    tstr=te_strand_at((a.reference_start+a.reference_end)//2)
+    if tstr is None: continue                          # sense/antisense only defined vs an overlapping TE
+    anti=((tstr=="-")!=a.is_reverse)                   # ANTISENSE-TO-TE (silencing), NOT genomic strand
+    n_te+=1; n_at+=anti
     b0=int((a.reference_start-S)/(E-S)*nb); b1=int((a.reference_end-S)/(E-S)*nb)
     for b in range(max(0,b0),min(nb,b1+1)):
-        (bins_a if a.is_reverse else bins_s)[b]+=1     # reverse = antisense-to-L1 here
+        (bins_a if anti else bins_s)[b]+=1
     seq=id2seq.get(a.query_name)
     if seq: first.append(seq[0])
 bam.close()
 fc=pd.Series(first).value_counts(normalize=True)*100 if first else pd.Series(dtype=float)
-# TEs in region (stranded RM)
-te=pd.read_csv(f"{U}/sense_antisense/SPRET_EiJ.TE_stranded.bed",sep="\t",header=None,names=["c","s","e","fam","sc","st"])
-te=te[(te.c==CHROM)&(te.s<E)&(te.e>S)].copy()
 def teclass(f):
     f=f.split("|")[-1];
     return f
@@ -44,15 +53,15 @@ for cl,col in list(TECOL.items())[:5]:
     axTE.add_patch(Rectangle((S+(E-S)*(0.28+hx),0.78),(E-S)*0.015,0.16,fc=col,ec="none",transform=axTE.transData))
     axTE.text(S+(E-S)*(0.30+hx),0.86,cl,fontsize=5.6,va="center"); hx+=0.145
 # coverage: sense up (grey), antisense down (red)
-axCov.fill_between(x,0,bins_s,step="mid",color="#999",alpha=0.85,label="sense (ping-pong)")
-axCov.fill_between(x,0,-bins_a,step="mid",color="#C0392B",alpha=0.85,label="antisense (silencing)")
+axCov.fill_between(x,0,bins_s,step="mid",color="#999",alpha=0.85,label="sense-to-TE")
+axCov.fill_between(x,0,-bins_a,step="mid",color="#C0392B",alpha=0.85,label="antisense-to-TE (silencing)")
 axCov.axhline(0,color="#333",lw=0.8); axCov.set_xlim(S,E)
 axCov.set_ylabel("piRNA coverage\n(antisense ↓ | sense ↑)",fontsize=8)
 axCov.set_xlabel(f"{CHROM.split('#')[-1]}  position (bp)",fontsize=8.5)
 axCov.ticklabel_format(axis="x",style="plain"); axCov.tick_params(labelsize=6.5)
 na=int(bins_a.sum()>0 and len([1 for a in [1]]));
 tot=int(bins_s.sum()+bins_a.sum())
-axCov.text(0.99,0.06,f"368 SPRET-private piRNAs · antisense-dominant → silencing-competent",transform=axCov.transAxes,ha="right",fontsize=6.8,color="#C0392B")
+axCov.text(0.99,0.06,f"{n_te:,} TE-overlapping SPRET-private piRNAs · {100*n_at/max(1,n_te):.0f}% ANTISENSE-to-TE (relative to TE strand) → silencing-competent",transform=axCov.transAxes,ha="right",fontsize=6.8,color="#C0392B")
 axCov.spines[['top','right']].set_visible(False)
 # 1U inset
 ax1U.set_title("piRNA 5′ nucleotide\n(1U signature)",fontsize=7.6,fontweight="bold")
@@ -61,7 +70,7 @@ ax1U.bar(["A","C","G","U"],vals,color=["#bbb","#bbb","#bbb","#C0392B"],edgecolor
 for i,v in enumerate(vals): ax1U.text(i,v+1,f"{v:.0f}%",ha="center",fontsize=6.5)
 ax1U.set_ylim(0,max(vals)*1.25 if vals else 1); ax1U.set_ylabel("% of piRNAs",fontsize=7); ax1U.tick_params(labelsize=7)
 ax1U.spines[['top','right']].set_visible(False)
-fig.suptitle("Molecular anatomy of a strain-private TE-driven piRNA cluster (SPRET/EiJ chr2, L1)",fontsize=10.5,fontweight="bold",y=0.99)
+fig.suptitle("Molecular anatomy of a strain-private TE-driven piRNA SOURCE LOCUS (SPRET/EiJ chr2, L1; from individual strain-private piRNA sequences — not a PICB-called cluster)",fontsize=9.4,fontweight="bold",y=0.99)
 fig.text(0.5,0.005,"A SPRET-private L1 insertion (absent in the 15 other strains) produces a piRNA cluster: predominantly ANTISENSE to the L1 (silencing), "
   "with a strong 5′-U (1U) bias — the hallmarks of a functional, TE-targeting piRNA source born from a single strain-private transposon insertion.",
   ha="center",fontsize=6.2,color="#555")

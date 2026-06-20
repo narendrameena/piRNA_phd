@@ -13,7 +13,8 @@ import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
 
-cand=pd.read_csv(f"{U}/OLD_unrestricted_candidates_snapshot.csv.gz")
+cand=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz", usecols=["strain", "timepoint", "length", "sequence"])   # 3-strain pilot subset of the ADOPTED ≥2-read set (klass5)
+cand=cand[cand.strain.isin(["C57BL_6NJ", "CAST_EiJ", "SPRET_EiJ"])]
 TPMAP={"16.5dpc":"E16.5","12.5dpp":"P12.5","20.5dpp":"P20.5"}; TPO=["E16.5","P12.5","P20.5"]
 cand["tp"]=cand.timepoint.map(TPMAP)
 PILOT=[s for s in STRAIN_ORDER if s in set(cand.strain)]
@@ -97,7 +98,7 @@ d.set_xlabel("piRNA length (nt)",fontsize=8.5); d.set_ylabel("% of unique seqs o
 d.set_xticks(xd[::1]); d.tick_params(labelsize=6.3); d.legend(fontsize=6.4,frameon=False,loc="lower center",ncol=3)
 fig.suptitle("Unique (strain-specific) piRNA length distribution and its timepoint structure",fontsize=10,fontweight="bold",y=1.005)
 fig.tight_layout()
-for e in ("pdf","svg","png"): fig.savefig(f"{U}/Fig_unique_pirna_length.{e}",bbox_inches="tight")
+for e in ("pdf","svg","png"): fig.savefig(f"{U}/pangenome_te/Fig_unique_pirna_length.{e}",bbox_inches="tight")
 
 # source data (incl. timepoint breakdown)
 out=pd.DataFrame({"length":list(LR)})

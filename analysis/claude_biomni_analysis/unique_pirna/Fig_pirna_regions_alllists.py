@@ -25,15 +25,15 @@ GENIC = [("CDS_or_exon", "CDS / coding exon", "#1A9850"), ("five_prime_UTR", "5�
          ("three_prime_UTR", "3′UTR", "#FEE08B"), ("intron", "intron", "#998EC3")]
 # (out_name, file, scope-label, ylab, cats, derive_exon_other)
 LISTS = [
-    ("Fig_pirna_genic_features_uniq", "uniq_piRNA_list2_count.csv", "UNIQUE piRNAs — gene-body feature (list2)",
+    ("Fig_pirna_genic_features_uniq", "uniq_piRNA_list2_count_v3.3.csv", "UNIQUE piRNAs — gene-body feature (list2, v3.3 GFF)",
      "fraction of unique-piRNA signal within gene body",
      [("CDS", "CDS (coding)", "#1A9850")] + GENIC[1:], False),
-    ("Fig_pirna_genic_list3_uniq", "uniq_piRNA_list3_count.csv", "UNIQUE piRNAs — gene-body feature (list3, CDS-less)",
+    ("Fig_pirna_genic_list3_uniq", "uniq_piRNA_list3_count_v3.3.csv", "UNIQUE piRNAs — gene-body feature (list3, CDS-less, v3.3 GFF)",
      "fraction of unique-piRNA signal within gene body", GENIC, True),
     ("Fig_pirna_genic_list3_all", "list3_count.csv", "ALL piRNAs — gene-body feature (list3, CDS-less)",
      "fraction of all-piRNA signal within gene body", GENIC, True),
-    ("Fig_pirna_genic_list4_uniq", "uniq_piRNA_list4_count.csv",
-     "UNIQUE piRNAs — transcript-level gene-body feature (list4, per-strain Ensembl annotation)",
+    ("Fig_pirna_genic_list4_uniq", "uniq_piRNA_list4_count_v3.3.csv",
+     "UNIQUE piRNAs — transcript-level gene-body feature (list4, per-strain Ensembl v3.3 annotation)",
      "fraction of unique-piRNA signal within gene body", GENIC, True),
 ]
 def render(out, fn, scope, ylab, cats, derive):

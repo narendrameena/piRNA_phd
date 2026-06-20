@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
 """Figures for the sense/antisense-to-TE analysis (#3). Antisense = silencing-competent (piRNA opposite
-to the TE -> can base-pair the TE transcript). (A) antisense fraction by Step-4 class x strain (unique
-piRNAs vs common); (B) antisense fraction by top TE family for the genuinely-unique piRNAs. 50% = no
-strand bias."""
+to the TE -> can base-pair the TE transcript). (A) antisense fraction by CANONICAL pangenome 4-class (klass4,
+incl. SNP-variant) x strain (unique piRNAs vs common); (B) antisense fraction by top TE family for the
+genuinely-unique piRNAs. 50% = no strand bias. Orientation = relative to the TE feature strand (NOT genomic +/-)."""
 import sys
 sys.path.insert(0,"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
 import pandas as pd, numpy as np
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 SA="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/sense_antisense"
 STR=["C57BL_6NJ","CAST_EiJ","SPRET_EiJ"]; SCOL={"C57BL_6NJ":"#0072B2","CAST_EiJ":"#009E73","SPRET_EiJ":"#D55E00"}
-CLS=["expressed elsewhere (exact)","SNP-variant of expressed (1-3mm)","unique: conserved-but-silent","unique: strain-private locus"]
-CLAB=["expressed\nelsewhere","SNP-variant","unique:\nconserved-silent","unique:\nprivate-locus"]
-byc=pd.concat([pd.read_csv(f"{SA}/{X}.antisense_byclass.csv").assign(strain=X) for X in STR])
-pivc=byc.pivot(index="klass",columns="strain",values="antisense_pct").reindex(CLS)[STR]
-pc=pd.concat([pd.read_csv(f"{SA}/{X}.sense_antisense_percandidate.csv.gz").assign(strain=X) for X in STR])
+CLS=["expressed elsewhere (exact)","SNP-variant (1-3mm)","unique: conserved-but-silent","unique: strain-private locus"]
+CLAB=["expressed\nelsewhere","SNP-variant\n(allelic)","unique:\nconserved-silent","unique:\nprivate-locus"]
+# CANONICAL pangenome-syntenic 4-class: remap each candidate id -> sequence (step4 pilot) -> klass4 (final_classified_4class)
+U2="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
+fc=pd.read_csv(f"{U2}/unique16/final_classified_clean.csv.gz",usecols=["strain","sequence","klass5"])   # mm0-clean strain-private (klass5)
+_pri={"expressed elsewhere (exact)":0,"SNP-variant (1-3mm)":1,"unique: conserved-but-silent":2,"unique: strain-private locus":3,"low-quality: no mm0 own-genome locus":4}
+pcs=[]
+for X in STR:
+    s4=pd.read_csv(f"{U2}/step4/{X}.step4_classified.csv.gz",usecols=["id","sequence"]); id2seq=dict(zip(s4.id,s4.sequence))
+    seq2k=fc[fc.strain==X].groupby("sequence").klass5.apply(lambda s:sorted(s,key=lambda k:_pri.get(k,9))[0]).to_dict()
+    p=pd.read_csv(f"{SA}/{X}.sense_antisense_percandidate.csv.gz").assign(strain=X)
+    p["klass"]=p.id.map(id2seq).map(seq2k); pcs.append(p)
+pc=pd.concat(pcs,ignore_index=True); pc=pc[pc.klass.notna()]
+pivc=pc.groupby(["klass","strain"]).orientation.apply(lambda s:(s=="antisense").mean()*100).unstack("strain").reindex(CLS)[STR]
 gu=pc[pc.klass.str.startswith("unique")]
 fam_anti=gu.groupby("family").orientation.apply(lambda s:(s=="antisense").mean()*100)
 fam_n=gu.groupby("family").size(); top=fam_n.sort_values(ascending=False).head(10).index.tolist()

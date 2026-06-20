@@ -10,7 +10,7 @@ is nearly redundant given it. Sources: edger16/da_only_counts.csv (parsed from e
 specific); edger16/<tp>.presence_only_counts.csv (presence_only_counts.R, filterByExpr + presence, no glmQLFit)."""
 import sys
 sys.path.insert(0, "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
-from strain_order import STRAIN_ORDER, WILD
+from strain_order import STRAIN_ORDER, WILD, add_classical_wild_companion
 import pandas as pd, numpy as np
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 U  = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/edger16"
@@ -50,6 +50,7 @@ for ax, (title, mat) in zip(axes, mats.items()):
     for lab, s in zip(labs, CANON): lab.set_color("#C0392B" if s in WILD else "#333")
     ax.set_ylabel("# piRNAs (log)", fontsize=8); ax.set_title(title, fontsize=9.2, fontweight="bold", loc="left", pad=6)
     ax.spines[["top", "right"]].set_visible(False)
+axes[2].set_xticklabels([])   # bottom-panel strain labels carried by the classical/wild companion below
 from matplotlib.patches import Patch
 fig.legend(handles=[Patch(facecolor=TPC[t], label=TPLAB[t]) for t in TPO], loc="upper center",
            bbox_to_anchor=(0.5, 0.995), ncol=3, frameon=False, fontsize=8, columnspacing=1.8)
@@ -59,6 +60,13 @@ fig.text(0.5, -0.02,
     "x = canonical order, red = wild-derived (they dominate the specific set) · y = log",
     ha="center", fontsize=6, color="#666")
 fig.tight_layout(rect=[0, 0, 1, 0.965])
+# classical(blue)/wild(orange) companion: total strain-specific (intersection) piRNAs per strain
+fig.subplots_adjust(bottom=0.20)
+_tot=list(mats.values())[2].sum(1).reindex(CANON).fillna(0).values
+_cax=add_classical_wild_companion(fig, axes[2], CANON, _tot, gap=0.10, height_frac=0.20, ylabel="total\n(log)")
+_cax.set_xticks(x); _cax.set_xticklabels([s.replace("_","/") for s in CANON], rotation=45, ha="right", fontsize=6.5)
+for lab,s in zip(_cax.get_xticklabels(),CANON): lab.set_color("#C0392B" if s in WILD else "#333")
+_cax.set_title("classical (blue) vs wild-derived (orange) — total strain-specific piRNAs per strain (intersection)", fontsize=7.5, fontweight="bold", loc="left")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{U}/Fig_strain_specific_DA16_decomposition.{e}", bbox_inches="tight")
 out = da[["strain", "timepoint", "da_only", "strain_specific"]].merge(po[["strain", "timepoint", "presence_only"]], on=["strain", "timepoint"])
 out.to_csv(f"{SD}/Fig_strain_specific_DA16_decomposition.csv", index=False)

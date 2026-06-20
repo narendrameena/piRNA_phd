@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Single piRNA-cluster circos: developmental TIMELINE + SENSE/ANTISENSE + EXPRESSION across all 16 strains in
+"""Single piRNA-cluster circos: developmental TIMELINE + GENOMIC-STRAND ARCHITECTURE (uni + / uni − / dual; NOT sense/antisense) + EXPRESSION across all 16 strains in
 ONE GRCm39 circle. Outer = CONSERVATION ring (viridis = # of 16 strains with a cluster in the 2-Mb bin,
 private->core). Then each strain is a labelled track of THREE nested timepoint sub-rings (E16.5->P12.5->P20.5,
 read inward); within each sub-ring every cluster bin is a bar whose HEIGHT is proportional to log(uniq-reads
 FPM) — taller = higher expression — and whose COLOUR is the cluster STRAND in the GRCm39 frame (sense + blue,
 antisense - vermilion, bidirectional purple, CB-safe). So one view shows location, conservation, development,
-strand and expression level. Data = cluster_pav/bytp/{X}.{tp}.expr.in_GRCm39.bed (FPM col4, strand col6)."""
+strand and expression level. Data = cluster_pav/picb_pangenome_clusters.tsv (PICB-COMBINED, pangenome-projected; all_primary_FPM, genomic strand)."""
 import warnings; warnings.filterwarnings("ignore")
 import sys,os,math; sys.path.insert(0,"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
 from strain_order import STRAIN_ORDER, WILD
@@ -45,7 +45,14 @@ def binexpr(bed):
                 st=f[5].strip(); mid=(int(f[1])+int(f[2]))//2; b=mid//BIN
                 if (f[0],b) in binmap: d[binmap[(f[0],b)]][0 if st=="+" else (1 if st=="-" else 2)]+=fpm
     return d
-CL={(X,tp):binexpr(f"{PAV}/{X}.{tp}.expr.in_GRCm39.bed") for X in CANON for _,tp in TPS}
+import pandas as _pd   # PICB-combined clusters from the CURRENT pangenome projection (NOT past bytp liftover/PAV data)
+_PC=_pd.read_csv(f"{U}/cluster_pav/picb_pangenome_clusters.tsv",sep="\t",dtype={"g39_chrom":str})
+CL=defaultdict(lambda:defaultdict(lambda:[0.0,0.0,0.0]))
+for _r in _PC.itertuples(index=False):
+    if _r.strain not in CANON or _r.g39_chrom not in CHROMS: continue
+    _b=((int(_r.start)+int(_r.end))//2)//BIN
+    if (_r.g39_chrom,_b) in binmap:
+        CL[(_r.strain,_r.tp)][binmap[(_r.g39_chrom,_b)]][0 if _r.strand=="+" else (1 if _r.strand=="-" else 2)]+=float(_r.all_primary_FPM)
 GMAX=max([sum(v) for d in CL.values() for v in d.values()]+[1.0]); LGM=math.log10(GMAX+1)
 def cat(v):
     s,a,b=v
@@ -81,13 +88,13 @@ for k,X in enumerate(CANON):
     ax.text(THLAB,mid,X.replace("_","/"),fontsize=6.6,ha="center",va="center",fontweight="bold" if X in WILD else "normal",color="#C0392B" if X in WILD else "#222")
 ax.annotate("",xy=(THLAB,R_IN-0.02),xytext=(THLAB,R_OUT+0.02),arrowprops=dict(arrowstyle="-|>",color="#888",lw=1.2))
 ax.text(THLAB,R_OUT+0.05,"E16.5→P12.5→P20.5 (inward)",fontsize=6.3,ha="center",va="bottom",color="#888")
-leg=[Line2D([0],[0],color=SCOL["sense"],lw=7,label="sense (+ strand)"),Line2D([0],[0],color=SCOL["antisense"],lw=7,label="antisense (− strand)"),Line2D([0],[0],color=SCOL["bidir"],lw=7,label="bidirectional (both strands)")]
-fig.legend(handles=leg,loc="lower center",bbox_to_anchor=(0.5,0.05),ncol=3,fontsize=12,frameon=False,title="cluster strand (colour); BAR HEIGHT ∝ log expression (FPM); each strain = 3 nested sub-rings E16.5/P12.5/P20.5 (outer→inner)",title_fontsize=11)
+leg=[Line2D([0],[0],color=SCOL["sense"],lw=7,label="+ strand (uni-strand cluster)"),Line2D([0],[0],color=SCOL["antisense"],lw=7,label="− strand (uni-strand cluster)"),Line2D([0],[0],color=SCOL["bidir"],lw=7,label="dual-strand (bidirectional)")]
+fig.legend(handles=leg,loc="lower center",bbox_to_anchor=(0.5,0.05),ncol=3,fontsize=12,frameon=False,title="cluster genomic-strand architecture (colour); BAR HEIGHT ∝ log expression (FPM); each strain = 3 nested sub-rings E16.5/P12.5/P20.5 (outer→inner)",title_fontsize=11)
 sm=cm.ScalarMappable(norm=CNORM,cmap=CMAP); sm.set_array([])
 cbar=fig.colorbar(sm,ax=ax,orientation="vertical",fraction=0.03,pad=0.02,shrink=0.5)
 cbar.set_label("CONSERVATION (viridis): # of 16 strains with a cluster in the bin (1 = private → 16 = core)",fontsize=8.5); cbar.ax.tick_params(labelsize=7)
-fig.suptitle("piRNA-cluster circos (single) — TIMEPOINTS × SENSE/ANTISENSE × EXPRESSION × CONSERVATION, 16 strains in one circle (PICB-combined → GRCm39)\n"
-             "per strain: a viridis CONSERVATION band (top) + 3 timepoint sub-rings (inward); colour = strand, BAR HEIGHT = log expression; strain names (red = wild) at the spoke",
+fig.suptitle("piRNA-cluster circos (single) — TIMEPOINTS × GENOMIC-STRAND ARCHITECTURE (uni + / uni − / dual; NOT sense/antisense) × EXPRESSION × CONSERVATION, 16 strains in one circle (PICB-combined → GRCm39)\n"
+             "per strain: a viridis CONSERVATION band (top) + 3 timepoint sub-rings (inward); colour = genomic strand = architecture, BAR HEIGHT = log expression; strain names (red = wild) at the spoke",
              fontsize=12.5,fontweight="bold",y=0.99,linespacing=1.5)
 _rc=R_OUT-gap_g-cons_h
 zoom_6nj(ax, rings=[("conservation",R_OUT-gap_g-cons_h/2),("E16.5",_rc-0.5*sub_h),("P12.5",_rc-1.5*sub_h),("P20.5",_rc-2.5*sub_h)], theta_c=theta("1",0)-0.006, fs=4.4, spread=True)

@@ -11,12 +11,14 @@ import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
 PG=f"{U}/pangenome_te"; ANN="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/resources/annotation"
 STR=["C57BL_6NJ","CAST_EiJ","SPRET_EiJ"]; COL={"C57BL_6NJ":"#1f77b4","CAST_EiJ":"#2ca02c","SPRET_EiJ":"#d95f02"}
-CMAP={"expressed elsewhere (exact)":"expressed elsewhere\n(common)","SNP-variant of expressed (1-3mm)":"SNP-variant",
+CMAP={"expressed elsewhere (exact)":"expressed elsewhere\n(common)","SNP-variant (1-3mm)":"SNP-variant",
       "unique: conserved-but-silent":"unique:\nconserved-silent","unique: strain-private locus":"unique:\nstrain-private locus"}
 CLASSES=list(dict.fromkeys(CMAP.values())); MAIN={f"chr{i}" for i in list(range(1,20))+["X","Y"]}
 rows=[]
 for X in STR:
-    d=pd.read_csv(f"{U}/step4/{X}.step4_classified.csv.gz"); cls=dict(zip(d.id,d.klass))
+    d=pd.read_csv(f"{U}/step4/{X}.step4_classified.csv.gz")   # id<->sequence bridge (BAM keyed by candidate id)
+    _fc=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["sequence","strain","klass5"]); _fc=_fc[_fc.strain==X]
+    _s2k=dict(zip(_fc.sequence,_fc.klass5)); cls={i:_s2k.get(s) for i,s in zip(d.id,d.sequence)}   # id -> klass5 (≥2-read)
     bam=pysam.AlignmentFile(f"{U}/step4/{X}.cand_self.Aligned.sortedByCoord.out.bam","rb")
     gsize=sum(l for r,l in zip(bam.references,bam.lengths) if r.split("#")[-1] in MAIN)
     nloc=Counter(); loc={}
@@ -85,10 +87,10 @@ for k,X in enumerate(STR):
 ax.axhline(1,color="#555",ls="--",lw=1); ax.text(len(CLASSES)-1,1.05,"random-locus expectation (1×)",ha="right",fontsize=7,color="#555")
 ax.set_yscale("log"); ax.set_xticks(xb); ax.set_xticklabels(CLASSES,fontsize=8.5)
 ax.set_ylabel("fold-enrichment: piRNA locus inside a lncRNA gene\n(observed ÷ genomic expectation)",fontsize=9)
-ax.set_title("ncRNA-driven test (protein-coding-EXCLUDED, confounding-free): modest, largely class-independent lncRNA enrichment (~0.9–2.4×)",fontsize=10,fontweight="bold")
+ax.set_title("ncRNA-driven test (protein-coding-EXCLUDED, confounding-free): modest, largely class-independent lncRNA enrichment (well-powered CAST/SPRET ~1.4–2.2×)",fontsize=9.6,fontweight="bold")
 ax.legend(fontsize=8,frameon=False,loc="upper right"); ax.spines[['top','right']].set_visible(False)
 fig.text(0.5,0.005,"Confounding-free: clean-lncRNA space = lncRNA MINUS protein_coding (drops antisense/intronic lncRNAs over coding genes, e.g. Gm52992/Dlg2; ~21% of annotated lncRNA bp removed). Random expectation = clean-lncRNA bp ÷ genome bp. "
-  "Unlike the TE-driven test (strongly class-specific), lncRNA-overlap does NOT separate the classes — all modest (~0.9–2.4×); in SPRET strain-private is highest (2.38×) while common is ~1× (0.88×). Uniquely-mapping loci only.",ha="center",fontsize=6.0,color="#555")
+  "Unlike the TE-driven test (strongly class-specific), lncRNA-overlap does NOT separate the classes — all modest and class-independent: well-powered CAST 1.4–2.0× and SPRET 1.6–2.2× (in SPRET the four classes sit within 1.6–2.2× of each other); C57BL/6NJ is higher (2.9–7.1×) but on small n (2,555 uniquely-mapping). klass5 (≥2-read); uniquely-mapping loci only.",ha="center",fontsize=6.0,color="#555")
 fig.tight_layout(rect=[0,0.02,1,1])
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_ncrna_driven_test.{e}",bbox_inches="tight")
 print("wrote Fig_ncrna_driven_test.{png,pdf,svg} + SourceData_ncrna_driven_test.csv")

@@ -56,6 +56,7 @@ Each claim needs **3 independent agents**: `genomics` (G), `literature` (L), `ge
 | D5 | **87.6%** of SV-affected loci overlap TEs; breakdown LINE/L1 35.0%, SINE 19.9%, LTR/ERVL 14.1%, No_TE 12.4%, LTR/ERVK 8.1%, Other 7.2%, DNA 1.9%, LTR/ERV1 1.5% | PARTIAL | ✓ | ☐ | ☐ | biomni-genomics: PLAUSIBLE (LINE/L1+SINE+LTR/ERV reflect mouse TE abundance + piRNA-silencing targets). Lit cross-check pending |
 | D6 | liftOver failure is a biologically meaningful proxy for structural disruption (loss of flanking conservation), not merely a technical mapping problem | PARTIAL | ☐ | ☐ | ✓ | biomni-general 2026-06-03: PLAUSIBLE. Cross-check G+L pending |
 | D7 | piRNA clusters as "TE graveyards": TEs both create and disrupt piRNA loci (self-referential co-evolution) — explains TE co-localisation | PARTIAL | ☐ | ☐ | ✓ | biomni-general 2026-06-03: PLAUSIBLE. Cross-check G+L pending |
+| D8 | Position of MAX 1U-read 5′-end density within a PICB cluster = the dominant primary-piRNA processing site; a developmental SHIFT of this position across timepoints (e.g. PWK chr1:128Mb E16.5 +5.0kb → P12.5 +3.1kb, ~1.9kb) = developmental change in the active processing sub-region. Used in locus-figure per-tp text ("1U▲+X.Xkb"). NB: 5′-U bias of primary piRNA is textbook; the *peak-position=processing-site* + *shift* framing is the part to verify | PENDING | ☐ | ☐ | ☐ | added 2026-06-16; figure label is factual (where 1U 5′-ends peak), only the biological interpretation needs triple check |
 
 ## P3 — BACKGROUND MECHANISM CLAIMS (well-established, still verify before asserting)
 
@@ -197,8 +198,77 @@ _(date · agent · items queried · outcome)_
 - READ-LEVEL EVIDENCE (own-genome BAMs at lifted coords): clusters carry thousands of 1U-biased piRNAs in present
   strains — chr1 110,858 reads/69% 1U/8% antisense (uni-strand), Dgcr8 38,132/78% 1U/39% antisense (dual-strand),
   Col13a1 5,066/82% 1U/18% antisense, Fthl17 56,342/76% 1U/39% antisense (dual-strand, LINE/L1-dense). Bona fide piRNA.
-- CITATIONS UNVERIFIED (agents inconsistent/likely-wrong DOIs -> EuropePMC): A-MYB = Li XZ et al. 2013 (the agents
-  gave nature12317/nature25741/nature02317 — REAL paper is Mol Cell 2013 'An ancient transcription factor initiates
-  the burst of piRNA production', verify PMID/DOI before citing). Regulatory cluster evolution refs also unverified.
+- CITATIONS UNVERIFIED (agents inconsistent/likely-wrong DOIs -> EuropePMC): A-MYB = Li XZ et al. 2013, Mol Cell 'An ancient transcription factor initiates
+  the burst of piRNA production during early meiosis in mouse testes' — VERIFIED PMID 23523368, DOI 10.1016/j.molcel.2013.02.016 (EuropePMC 2026-06-13). Regulatory cluster evolution refs also unverified.
 - EVIDENCE: Fig_pav_locus_{Dgcr8,Col13a1,chr1wildtrio,Fthl17} (make_pav_locus.py).
 - STATUS: data + mechanism concept TRIPLE-verified; exact citations (esp. A-MYB Li 2013) PENDING EuropePMC.
+
+## PROVISIONAL (queue, do NOT halt) 2026-06-13 — SNP-variant refinement of "unique" piRNAs
+- DATA FINDING (grounded, validated): of the 303,674 pangenome "conserved-but-silent" candidates, 217,559 (71.6%)
+  are SNP-variants — another strain expresses a 1-3 mm allele AT THE SAME orthologous locus (present_in_Y.bed coords)
+  that is in its >=2-read pool. So genuinely-unique-BY-EXPRESSION = strain-private-locus (60,857) + true conserved-
+  but-silent (86,115); SNP-variant + expressed-elsewhere-exact are NOT novel. Script: /tmp/snp_variant_refine.py ->
+  unique16/final_classified_4class.csv.gz (klass4). USER chose pangenome-syntenic (coordinate) as canonical over the
+  STAR step4_16 route (46.8% agreement); AUDIT of 91,212 disputed: 100% real, STAR under-calls by missing expressed
+  syntenic copies. Also: stricter raw-read pass = 71.1% strict-unique, 28.9% have a sporadic single stray read
+  elsewhere (uniform noise floor, both classes).
+- BIOLOGY TO VERIFY (BioMNI triple, when draining): (1) Is "most strain-specific piRNAs are SNP-variants of a
+  conserved piRNA, not novel sequences" consistent with the literature on piRNA sequence evolution across Mus
+  lineages? (2) Is the 1-3 mm (Poisson k*=3) cutoff defensible for "same piRNA, different allele"? (3) genuinely-
+  unique enrichment at clean lncRNA (~1.4-1.8x in wild strains) — robust after SNP-variant removal.
+- EVIDENCE: Fig_unique16_class_breakdown, Fig_step4_classification16, Fig_sense_antisense, Fig_ncrna_driven_test16,
+  Fig_unique_pirna_length16, Fig_pca_unique16 (all now on klass4).
+- STATUS: data validated (audit 100%); biological interpretation + cutoff PROVISIONAL pending BioMNI triple.
+
+## PARENT-FOLDER (analysis/claude_biomni_analysis/) constraint audit 2026-06-13
+- COMPLIANT (no liftover/RNA-seq/old-PAV; no change needed): phasing figures x5 (phasing summaries), PICB figures x3
+  (Fig_picb_combined_clusters/rep_vs_combined/rep_combined_overlap — use PICB-COMBINED cluster counts).
+- SEPARATE ANALYSIS, liftover INTRINSIC (NOT touched — constraint does not apply): the SV/Zamore thread
+  (all_strains_SV_PICB_prep{,_v2,_v3}.py, Fig_PICB_vs_Zamore.py, zamore_liftover_figure.py, Fig_SV_TE.py,
+  Fig_SV_mechanism.py). These compare PICB clusters to the PUBLISHED Zamore piRNA annotation, which exists ONLY in
+  mm10/GRCm39 -> liftOver to each strain is the METHOD (Fig_PICB_vs_Zamore is literally ABOUT SV-driven liftOver
+  failure). Removing liftover would destroy the analysis. NEEDS USER DECISION if they want this thread changed.
+
+## VERIFIED (BioMNI triple) 2026-06-13 — SNP-variant refinement biology + citations RESOLVED
+- BIOLOGY TRIPLE-CONFIRMED (genomics + literature + general ALL AGREE, independent, no shared context):
+  (a) Most "strain-specific" piRNAs across closely-related Mus lineages being SEQUENCE (SNP) variants of conserved,
+      expressed piRNAs (rather than genuinely novel species) is biologically EXPECTED / consistent with known rapid
+      piRNA sequence divergence at conserved loci. Our 72% quantification is a NEW result consistent with that
+      framework (NOT a published number).
+  (b) 1-3 mismatch (Hamming) cutoff for "same piRNA, different allele": DEFENSIBLE given ~26-30 nt length, BUT the
+      general agent flagged "PARTIALLY — not extensively validated in the literature"; literature agent: "depends on
+      context." -> present as a reasoned methodological choice (Poisson k*=3), NOT a literature-mandated standard.
+  (c) lncRNA-derived (pachytene) piRNA as a plausible source of strain-divergent piRNAs: CONFIRMED plausible by all 3.
+- CITATION INTEGRITY (CRITICAL): ALL PMIDs proposed by the 3 agents were FABRICATED. EuropePMC ground-truth:
+  agent PMID 27287783 = a SCHIZOPHRENIA paper; 33904737 = CYCLAZINE CHEMISTRY; 27847972 = PROSTATE BIOPSY;
+  26745832 = MOOD-DYSREGULATION psychiatry. NONE about piRNA. -> NEVER cite agent-supplied PMIDs without EuropePMC.
+- REAL, EuropePMC-VERIFIED citations (title+author+year match) to use instead:
+  * Chirn GW et al. 2015, PLoS Genet — "Conserved piRNA Expression from a Distinct Set of piRNA Cluster Loci in
+    Eutherian Mammals" — PMID 26588211, DOI 10.1371/journal.pgen.1005652.
+  * Assis R, Kondrashov AS 2009, PNAS — "Rapid repetitive element-mediated expansion of piRNA clusters in mammalian
+    evolution" — PMID 19357307, DOI 10.1073/pnas.0900523106.
+  * Sun YH, Lee B, Li XZ 2022, Mamm Genome — "The birth of piRNAs: how mammalian piRNAs are produced, originated, and
+    evolved" — PMID 34724117, DOI 10.1007/s00335-021-09927-8.
+  * Yu T et al. 2022, RNA — "A-MYB/TCFL5 regulatory architecture ensures the production of pachytene piRNAs in
+    placental mammals" — PMID 36241367, DOI 10.1261/rna.079472.122.
+- STATUS: biology VERIFIED; citations RESOLVED (verified set above); cutoff (b) = methodological choice, stated as such.
+
+## 2026-06-18 — coord16 TE-insertion-driven strain-private piRNAs (BioMNI 3/3 VERIFIED)
+CLAIM: clean (mm0) strain-private piRNA production loci in divergent mouse strains are predominantly inside strain-private TE insertions (64-92% in wild-derived), LTR/ERVK(IAP)+LINE/L1 dominant; conserved-but-silent = expression/regulatory divergence (NOT insertion-enriched).
+- biomni-genomics: YES (established piRNA/TE biology)
+- biomni-general: YES (cited PMID 17376864, 21337534 — NOT YET EuropePMC-confirmed)
+- biomni-literature: Consistent (Aravin 2007, Li 2013, Gainetdinov 2018 — NOT YET EuropePMC-confirmed)
+CAVEAT (BioMNI): 'private' depends on assembly completeness/annotation → lower bound.
+TODO: EuropePMC-confirm PMIDs/DOIs before citing in thesis/paper.
+
+## 2026-06-19 — SV → piRNA cluster disruption (theme 03; QUEUED, data-integrity audit Finding 3)
+CLAIM (as currently framed in theme-03 SV figures, NOW SOFTENED to associational pending BioMNI):
+"pangenome structural variants predict / drive / cause piRNA cluster disruption; disrupted loci carry ~2× more SVs."
+DATA (independent recompute, 2026-06-19): at the locus itself (direct window) the SV vs no-SV disruption difference is
+NULL (Pachytene 24.9% with-SV vs 24.8% without); SV burden NOT higher in disrupted loci at the locus (INS_n 0.22 vs 0.30).
+A positive association appears ONLY at wider windows (10 kb +2.0pp, 50 kb +4.5pp) — consistent with a regional
+rearrangement-prone-region confound, and "not_lifted" is partly definitional (a structural change).
+ACTION TAKEN: causal verbs softened to "co-occur with / associate with" in Fig_SV_mechanism / Fig_SV_TE / Fig_PICB_vs_Zamore
+(docstrings + rendered titles) + audit notes added; figures re-rendered.
+TODO (BioMNI triple-verify before any causal claim): is SV-at-locus a causal disruptor of piRNA clusters, or is the
+association a regional/definitional confound? Frame accordingly; do NOT use "predict/drive/cause" until 3/3 confirm.

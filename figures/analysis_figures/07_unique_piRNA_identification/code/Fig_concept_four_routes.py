@@ -3,8 +3,9 @@
 unique. Three columns per route: (L) verdict + real Step-4 count; (M) the INTUITION — the same locus across
 3 strains (SPRET/CAST/C57) showing the route's defining cross-strain pattern (expressed-in-all / SNP-allele
 / silent-elsewhere / private); (R) the DATA — the real representative SPRET piRNA at its true locus, zoomed
-from real P20.5 coverage to single-base + genomic-coordinate resolution. Counts = real SPRET_EiJ Step-4
-classification; representatives = uniquely-mapping 1U candidates (step4_classified ∩ cand_self BAM), loci verified 2026-06-11."""
+from real P20.5 coverage to single-base + genomic-coordinate resolution. Counts = real SPRET_EiJ ADOPTED ≥2-read
+klass5 (16-strain 5-class system); a 5th QC class, low-quality (mm1-3, n=26,334), is filtered out, not a biological route;
+representatives = uniquely-mapping 1U candidates (step4_classified ∩ cand_self BAM), loci verified 2026-06-11."""
 import numpy as np, pysam
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, FancyBboxPatch, ConnectionPatch
@@ -12,13 +13,13 @@ U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_a
 PG=f"{U}/pangenome_te"
 BAM="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/results/STAR_srna_strain_wise/SPRET_EiJ/SPRET_EiJ-20.5dpp.1/Aligned.sortedByCoord.out.bam"
 NT={"A":"#33a02c","C":"#1f78b4","G":"#ff7f00","T":"#e31a1c","N":"#999"}
-R=[(1,"Exact sequence in ALL strains","NOT unique","#9e9e9e",24124,"TAAATGCATCTGAAGCCTTGGACGGTCC","chr12",2096248,2096276,"+",
+R=[(1,"Exact sequence in ALL strains","NOT unique","#9e9e9e",18530,"TAAATGCATCTGAAGCCTTGGACGGTCC","chr12",2096248,2096276,"+",
     "Identical piRNA made by every strain (0-mm match elsewhere)."),
-   (2,"SNP-variant of a conserved piRNA","NOT unique","#E69F00",100513,"TAAAGGTCACTCTGAATCCTGCGAGGCT","chr19",2790047,2790075,"+",
+   (2,"SNP-variant of a conserved piRNA","NOT unique","#E69F00",129931,"TAAAGGTCACTCTGAATCCTGCGAGGCT","chr19",2790047,2790075,"+",
     "SPRET ≤3-SNP allele of a conserved piRNA the others express."),
-   (3,"Conserved locus, expressed only in SPRET","UNIQUE (expression)","#0072B2",140969,"TAACGGTATCAGGTAGGTAGCACCTCTC","chr10",75578163,75578191,"-",
+   (3,"Conserved locus, expressed only in SPRET","UNIQUE (expression)","#0072B2",37819,"TAACGGTATCAGGTAGGTAGCACCTCTC","chr10",75578163,75578191,"-",
     "Locus in all strains, transcribed only in SPRET — expression divergence."),
-   (4,"Strain-private locus (e.g. TE insertion)","UNIQUE (locus gain)","#C0392B",61208,"TAAACAGTGTCAGGGCAGTCTGTACCTC","chr14",56538402,56538430,"-",
+   (4,"Strain-private locus (e.g. TE insertion)","UNIQUE (locus gain)","#C0392B",11045,"TAAACAGTGTCAGGGCAGTCTGTACCTC","chr14",56538402,56538430,"-",
     "Locus only in SPRET (absent in others) — TE-driven birth; the minority.")]
 W=110; bam=pysam.AlignmentFile(BAM,"rb")
 def cov(chrom,s,e):

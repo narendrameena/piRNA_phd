@@ -9,7 +9,7 @@ mode, NOT a direct ping-pong measurement:
   * UNI-STRAND  (one dominant strand expressed)      -> teal. Single-direction phased loci.
 A true ping-pong map needs per-region 10-nt 5'-overlap z-scores from the BAMs (pingpong pipeline) — a separate
 computation. Each strain = 3 nested timepoint sub-rings (E16.5->P12.5->P20.5, inward); bar HEIGHT ∝ log cluster
-FPM. Data = cluster_pav/bytp/{X}.{tp}.expr.in_GRCm39.bed (FPM col4, strand col6)."""
+FPM. Data = cluster_pav/picb_pangenome_clusters.tsv (PICB-COMBINED, pangenome-projected; all_primary_FPM, 2-strand)."""
 import warnings; warnings.filterwarnings("ignore")
 import sys,os,math; sys.path.insert(0,"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
 from strain_order import STRAIN_ORDER, WILD
@@ -48,7 +48,14 @@ def binexpr(bed):
                 st=f[5].strip(); mid=(int(f[1])+int(f[2]))//2; b=mid//BIN
                 if (f[0],b) in binmap: d[binmap[(f[0],b)]][0 if st=="+" else 1]+=fpm   # +,- (bidir flag splits below)
     return d
-CL={(X,tp):binexpr(f"{PAV}/{X}.{tp}.expr.in_GRCm39.bed") for X in CANON for _,tp in TPS}
+import pandas as _pd   # PICB-combined clusters from the CURRENT pangenome projection (NOT past bytp liftover/PAV data)
+_PC=_pd.read_csv(f"{U}/cluster_pav/picb_pangenome_clusters.tsv",sep="\t",dtype={"g39_chrom":str})
+CL=defaultdict(lambda:defaultdict(lambda:[0.0,0.0]))
+for _r in _PC.itertuples(index=False):
+    if _r.strain not in CANON or _r.g39_chrom not in CHROMS: continue
+    _b=((int(_r.start)+int(_r.end))//2)//BIN
+    if (_r.g39_chrom,_b) in binmap:
+        CL[(_r.strain,_r.tp)][binmap[(_r.g39_chrom,_b)]][0 if _r.strand=="+" else 1]+=float(_r.all_primary_FPM)
 GMAX=max([sum(v) for d in CL.values() for v in d.values()]+[1.0]); LGM=math.log10(GMAX+1)
 def mode(v):
     s,a=v

@@ -8,7 +8,7 @@ NOTE: this set still contains SNP-variants of conserved piRNAs; Fig_step4_classi
 expressed-elsewhere vs genuinely-novel. These are the strain-specific DA candidates feeding Step 4."""
 import sys
 sys.path.insert(0,"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
-from strain_order import STRAIN_ORDER, WILD
+from strain_order import STRAIN_ORDER, WILD, add_classical_wild_companion
 import pandas as pd, numpy as np
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/edger16"
@@ -49,8 +49,7 @@ for j,t in enumerate(TPO):
     for xi,v,e in zip(xs,vals,errs):
         if v>0: ax.text(xi,(v+e)*1.14,klab(v),ha="center",va="bottom",fontsize=4.6,rotation=90,color=TPC[t])
 ax.set_yscale("log"); ax.set_ylim(1,ymax*3.2)
-ax.set_xticks(x); labs=ax.set_xticklabels([s.replace("_","/") for s in CANON],rotation=45,ha="right",fontsize=8)
-for lab,s in zip(labs,CANON): lab.set_color("#C0392B" if s in WILD else "#333")
+ax.set_xticks(x); ax.set_xticklabels([])   # strain labels carried by the classical/wild companion below (avoid duplicate-label overlap)
 ax.set_ylabel("strain-specific piRNAs\n(edgeR DA ∩ presence/absence, log)",fontsize=8.5)
 ax.text(np.mean(WPOS),ymax*2.4,"wild-derived",ha="center",va="top",fontsize=8,fontweight="bold",color="#C0392B")
 ax.legend(fontsize=7.5,frameon=False,ncol=3,loc="lower left",bbox_to_anchor=(0,1.005),
@@ -65,6 +64,12 @@ fig.text(0.5,-0.06,
     "wild strains carry 10–100× more · candidates still include SNP-variants — split into novel vs expressed-elsewhere in Fig_step4_classification16",
     ha="center",fontsize=5.8,color="#666")
 fig.tight_layout()
+# classical(blue)/wild(orange) total-count companion per strain (subspecies colour scheme)
+fig.subplots_adjust(bottom=0.30)
+_cax=add_classical_wild_companion(fig,ax,CANON,tab.sum(1).reindex(CANON).values,gap=0.12,height_frac=0.22,ylabel="total\n(log)")
+_cax.set_xticks(x); _cax.set_xticklabels([s.replace("_","/") for s in CANON],rotation=45,ha="right",fontsize=6.5)
+for lab,s in zip(_cax.get_xticklabels(),CANON): lab.set_color("#C0392B" if s in WILD else "#333")
+_cax.set_title("classical (blue) vs wild-derived (orange) — total strain-specific piRNAs per strain",fontsize=7.5,fontweight="bold",loc="left")
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/Fig_strain_specific_DA16.{e}",bbox_inches="tight")
 tab.astype(int).to_csv(f"{SD}/Fig_strain_specific_DA16.csv")
 print("wrote Fig_strain_specific_DA16.{png,pdf,svg} + source_data/Fig_strain_specific_DA16.csv")

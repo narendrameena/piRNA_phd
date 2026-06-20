@@ -18,9 +18,9 @@ for X in STRAINS:
     if not os.path.exists(fb): print(f"[skip] {X} no fpm bed"); continue
     d = pd.read_csv(fb, sep="\t", header=None, names=["chrom", "start", "end", "allFPM", "uniqFPM", "strand", "tp"])
     inb = f"{CP}/.{X}.fpm_liftin.bed"
-    with open(inb, "w") as o:                     # name = strain;tp;allFPM;uniqFPM;strand  (carried through halLiftover)
+    with open(inb, "w") as o:                     # name = strain;tp;allFPM;uniqFPM;strand;OWNchrom;OWNstart;OWNend  (carried through halLiftover)
         for _, r in d.iterrows():
-            o.write(f"{r.chrom}\t{r.start}\t{r.end}\t{X};{r.tp};{r.allFPM};{r.uniqFPM};{r.strand}\n")
+            o.write(f"{r.chrom}\t{r.start}\t{r.end}\t{X};{r.tp};{r.allFPM};{r.uniqFPM};{r.strand};{r.chrom};{r.start};{r.end}\n")
     outb = f"{CP}/.{X}.fpm_g39.bed"
     rc = subprocess.run(f"singularity exec --bind /mnt {SIF} halLiftover {HAL} {X} {inb} GRCm39 {outb}", shell=True, capture_output=True, text=True)
     n = 0
@@ -29,11 +29,11 @@ for X in STRAINS:
             f = ln.rstrip("\n").split("\t")
             if len(f) < 4: continue
             nm = f[3].split(";")
-            if len(nm) < 5: continue
-            allrows.append((f[0], int(f[1]), int(f[2]), nm[0], nm[1], float(nm[2]), float(nm[3]), nm[4])); n += 1
+            if len(nm) < 8: continue
+            allrows.append((f[0], int(f[1]), int(f[2]), nm[0], nm[1], float(nm[2]), float(nm[3]), nm[4], nm[5], int(nm[6]), int(nm[7]))); n += 1
     os.remove(inb)
     print(f"[{X}] {len(d)} clusters -> {n} GRCm39-projected fragments  (rc={rc.returncode})")
-T = pd.DataFrame(allrows, columns=["g39_chrom", "start", "end", "strain", "tp", "all_primary_FPM", "uniq_FPM", "strand"])
+T = pd.DataFrame(allrows, columns=["g39_chrom", "start", "end", "strain", "tp", "all_primary_FPM", "uniq_FPM", "strand", "own_chrom", "own_start", "own_end"])
 T = T[T.g39_chrom.astype(str).str.match(r"^(\d+|X|MT)$")].sort_values(["g39_chrom", "start"])
-T.to_csv(f"{CP}/picb_pangenome_fpm.tsv", sep="\t", index=False)
-print(f"wrote picb_pangenome_fpm.tsv: {len(T)} rows; strains={T.strain.nunique()}; tps={sorted(T.tp.unique())}")
+T.to_csv(f"{CP}/picb_pangenome_clusters.tsv", sep="\t", index=False)   # NEW superset (own+g39 coords); old picb_pangenome_fpm.tsv preserved
+print(f"wrote picb_pangenome_clusters.tsv: {len(T)} rows; strains={T.strain.nunique()}; tps={sorted(T.tp.unique())}")

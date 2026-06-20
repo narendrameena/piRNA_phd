@@ -15,15 +15,17 @@ ROOT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U=f"{ROOT}/analysis
 X="SPRET_EiJ"; comp={"A":"T","T":"A","C":"G","G":"C","N":"N"}; NT={"A":"#33a02c","C":"#1f78b4","G":"#ff7f00","T":"#e31a1c","N":"#999"}
 REAL=f"{ROOT}/results/STAR_srna_strain_wise/{X}/{X}-20.5dpp.1/Aligned.sortedByCoord.out.bam"; CS=f"{U}/step4/{X}.cand_self.Aligned.sortedByCoord.out.bam"
 GFF=f"{ROOT}/resources/annotation/{X}_v3.5.gff3"; RM=f"{ROOT}/resources/repeatMasker/{X}_repeatmasker.bed"
-d=pd.read_csv(f"{U}/step4/{X}.step4_classified.csv.gz"); kof=dict(zip(d.id,d.klass)); seqof=dict(zip(d.id,d.sequence))
+d=pd.read_csv(f"{U}/step4/{X}.step4_classified.csv.gz"); seqof=dict(zip(d.id,d.sequence))   # id<->sequence bridge (BAM keyed by candidate id)
+_fc=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["sequence","strain","klass5"]); _fc=_fc[_fc.strain==X]
+_s2k=dict(zip(_fc.sequence,_fc.klass5)); kof={i:_s2k.get(s) for i,s in zip(d.id,d.sequence)}   # id -> klass5 (≥2-read)
 # route -> (klass, verdict, colour, count[clean-lncRNA], chrom, gstart, gend, sym, title, note)
-SPEC=[(1,"expressed elsewhere (exact)","NOT unique","#9e9e9e",645,"chr18",33494059,33502846,"C330008A17",
+SPEC=[(1,"expressed elsewhere (exact)","NOT unique","#9e9e9e",869,"chr18",33494059,33502846,"C330008A17",
        "Exact sequence in ALL strains","Identical lncRNA-derived piRNA made by every strain."),
-      (2,"SNP-variant of expressed (1-3mm)","NOT unique","#E69F00",10718,"chr17",23815048,23828598,"Gm49794",
+      (2,"SNP-variant (1-3mm)","NOT unique","#E69F00",13202,"chr17",23815048,23828598,"Gm49794",
        "SNP-variant of a conserved lncRNA piRNA","≤3-SNP allele of a conserved lncRNA piRNA the others express."),
-      (3,"unique: conserved-but-silent","UNIQUE (expression)","#0072B2",12367,"chr7",60978491,61013294,"Gm10619",
+      (3,"unique: conserved-but-silent","UNIQUE (expression)","#0072B2",3508,"chr7",60978491,61013294,"Gm10619",
        "Conserved lncRNA, expressed only in SPRET","lncRNA in all strains, piRNAs made only in SPRET — expression divergence."),
-      (4,"unique: strain-private locus","UNIQUE (sequence)","#7a3b9a",5905,"chr17",23790189,23809974,"Gm10505",
+      (4,"unique: strain-private locus","UNIQUE (sequence)","#7a3b9a",688,"chr17",23790189,23809974,"Gm10505",
        "Strain-private SEQUENCE from a CONSERVED lncRNA","lncRNA conserved in all 16 strains; the piRNA SEQUENCE diverged — NOT a locus gain.")]
 # ---- parse genes (all biotypes) + TE for the audit ----
 chset={s[5] for s in SPEC}; genes=defaultdict(list); te=defaultdict(list)

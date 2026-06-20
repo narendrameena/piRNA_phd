@@ -16,9 +16,9 @@ ROOT = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U = f"{ROOT}/anal
 BT = "/mnt/home3/miska/nm667/miniconda3/envs/ccTE/bin/bedtools"; CANON = [s for s in STRAIN_ORDER if s != "C57BL_6"]
 TPMAP = {"16.5dpc": "E16.5", "12.5dpp": "P12.5", "20.5dpp": "P20.5"}; TPS = ["E16.5", "P12.5", "P20.5"]
 TPCOL = {"E16.5": "#4393C3", "P12.5": "#FDB863", "P20.5": "#B2182B"}
-d = pd.read_csv(f"{U}/unique16/final_classified.csv.gz")
+d = pd.read_csv(f"{U}/unique16/final_classified_clean.csv.gz")   # mm0-clean strain-private (klass5)
 # total strain-private piRNAs per (strain, timepoint) — the "unique piRNA by timepoint" counts (top bars)
-ctall = (d[d.klass == "unique: strain-private locus"].assign(tp=lambda r: r.timepoint.map(TPMAP))
+ctall = (d[d.klass5 == "unique: strain-private locus"].assign(tp=lambda r: r.timepoint.map(TPMAP))
          .groupby(["strain", "tp"]).size().unstack(fill_value=0).reindex(index=CANON, columns=TPS).fillna(0))
 cache = f"{PG}/SourceData_TE_timepoint_strain.csv"
 if os.path.exists(cache):

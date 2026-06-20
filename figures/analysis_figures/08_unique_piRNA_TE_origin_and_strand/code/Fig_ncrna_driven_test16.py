@@ -9,12 +9,14 @@ import warnings; warnings.filterwarnings("ignore")
 import pandas as pd, numpy as np, bisect
 from collections import defaultdict
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+import sys; sys.path.insert(0,"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
+from strain_order import WILD, add_classical_wild_companion
 ROOT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U=f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; PG=f"{U}/pangenome_te"; ANN=f"{ROOT}/resources/annotation"
 CANON=["C57BL_6NJ","BALB_cJ","A_J","FVB_NJ","C3H_HeJ","LP_J","129S1_SvImJ","DBA_2J","AKR_J","CBA_J","NZO_HlLtJ","NOD_ShiLtJ","WSB_EiJ","CAST_EiJ","PWK_PhJ","SPRET_EiJ"]
 MAIN={str(i) for i in range(1,20)}|{"X"}
 CLS=["unique: conserved-but-silent","unique: strain-private locus"]; LAB=["conserved-but-silent","strain-private locus"]; COL=["#0072B2","#7a3b9a"]
 def stripc(c): return c.split("#")[-1].replace("chr","")
-d=pd.read_csv(f"{U}/unique16/final_classified_clean.csv.gz")   # CANONICAL 5-class (klass5): CBS excl SNP-variants; strain-private = mm0-clean
+d=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz")   # CANONICAL 5-class (klass5): CBS excl SNP-variants; strain-private = mm0-clean
 kl={f"{s}|{t}|{q}":k for s,t,q,k in zip(d.strain,d.timepoint,d.sequence,d.klass5)}
 def clean_space(X):
     lnc=defaultdict(list); pcg=defaultdict(list)
@@ -74,12 +76,19 @@ for i,(cls,lab) in enumerate(zip(CLS,LAB)):
     for xi,v,nn in zip(x+(i-0.5)*bw,sub.fold,sub.n_uniq):
         if pd.notna(v): ax.text(xi,(v if v>0 else 0)+0.06,f"n={int(nn)}",ha="center",va="bottom",fontsize=4.2,rotation=90,color=COL[i])
 ax.axhline(1,color="#555",ls="--",lw=1); ax.text(len(CANON)-1,1.04,"random expectation (1×)",ha="right",fontsize=7,color="#555")
-ax.set_xticks(x); ax.set_xticklabels([s.replace("_","/") for s in CANON],rotation=45,ha="right",fontsize=8)
+ax.set_xticks(x); ax.set_xticklabels([])   # strain labels carried by the classical/wild companion below
 ax.set_ylabel("fold-enrichment at CLEAN lncRNA genes\n(observed ÷ genomic expectation)",fontsize=9); ax.legend(fontsize=8.5,frameon=False)
 ax.set_title("16-strain ncRNA-driven test — unique piRNAs vs clean lncRNA genes (protein-coding-excluded, confounding-free)",fontsize=10.5,fontweight="bold")
 ax.spines[['top','right']].set_visible(False)
 fig.text(0.5,0.005,"Per strain (canonical order), fold-enrichment of uniquely-mapping NOVEL-class piRNA loci inside clean lncRNA genes (lncRNA minus protein_coding). Loci = cand_loci16 (own genome, Ensembl); class via join to final_classified. "
   "n above each bar = uniquely-mapping loci: CLASSICAL strains have very low n (low power — noisy folds); the robust signal is the high-n wild-derived strains (WSB/CAST/PWK/SPRET), modestly enriched (~1.4–2×), consistent with the pilot.",ha="center",fontsize=6.0,color="#555")
 fig.tight_layout(rect=[0,0.02,1,1])
+# classical(blue)/wild(orange) companion: uniquely-mapping unique-piRNA loci per strain (subspecies colour scheme)
+fig.subplots_adjust(bottom=0.34)
+_tot=df.groupby("strain").n_uniq.sum().reindex(CANON).fillna(0).values
+_cax=add_classical_wild_companion(fig,ax,CANON,_tot,gap=0.13,height_frac=0.20,ylabel="uniq-map\nloci (log)")
+_cax.set_xticks(np.arange(len(CANON))); _cax.set_xticklabels([s.replace("_","/") for s in CANON],rotation=45,ha="right",fontsize=6.5)
+for lab,s in zip(_cax.get_xticklabels(),CANON): lab.set_color("#C0392B" if s in WILD else "#333")
+_cax.set_title("classical (blue) vs wild-derived (orange) — uniquely-mapping unique-piRNA loci per strain",fontsize=7.5,fontweight="bold",loc="left")
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_ncrna_driven_test16.{e}",bbox_inches="tight")
 print("wrote Fig_ncrna_driven_test16.{png,pdf,svg} + source data")

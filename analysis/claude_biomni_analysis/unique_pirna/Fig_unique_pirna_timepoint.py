@@ -16,8 +16,8 @@ SD = f"{ROOT}/analysis/claude_biomni_analysis/source_data"
 CANON = [s for s in STRAIN_ORDER if s != "C57BL_6"]
 TPMAP = {"16.5dpc": "E16.5", "12.5dpp": "P12.5", "20.5dpp": "P20.5"}
 TPS = [("E16.5", "#4393C3"), ("P12.5", "#FDB863"), ("P20.5", "#B2182B")]   # developmental blue->orange->red
-d = pd.read_csv(f"{U}/unique16/final_classified.csv.gz")
-g = d[d.klass == "unique: strain-private locus"].copy()
+d = pd.read_csv(f"{U}/unique16/final_classified_clean.csv.gz")   # mm0-clean strain-private (klass5); excludes mm1-3/error 'low-quality' reads
+g = d[d.klass5 == "unique: strain-private locus"].copy()
 g["tp"] = g.timepoint.map(TPMAP)
 ct = g.groupby(["strain", "tp"]).size().unstack(fill_value=0).reindex(index=CANON, columns=[t for t, _ in TPS]).fillna(0)
 os.makedirs(SD, exist_ok=True); ct.to_csv(f"{SD}/SourceData_unique_pirna_timepoint.csv")
