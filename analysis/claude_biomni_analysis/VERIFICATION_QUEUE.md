@@ -272,3 +272,37 @@ ACTION TAKEN: causal verbs softened to "co-occur with / associate with" in Fig_S
 (docstrings + rendered titles) + audit notes added; figures re-rendered.
 TODO (BioMNI triple-verify before any causal claim): is SV-at-locus a causal disruptor of piRNA clusters, or is the
 association a regional/definitional confound? Frame accordingly; do NOT use "predict/drive/cause" until 3/3 confirm.
+
+## 2026-06-21 — PICB vs Trinity method comparison (theme 17) — STATUS: PARTIAL (2/3 confirm, 0 contradict)
+CLAIM: "For defining piRNA source loci genome-wide, the reference cluster caller (PICB) is the more appropriate
+method; de-novo Trinity assembly is complementary (annotation-free precursor-transcript discovery) but over-segments
+long precursors (2.6–5.7 contigs/cluster) and is diluted by off-cluster (likely genic) transcripts (~2/3)."
+DATA (this project, 16 strains × 3 tp; build-compat verified chr1=194,686,469): PICB 4–5× more loci; ~30–42% Trinity
+precursors overlap a PICB cluster; Trinity recovers <13% of clusters; PICB longer (2.6–3.1 kb vs 1.3–1.9 kb).
+BioMNI (2026-06-21, run live):
+- biomni-genomics (G): CONFIRMS all 3 points. (cited Gainetdinov 2018 Mol Cell, Li 2013 Mol Cell — UNVERIFIED)
+- biomni-general (Gn): CONFIRMS all 3 explicitly; caveats = depth-dependence, false positives in BOTH, validation needed.
+- biomni-literature (L): NON-COMMITTAL ("both have trade-offs; depends on question") — did not contradict, no PMIDs.
+VERDICT: 2/3 confirm, none contradict → report as well-supported but NOT as 3/3 VERIFIED. Caveats (depth, FP, validation)
+folded into theme-17 PIPELINE.md verdict. The read-capture (decisive metric) reinforces but does not change the verdict.
+TODO-P1 (citations, EuropePMC-confirm before citing anywhere): Gainetdinov et al. 2018 Mol Cell (piRNA cluster
+reference method) DOI 10.1016/j.molcel.2018.04.007 ; Li et al. 2013 Mol Cell (pachytene piRNA precursors)
+DOI 10.1016/j.molcel.2013.04.013 — agent-provided, NOT yet independently confirmed; do not cite as fact until checked.
+
+---
+
+## Theme 18 (DESeq2 stage-peak) — 2026-06-23
+
+**P1 CITATIONS — ✅ VERIFIED (PMID + DOI confirmed against PubMed / publishers / Europe PMC, not BioMNI alone):**
+- Robinson MD, McCarthy DJ, Smyth GK 2010, edgeR, *Bioinformatics* 26(1):139–140 — PMID **19910308**, DOI **10.1093/bioinformatics/btp616** [Europe PMC confirmed]
+- Love MI, Huber W, Anders S 2014, DESeq2, *Genome Biology* 15:550 — PMID **25516281**, DOI **10.1186/s13059-014-0550-8** [PubMed confirmed]
+- Soneson C, Delorenzi M 2013, *BMC Bioinformatics* 14:91 — PMID **23497356**, DOI **10.1186/1471-2105-14-91** [PMC3608160]
+- Schurch NJ et al. 2016, *RNA* 22(6):839–851 — PMID **27022035**, DOI **10.1261/rna.053959.115** [⚠ search summary hallucinated PMID 27638913; real PMID from PubMed URL = 27022035]
+- Aravin A et al. 2006, *Nature* 442:203–207 — PMID **16751777**, DOI **10.1038/nature04916**
+- Girard A et al. 2006, *Nature* 442:199–202 — PMID **16751776**, DOI **10.1038/nature04917**
+- Li XZ et al. 2013 (A-MYB), *Molecular Cell* 50:67–81 — PMID **23523368**, DOI **10.1016/j.molcel.2013.02.016** [PMC3671569] [⚠ this CORRECTS the earlier TODO-P1 above which had an unconfirmed DOI 10.1016/j.molcel.2013.04.013 for "Li 2013" — the real A-MYB-paper DOI is .02.016]
+
+**P2 DATA/METHOD CONCLUSIONS — ✅ VERIFIED (BioMNI 3/3, run live 2026-06-23):**
+- Benchmark design (permutation-null FP + p-value calibration + concordance for DA-method comparison without ground truth): G+L+Gn all confirm; refs above. → DESeq2 adopted (data: edgeR ~10–21× more null FP, ~2× anti-conservative).
+- Within-timepoint uniqueness is biologically correct (stage-specific MILI/MIWI2 vs MIWI machinery): G+L+Gn all confirm.
+- Heterochronic (stage-shifted) divergence — same piRNA seq/locus expressed at different stages in different strains — is biologically meaningful + precedented: G+L+Gn all confirm. → "stage-shifted" counted as within-tp unique.
