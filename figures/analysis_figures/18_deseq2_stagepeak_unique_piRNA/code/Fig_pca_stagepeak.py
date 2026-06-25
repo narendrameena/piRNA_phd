@@ -66,8 +66,8 @@ if not os.path.exists(_SRC2):
     allp.to_csv(_SRC2,index=False); print(f"ALL: {Mall.shape[0]} unique features x {Mall.shape[1]} libraries, PC1 {var[0]:.1f}% PC2 {var[1]:.1f}%",flush=True)
 else: allp=pd.read_csv(_SRC2)
 # ---- plot 2x2 ----
-def wild_labels(ax,sub):
-    cx,cy=sub.PC1.mean(),sub.PC2.mean(); ANCH={"WSB_EiJ":(0.33,0.32),"PWK_PhJ":(0.33,0.19)}
+def wild_labels(ax,sub,anch=None):
+    cx,cy=sub.PC1.mean(),sub.PC2.mean(); ANCH=anch or {"WSB_EiJ":(0.33,0.32),"PWK_PhJ":(0.33,0.19)}
     for st in sub.strain.unique():
         if st not in WILD: continue
         c=sub[sub.strain==st]; px,py=c.PC1.mean(),c.PC2.mean()
@@ -90,7 +90,7 @@ for ax,tp in zip([axes[0,0],axes[0,1],axes[1,0]],["E16.5","P12.5","P20.5"]):
 # 4th panel: all timepoints pooled
 axP=axes[1,1]
 for _,r in allp.iterrows(): axP.scatter(r.PC1,r.PC2,s=34,color=WILD_COLOR if r.strain in WILD else CLASSICAL_COLOR,marker=MK.get(r.tp,"o"),edgecolor="white",linewidth=0.3,zorder=3)
-wild_labels(axP,allp)
+wild_labels(axP,allp,{"WSB_EiJ":(0.33,0.32),"PWK_PhJ":(0.33,0.19),"CAST_EiJ":(0.10,0.82)})  # pooled: CAST centroid sits in the cluster -> anchor it
 v1,v2=allp.pc1_var.iloc[0],allp.pc2_var.iloc[0]; n=allp.n_features.iloc[0]
 axP.set_xlabel(f"PC1 ({v1:.0f}%)",fontsize=9.5); axP.set_ylabel(f"PC2 ({v2:.0f}%)",fontsize=9.5)
 axP.set_title(f"all timepoints pooled  ({n:,} unique piRNAs, 144 libraries)",fontsize=11,fontweight="bold"); axP.spines[["top","right"]].set_visible(False)

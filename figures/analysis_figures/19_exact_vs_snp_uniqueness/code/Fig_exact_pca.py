@@ -30,8 +30,8 @@ pca=pd.DataFrame(res)
 allseqs=[s for s in g.sequence.unique() if s in E.index]; sc,var=pca_xy(allseqs,list(E.columns))
 allp=pd.DataFrame([dict(strain=c.split("|")[1].rsplit(".",1)[0],tp=TPN[c.split("|")[0]],PC1=sc[i,0],PC2=sc[i,1],pc1_var=var[0],pc2_var=var[1],n=len(allseqs)) for i,c in enumerate(E.columns)])
 print(f"ALL: {len(allseqs)} exact-unique features x {len(E.columns)} libraries, PC1 {var[0]:.1f}% PC2 {var[1]:.1f}%",flush=True)
-def wild_labels(ax,s):
-    cx,cy=s.PC1.mean(),s.PC2.mean(); ANCH={"WSB_EiJ":(0.33,0.32),"PWK_PhJ":(0.33,0.19)}
+def wild_labels(ax,s,anch=None):
+    cx,cy=s.PC1.mean(),s.PC2.mean(); ANCH=anch or {"WSB_EiJ":(0.33,0.32),"PWK_PhJ":(0.33,0.19)}
     for st in s.strain.unique():
         if st not in WILD: continue
         c=s[s.strain==st]; px,py=c.PC1.mean(),c.PC2.mean()
@@ -52,7 +52,7 @@ for ax,tp in zip([axes[0,0],axes[0,1],axes[1,0]],["E16.5","P12.5","P20.5"]):
     ax.set_title(f"{tp}  ({s.n.iloc[0]:,} exact-unique piRNAs, 48 libraries)",fontsize=11,fontweight="bold"); ax.spines[["top","right"]].set_visible(False)
 axP=axes[1,1]
 for _,r in allp.iterrows(): axP.scatter(r.PC1,r.PC2,s=34,color=WILD_COLOR if r.strain in WILD else CLASSICAL_COLOR,marker=MK.get(r.tp,"o"),edgecolor="white",linewidth=0.3,zorder=3)
-wild_labels(axP,allp)
+wild_labels(axP,allp,{"WSB_EiJ":(0.33,0.32),"PWK_PhJ":(0.33,0.19),"CAST_EiJ":(0.10,0.82)})  # pooled: CAST centroid sits in the cluster -> anchor it
 axP.set_xlabel(f"PC1 ({allp.pc1_var.iloc[0]:.0f}%)",fontsize=9.5); axP.set_ylabel(f"PC2 ({allp.pc2_var.iloc[0]:.0f}%)",fontsize=9.5)
 axP.set_title(f"all timepoints pooled  ({allp.n.iloc[0]:,} exact-unique piRNAs, 144 libraries)",fontsize=11,fontweight="bold"); axP.spines[["top","right"]].set_visible(False)
 axP.legend(handles=[Line2D([0],[0],marker=m,color="#777",ls="",ms=6,label=t) for t,m in MK.items()],fontsize=7.5,frameon=False,loc="lower right",title="timepoint",title_fontsize=7.5)
