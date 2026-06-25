@@ -31,12 +31,18 @@ for ax,tp in zip(axes,["E16.5","P12.5","P20.5"]):
     s=pca[pca.tp==tp]; yr=(s.PC2.max()-s.PC2.min()) or 1
     for _,r in s.iterrows(): ax.scatter(r.PC1,r.PC2,s=42,color=WILD_COLOR if r.strain in WILD else CLASSICAL_COLOR,edgecolor="white",linewidth=0.4,zorder=3)
     cx,cy=s.PC1.mean(),s.PC2.mean()
+    # labels placed in clear space with ARROWS back to the (often coincident) points; collision-prone strains anchored in axes-fraction
+    ANCH={"WSB_EiJ":(0.33,0.32),"PWK_PhJ":(0.33,0.19)}
     for st in s.strain.unique():
         if st not in WILD: continue
         c=s[s.strain==st]; px,py=c.PC1.mean(),c.PC2.mean()
-        dx,dy=px-cx,py-cy; nrm=(dx*dx+dy*dy)**0.5 or 1.0
-        ax.annotate(st.replace("_","/"),(px,py),xytext=(20*dx/nrm,20*dy/nrm),textcoords="offset points",ha="center",va="center",fontsize=6.8,color="#C0392B",fontweight="bold",zorder=4,arrowprops=dict(arrowstyle="-",color="#C0392B",lw=0.4))
-    cc=s[~s.strain.isin(WILD)]; ax.annotate(f"{cc.strain.nunique()} classical strains\n(clustered)",(cc.PC1.median(),cc.PC2.median()),fontsize=6.5,color="#0072B2",ha="left",va="top",xytext=(16,-20),textcoords="offset points",arrowprops=dict(arrowstyle="-",color="#0072B2",lw=0.5))
+        if st in ANCH:
+            ax.annotate(st.replace("_","/"),xy=(px,py),xytext=ANCH[st],textcoords="axes fraction",ha="center",va="center",fontsize=6.8,color="#C0392B",fontweight="bold",zorder=4,arrowprops=dict(arrowstyle="->",color="#C0392B",lw=0.5,shrinkB=3))
+        else:
+            dx,dy=px-cx,py-cy; nrm=(dx*dx+dy*dy)**0.5 or 1.0
+            ox,oy=(-8,30) if st=="SPRET_EiJ" else (24*dx/nrm,24*dy/nrm)   # SPRET up (avoid right-edge clip); CAST radial
+            ax.annotate(st.replace("_","/"),(px,py),xytext=(ox,oy),textcoords="offset points",ha="center",va="center",fontsize=6.8,color="#C0392B",fontweight="bold",zorder=4,arrowprops=dict(arrowstyle="->",color="#C0392B",lw=0.5))
+    cc=s[~s.strain.isin(WILD)]; ax.annotate(f"{cc.strain.nunique()} classical strains\n(clustered)",xy=(cc.PC1.median(),cc.PC2.median()),xytext=(0.54,0.09),textcoords="axes fraction",ha="center",va="center",fontsize=6.5,color="#0072B2",zorder=4,arrowprops=dict(arrowstyle="->",color="#0072B2",lw=0.5,shrinkB=3))
     ax.set_xlabel(f"PC1 ({s.pc1_var.iloc[0]:.0f}%)",fontsize=9.5); ax.set_ylabel(f"PC2 ({s.pc2_var.iloc[0]:.0f}%)",fontsize=9.5)
     ax.set_title(f"{tp}  ({s.n.iloc[0]:,} exact-unique piRNAs)",fontsize=11,fontweight="bold"); ax.spines[["top","right"]].set_visible(False)
 axes[0].legend(handles=[Patch(facecolor=CLASSICAL_COLOR,label="classical"),Patch(facecolor=WILD_COLOR,label="wild-derived")],fontsize=8,frameon=False,loc="best")

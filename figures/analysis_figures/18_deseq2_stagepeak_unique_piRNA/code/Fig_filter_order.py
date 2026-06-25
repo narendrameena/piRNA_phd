@@ -27,7 +27,7 @@ for xi,va,vb in zip(x,a,b):
     j=summ[TPS[xi]]["shared"]/(va+vb-summ[TPS[xi]]["shared"])
     axA.text(xi,max(va,vb)*1.09,f"+{100*(va-vb)/vb:.0f}%\nJ={j:.2f}",ha="center",fontsize=7.5,color="#444")
 axA.set_xticks(x); axA.set_xticklabels([TPN[t] for t in TPS]); axA.set_ylabel("stage-peak DESeq2 candidates",fontsize=9.5)
-axA.set_ylim(top=max(a)*1.22); axA.legend(fontsize=8,frameon=False,loc="upper left"); axA.spines[["top","right"]].set_visible(False)
+axA.set_ylim(top=max(a)*1.52); axA.legend(fontsize=7.5,frameon=False,loc="upper left"); axA.spines[["top","right"]].set_visible(False)
 axA.set_title("A  Filter BEFORE recovers ~6–7% more candidates\n(less BH burden; length-focused normalization)",fontsize=10.5,fontweight="bold",loc="left")
 # per-strain (E16.5)
 ps=pd.read_csv(f"{U}/16.5dpc.filterorder_perstrain.csv")
