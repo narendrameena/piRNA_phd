@@ -47,11 +47,14 @@ for ax,tp in zip(axes,["E16.5","P12.5","P20.5"]):
                    edgecolor="white",linewidth=0.4,zorder=3)
     # label only the wild-derived outliers (classical strains overlap at the origin -> annotate collectively)
     yr=(sub.PC2.max()-sub.PC2.min()) or 1
+    cx,cy=sub.PC1.mean(),sub.PC2.mean()
     for st in sub.strain.unique():
         if st not in WILD: continue
-        c=sub[sub.strain==st]; ax.text(c.PC1.mean(),c.PC2.mean()+yr*0.03,st.replace("_","/"),fontsize=6.8,ha="center",va="bottom",color="#C0392B",fontweight="bold",zorder=4)
+        c=sub[sub.strain==st]; px,py=c.PC1.mean(),c.PC2.mean()
+        dx,dy=px-cx,py-cy; nrm=(dx*dx+dy*dy)**0.5 or 1.0
+        ax.annotate(st.replace("_","/"),(px,py),xytext=(20*dx/nrm,20*dy/nrm),textcoords="offset points",ha="center",va="center",fontsize=6.8,color="#C0392B",fontweight="bold",zorder=4,arrowprops=dict(arrowstyle="-",color="#C0392B",lw=0.4))
     cc=sub[~sub.strain.isin(WILD)]
-    ax.annotate(f"{cc.strain.nunique()} classical strains\n(clustered)",(cc.PC1.median(),cc.PC2.median()),fontsize=6.5,color="#0072B2",ha="left",va="center",xytext=(10,-12),textcoords="offset points",arrowprops=dict(arrowstyle="-",color="#0072B2",lw=0.5))
+    ax.annotate(f"{cc.strain.nunique()} classical strains\n(clustered)",(cc.PC1.median(),cc.PC2.median()),fontsize=6.5,color="#0072B2",ha="left",va="top",xytext=(16,-20),textcoords="offset points",arrowprops=dict(arrowstyle="-",color="#0072B2",lw=0.5))
     v1,v2=sub.pc1_var.iloc[0],sub.pc2_var.iloc[0]; n=sub.n_features.iloc[0]
     ax.set_xlabel(f"PC1 ({v1:.0f}%)",fontsize=9.5); ax.set_ylabel(f"PC2 ({v2:.0f}%)",fontsize=9.5)
     ax.set_title(f"{tp}  ({n:,} unique piRNAs)",fontsize=11,fontweight="bold"); ax.spines[["top","right"]].set_visible(False)

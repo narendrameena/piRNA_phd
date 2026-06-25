@@ -23,7 +23,7 @@ fig,(axA,axB,axC)=plt.subplots(1,3,figsize=(15,5),dpi=300,gridspec_kw=dict(width
 # A: # other strains sharing a 1-3mm allele
 vc=nshare.value_counts().sort_index();
 axA.bar(vc.index,vc.values,color=CADD,width=0.85)
-axA.axvline(nshare.mean(),ls="--",color="#333",lw=1.2); axA.text(nshare.mean()+0.3,vc.max()*0.9,f"mean {nshare.mean():.1f}\nof 15 other strains",fontsize=8.5,color="#333",fontweight="bold")
+axA.axvline(nshare.mean(),ls="--",color="#333",lw=1.2); axA.text(nshare.mean()-0.3,vc.max()*0.9,f"mean {nshare.mean():.1f}\nof 15 other strains",fontsize=8.5,color="#333",fontweight="bold",ha="right")
 axA.set_xlabel("# OTHER strains expressing a 1–3 mm allele (same stage)",fontsize=9.5); axA.set_ylabel("SNP-allele candidates",fontsize=9.5)
 axA.set_xticks(range(1,16)); axA.tick_params(labelsize=7.5); axA.spines[["top","right"]].set_visible(False)
 axA.set_title("A  The exact-'unique' SNP-alleles are shared (±1–3 SNP)\nwith MANY other strains — not strain-specific",fontsize=10,fontweight="bold",loc="left")

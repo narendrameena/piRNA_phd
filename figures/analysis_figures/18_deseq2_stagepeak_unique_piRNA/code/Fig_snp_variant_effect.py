@@ -28,10 +28,14 @@ best=snp.sort_values("mm").drop_duplicates("cand_id")
 def mismatches(a,b):
     return [(i+1,a[i],b[i]) for i in range(min(len(a),len(b))) if a[i]!=b[i]]
 TI={frozenset("AG"),frozenset("CT")}
-pos=[]; titv=[]
+pos=[]; titv=[]; n_incons=0
 for _,r in best.iterrows():
-    for i,hb,yb in mismatches(str(r.home_seq),str(r.Y_allele)):
+    ms=mismatches(str(r.home_seq),str(r.Y_allele))
+    if len(ms)!=r.mm:            # data-integrity guard: skip the ~80 (1.8%) alleles whose stored home_seq/Y_allele
+        n_incons+=1; continue    # disagree with the recorded mm (else the Ti/Tv & position panels gain spurious SNPs)
+    for i,hb,yb in ms:
         pos.append(i); titv.append("transition" if frozenset((hb,yb)) in TI else "transversion")
+print(f"[panels C/D] used {len(best)-n_incons} of {len(best)} candidates for SNP-level analysis; dropped {n_incons} (home_seq/Y_allele inconsistent with mm)")
 fig,((axA,axB),(axC,axD))=plt.subplots(2,2,figsize=(13.5,9.5),dpi=300); xb=np.arange(len(TPS))
 # A: purifying effect
 with_ref=[d[(d.timepoint==t)&(d.klass.isin(GU))].shape[0] for t in TPS]

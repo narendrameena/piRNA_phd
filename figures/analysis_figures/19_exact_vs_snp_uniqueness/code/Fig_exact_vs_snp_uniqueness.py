@@ -28,7 +28,7 @@ axA.bar(x+bw/2,sa,bw,color=CSA,label="SNP-aware (Theme 18; SNP-variants excluded
 for xi,e,s in zip(x,ex,sa):
     axA.text(xi-bw/2,e,f"{e:,}",ha="center",va="bottom",fontsize=7.5,color=CEX,fontweight="bold")
     axA.text(xi+bw/2,s,f"{s:,}",ha="center",va="bottom",fontsize=7.5,color=CSA,fontweight="bold")
-    axA.text(xi,max(e,s)*1.08,f"+{100*(e-s)/s:.0f}%",ha="center",fontsize=7,color=CADD)
+    axA.annotate(f"+{100*(e-s)/s:.0f}%",(xi,max(e,s)),xytext=(0,13),textcoords="offset points",ha="center",fontsize=7,color=CADD)
 axA.set_xticks(x); axA.set_xticklabels(cats,fontsize=8.5); axA.set_ylabel("genuinely-unique piRNAs",fontsize=9.5)
 axA.set_ylim(top=max(ex)*1.2); axA.legend(fontsize=7.6,frameon=False); axA.spines[["top","right"]].set_visible(False)
 axA.set_title("A  Exact-sequence counts 41% more unique\n(+4,394 SNP-alleles vs SNP-aware)",fontsize=10.5,fontweight="bold",loc="left")

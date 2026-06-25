@@ -30,10 +30,13 @@ fig,axes=plt.subplots(1,3,figsize=(16,5.4),dpi=300)
 for ax,tp in zip(axes,["E16.5","P12.5","P20.5"]):
     s=pca[pca.tp==tp]; yr=(s.PC2.max()-s.PC2.min()) or 1
     for _,r in s.iterrows(): ax.scatter(r.PC1,r.PC2,s=42,color=WILD_COLOR if r.strain in WILD else CLASSICAL_COLOR,edgecolor="white",linewidth=0.4,zorder=3)
+    cx,cy=s.PC1.mean(),s.PC2.mean()
     for st in s.strain.unique():
         if st not in WILD: continue
-        c=s[s.strain==st]; ax.text(c.PC1.mean(),c.PC2.mean()+yr*0.03,st.replace("_","/"),fontsize=6.8,ha="center",va="bottom",color="#C0392B",fontweight="bold",zorder=4)
-    cc=s[~s.strain.isin(WILD)]; ax.annotate(f"{cc.strain.nunique()} classical strains\n(clustered)",(cc.PC1.median(),cc.PC2.median()),fontsize=6.5,color="#0072B2",ha="left",va="center",xytext=(10,-12),textcoords="offset points",arrowprops=dict(arrowstyle="-",color="#0072B2",lw=0.5))
+        c=s[s.strain==st]; px,py=c.PC1.mean(),c.PC2.mean()
+        dx,dy=px-cx,py-cy; nrm=(dx*dx+dy*dy)**0.5 or 1.0
+        ax.annotate(st.replace("_","/"),(px,py),xytext=(20*dx/nrm,20*dy/nrm),textcoords="offset points",ha="center",va="center",fontsize=6.8,color="#C0392B",fontweight="bold",zorder=4,arrowprops=dict(arrowstyle="-",color="#C0392B",lw=0.4))
+    cc=s[~s.strain.isin(WILD)]; ax.annotate(f"{cc.strain.nunique()} classical strains\n(clustered)",(cc.PC1.median(),cc.PC2.median()),fontsize=6.5,color="#0072B2",ha="left",va="top",xytext=(16,-20),textcoords="offset points",arrowprops=dict(arrowstyle="-",color="#0072B2",lw=0.5))
     ax.set_xlabel(f"PC1 ({s.pc1_var.iloc[0]:.0f}%)",fontsize=9.5); ax.set_ylabel(f"PC2 ({s.pc2_var.iloc[0]:.0f}%)",fontsize=9.5)
     ax.set_title(f"{tp}  ({s.n.iloc[0]:,} exact-unique piRNAs)",fontsize=11,fontweight="bold"); ax.spines[["top","right"]].set_visible(False)
 axes[0].legend(handles=[Patch(facecolor=CLASSICAL_COLOR,label="classical"),Patch(facecolor=WILD_COLOR,label="wild-derived")],fontsize=8,frameon=False,loc="best")
