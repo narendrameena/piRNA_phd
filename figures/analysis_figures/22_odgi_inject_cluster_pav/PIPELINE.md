@@ -28,14 +28,38 @@ same question — *which strains have a piRNA cluster at this locus?* See `REVIE
   the cluster conservation classification → it is method-robust. (Contrast theme 21: graph SEQUENCE-PAV vs liftover
   CLUSTER-PAV measure *different* things → they disagree = silencing; here both measure cluster presence → they concur.)
 
+## Non-reference clusters — caught + characterised + confounder-checked (steps 6–13)
+The reference-free piece, resolved a simpler way than graph co-location: re-lift each strain's piCB clusters (tagged with
+per-cluster IDs) to GRCm39 (`06_identify_nonreference.slurm`); a cluster that yields **no** lifted interval = non-reference
+(sequence absent from GRCm39). **1,393 (0.4%)** caught; per strain 42–132, wild-derived toward the high end.
+- `07_characterize_nonref.py` — **93%** overlap a TE (RepeatMasker), dominated by **LTR/ERVK + LINE-1** (young active
+  elements) = the piRNA–TE arms-race signature.
+- `08`/`12_multimapping.py` — expression. `clusters_fpm.bed` cols = [chrom,start,end,**allFPM,uniqFPM**,strand,tp]
+  (per `build_arch_switch.py`). Non-ref clusters are **25% multimapping** (vs 0.2% reference — TE-driven); on all-primary
+  FPM they look more expressed (12.4 vs 6.9), but on **UNIQUE reads they are comparable to reference (6.6 vs 6.4)** →
+  genuinely expressed, NOT 'higher' (the all-primary signal was multimapping-inflated; corrected).
+- `09`/`10_te_burden.py`/`11_confounding.py` — RIGOROUS cross-strain evolution test + confounders. Per-strain non-ref
+  TE-insertion burden from the deconstructed VCF (`10`; SPRET 76k ≫ C57BL_6NJ 2.3k = clean positive control). **Non-ref
+  cluster count tracks the DIRECT TE-insertion burden: Spearman ρ=0.61, p=0.012**; unique-read non-ref piRNA share ρ=0.51,
+  p=0.044; wild>classical p=0.001 / 0.021. CONFOUNDERS (`11`): NOT total-output (partial r=0.50 ✓); multimapping CORRECTED
+  (survives on unique reads ✓); lift-artifact NOT divergence-differential (`13_flank_lift.slurm`: clean-insertion fraction
+  does not fall with divergence, ρ=+0.45 ✓). **CAVEAT** — the effect is wild-vs-classical driven (within-classical n.s.;
+  the 4 wild strains are phylogenetically non-independent), so treat as a group contrast, not a continuous gradient.
+- Biology BioMNI-triple-verified (`biomni_verify_nonref.py`; all 3 agents 'Established': Aravin 2007, Girard 2010,
+  Gainetdinov 2015, Frazer 2011).
+- `Fig_nonreference_clusters.{pdf,svg,png}` — the confounder-checked 4-panel figure.
+
 ## Scope / limitation (honest)
-Compared at the **lifted-cluster master loci** (theme-21's 42,384). A reference-FREE locus definition (to additionally
-place **non-reference** clusters — the graph's unique potential) needs graph-space co-location (`odgi overlap`/`untangle`),
-which hit scale/robustness limits at 365k injected paths on the 74 GB graph. `odgi pav` (index-light, the theme-21
-workhorse) is the tractable route. The reference-free locus definition is the open piece (per-chromosome batching would
-make `overlap`/`untangle` tractable if pursued).
+Cluster-PAV compared at the **lifted-cluster master loci** (theme-21's 42,384). The non-reference clusters above are
+caught by re-liftover (non-lifting = absent), characterised by TE/expression/evolution, and confounder-checked — but
+their reference-FREE **co-location** (are the 1,393 shared between strains or strain-private?) still needs graph-space
+`odgi overlap`/`untangle`, which hit scale/robustness limits at 365k injected paths on the 74 GB graph. Now tractable
+(the subset is 1,393, not 365k) via a restricted-search `odgi overlap` if pursued — the remaining open piece.
 
 ## Outputs
 `graph_inj.og` (74 GB, gitignored), `graph_cluster_pav_matrix.tsv`, `cluster_pav_comparison.tsv`,
-`Fig_cluster_pav_graph_vs_liftover.{pdf,svg,png}`. Reuses theme-21 `graph.og`, `liftover_pav_matrix.tsv`,
-`master_loci_pav_fixed.bed`. odgi/vg in `cactus_v2.9.3.sif`.
+`Fig_cluster_pav_graph_vs_liftover.{pdf,svg,png}`. Non-reference: `data/nonref/{strain}.nonref.bed` + `.summary`,
+`nonref_te_summary.csv`, `nonref_te_families.csv`, `nonref_expression_summary.csv`, `te_insertion_burden.json`,
+`multimapping_test.csv`, `evolution_test.csv`, `confounding.csv`, `flank_genuine_insertion.csv`,
+`Fig_nonreference_clusters.{pdf,svg,png}`. Reuses theme-21 `graph.og`, `liftover_pav_matrix.tsv`,
+`master_loci_pav_fixed.bed`. odgi/vg/halLiftover in `cactus_v2.9.3.sif`.
