@@ -38,7 +38,7 @@ for i,(f,r) in enumerate(sub.iterrows()):
     if r.p<0.05: axC.text(i,max(r.ref_div,r.nonref_div)+0.4,"*",ha="center",fontsize=13,color="#B2182B")
 axC.set_xticks(x); axC.set_xticklabels([f.replace("/","/\n") for f in fams],fontsize=7.6)
 axC.set_ylabel("median TE divergence (%)",fontsize=9); axC.spines[["top","right"]].set_visible(False); axC.legend(fontsize=7.6,frameon=False,loc="upper left")
-axC.text(0.5,0.04,"younger non-ref TEs WITHIN families (L1, ERVL-MaLR, ERV1: *)\n→ insertion age, not family composition. ERVK already youngest (n.s.)",transform=axC.transAxes,ha="center",fontsize=6.7,color="#444",style="italic")
+axC.text(0.5,-0.27,"younger non-ref TEs WITHIN families (L1, ERVL-MaLR, ERV1: *) → insertion age,\nnot family composition; ERVK already youngest (n.s.)",transform=axC.transAxes,ha="center",va="top",fontsize=6.6,color="#444",style="italic")
 axC.set_title("C  Holds within the driver families",fontsize=9.4,fontweight="bold",loc="left")
 # D: synthesis
 axD.axis("off")
@@ -49,7 +49,7 @@ axD.text(0.5,0.5,"SYNTHESIS — two ages of piRNA cluster\n\n"
   transform=axD.transAxes,ha="center",va="center",fontsize=8.2,color="#222",
   bbox=dict(boxstyle="round,pad=0.7",fc="#f5f5f0",ec="#bbb"))
 fig.suptitle("Non-reference piRNA clusters are YOUNG, strain-private TE insertions; conserved clusters are OLD and shared",fontsize=10.6,fontweight="bold",y=0.99)
-fig.tight_layout(rect=[0,0,1,0.96])
+fig.tight_layout(rect=[0,0.05,1,0.96])
 out=f"{T}/figures/Fig_nonreference_colocation_age"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
 print("wrote",out)
