@@ -70,8 +70,7 @@ axAc.get_xticklabels()[-1].set_color("#C0392B"); axAc.get_xticklabels()[-1].set_
 axAc.text(0.0, 1.62, f"minimap2 presence (qcov) + ALIGNED COORDINATE per genome — CONSERVED (present in {npres}/17) but at strain-specific coordinates "
           f"(carrier {STRAIN.replace('_','/')} chr{CH}:{ps/1e6:.1f}Mb ↔ GRCm39 {COORD.get('GRCm39',['?','?'])[0] if COORD.get('GRCm39') else '?'}:{COORD['GRCm39'][1]/1e6:.1f}Mb) → halLiftover fails = false 'non-reference'",
           transform=axAc.transAxes, fontsize=6.2, color="#555", fontweight="bold", ha="left", va="bottom")
-pc.rtext(axA, 0.5, 0.955, [("CONSERVED cluster", pc.C_DUAL, True), (" — present in ", "#888", False), (f"{npres}/17 genomes (minimap2)", pc.C_DUAL, True),
-                           (" but at strain-specific coordinates → ", "#888", False), ("liftover mis-calls it 'non-reference'", pc.C_SILENCE, True)], fs=7.6, transform=fig.transFigure, center=True)
+# (subtitle removed — the suptitle already states conserved + coordinate-offset + liftover-failure)
 # B: carrier coverage + TE + gene (reuse)
 axB.set_xlim(0, 1); axB.set_ylim(-3.5, 2.1); axB.axis("off"); fig.canvas.draw()
 _dc = DAT[CHOSEN]; reads = _dc["reads"] if _dc else []
