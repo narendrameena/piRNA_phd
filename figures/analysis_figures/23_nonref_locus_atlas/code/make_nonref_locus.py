@@ -127,5 +127,6 @@ for x2 in (z0, z1):
     fig.add_artist(ConnectionPatch(xyA=((x2 - ps) / N, -1.30), coordsA=axB.transData, xyB=(x2, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
 pc.pbadge(axC, "C", f"Base resolution, {STRAIN.replace('_','/')} at {TPLAB[CHOSEN]} (top tp)   ·   5′ arrow RED = antisense-to-TE (silencing), grey = sense-to-TE", fs=7.6)
 fig.suptitle(TITLE, fontsize=12, fontweight="bold", y=0.965)
-for e in ("pdf", "svg", "png"): fig.savefig(f"{ROOT}/figures/analysis_figures/23_nonref_locus_atlas/figures/{OUT}.{e}", bbox_inches="tight")
+_OD = "24_strain_private_te_loci" if OUT.startswith("Fig_private_locus") else "23_nonref_locus_atlas"
+for e in ("pdf", "svg", "png"): fig.savefig(f"{ROOT}/figures/analysis_figures/{_OD}/figures/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png")
