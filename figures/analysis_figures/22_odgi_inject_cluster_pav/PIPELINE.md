@@ -49,6 +49,17 @@ per-cluster IDs) to GRCm39 (`06_identify_nonreference.slurm`); a cluster that yi
   Gainetdinov 2015, Frazer 2011).
 - `Fig_nonreference_clusters.{pdf,svg,png}` — the confounder-checked 4-panel figure.
 
+**Co-location + TE age (steps 14–16):**
+- `14_colocation.sh`/`15_colocation_aggregate.py` — reference-free co-location by all-vs-all strain→strain halLiftover
+  (240 pairs; each non-ref cluster lifted into every other strain). **66% strain-private** (insertion in no other
+  strain), **34% shared**; sharing **follows phylogeny (62% within the wild/classical group** = inherited by descent);
+  a ~117 tail present in 14–15 strains but absent from GRCm39 (C57BL/6J-lineage deletions / reference gaps).
+- `16_te_age.py` — **TE-age test** (RepeatMasker % divergence from consensus; lower = younger). Non-reference cluster
+  TEs are **younger** than reference/conserved: median **14.3% vs 16.4%, p=7×10⁻⁶⁸**; holds WITHIN the driver families
+  (L1 12.4/13.9, ERVL-MaLR 20.0/20.7, ERV1 11.2/12.8; all p<10⁻¹¹) = insertion age, not family composition (ERVK
+  already youngest, n.s.). → conserved = OLD shared TEs; non-reference = YOUNG strain-private insertions.
+- `Fig_nonreference_colocation_age.{pdf,svg,png}` — co-location + TE-age, 4-panel.
+
 ## Scope / limitation (honest)
 Cluster-PAV compared at the **lifted-cluster master loci** (theme-21's 42,384). The non-reference clusters above are
 caught by re-liftover (non-lifting = absent), characterised by TE/expression/evolution, and confounder-checked — but
@@ -60,6 +71,7 @@ their reference-FREE **co-location** (are the 1,393 shared between strains or st
 `graph_inj.og` (74 GB, gitignored), `graph_cluster_pav_matrix.tsv`, `cluster_pav_comparison.tsv`,
 `Fig_cluster_pav_graph_vs_liftover.{pdf,svg,png}`. Non-reference: `data/nonref/{strain}.nonref.bed` + `.summary`,
 `nonref_te_summary.csv`, `nonref_te_families.csv`, `nonref_expression_summary.csv`, `te_insertion_burden.json`,
-`multimapping_test.csv`, `evolution_test.csv`, `confounding.csv`, `flank_genuine_insertion.csv`,
-`Fig_nonreference_clusters.{pdf,svg,png}`. Reuses theme-21 `graph.og`, `liftover_pav_matrix.tsv`,
+`multimapping_test.csv`, `evolution_test.csv`, `confounding.csv`, `flank_genuine_insertion.csv`, `colocation.csv`,
+`te_age_test.csv`, `te_age_byfamily.csv`, `Fig_nonreference_clusters.{pdf,svg,png}`,
+`Fig_nonreference_colocation_age.{pdf,svg,png}`. Reuses theme-21 `graph.og`, `liftover_pav_matrix.tsv`,
 `master_loci_pav_fixed.bed`. odgi/vg/halLiftover in `cactus_v2.9.3.sif`.
