@@ -60,16 +60,19 @@ per-cluster IDs) to GRCm39 (`06_identify_nonreference.slurm`); a cluster that yi
   already youngest, n.s.). → conserved = OLD shared TEs; non-reference = YOUNG strain-private insertions.
 - `Fig_nonreference_colocation_age.{pdf,svg,png}` — co-location + TE-age, 4-panel.
 
-**The 'present-in-most-but-not-GRCm39' subset (steps 17–18):** the ~117 non-ref entries shared with >=14 other strains.
+**The 'present-in-most-but-not-GRCm39' subset (steps 17–21):** the ~117 non-ref entries shared with >=14 other strains.
 - `17_characterize_shared.py` — collapse to **22 distinct loci** (co-location graph); distinct profile — **SINE/B4-
   enriched** and **younger** (median 6.7% RM div vs 14.3% bulk non-ref); a few high-expression (top: WSB chr4 L1, 247 FPM).
-- `18_grcm39_status.py` — WHY absent from GRCm39 (minimap2 of unique flanks + TE-rich body to GRCm39 + N-check):
-  **15/22 PRESENT in GRCm39** (cluster qcov~1.0 — the TE-rich body simply failed to halLiftover = FALSE non-reference,
-  a liftover limitation incl. the 247-FPM WSB L1); **6/22 genuine C57BL/6J-lineage DELETIONS** (flanks lift, cluster
-  absent, 0% N — the panel kept a cluster the reference lineage lost); 1 divergent; **0 assembly gaps**. → this shared
-  tail (~8% of the non-ref entries) is mostly a liftover artifact that the graph-native inject PAV avoids; the strain-
-  PRIVATE bulk (66%) is genuine and unaffected.
-- `Fig_shared_subset.{pdf,svg,png}` — the subset's collapse + TE profile + GRCm39-status, 4-panel.
+- `18_grcm39_status.py` — minimap2 of unique flanks + TE-rich body to GRCm39 SUGGESTED 15/22 'present (technical lift-
+  failure)' — but this was the **TE-sequence-matches-elsewhere confound** (the TE has a GRCm39 copy elsewhere; the
+  *insertion at the locus* is not there). **SUPERSEDED by the graph (below).**
+- `19_graph_check_setup.py` / `20_graph_check.slurm` / `21_graph_check_controls.py` — GRAPH-native arbiter
+  (`odgi inject` + `odgi pav` on graph_inj.og = the actual MSA, no liftover/minimap2): GRCm39's coverage of each
+  cluster's nodes, with controls. **GRCm39-frame loci 1.0 + C57BL_6NJ-lifted clusters 1.0** (group validated) but the
+  **19 shared-subset loci 0.0** → **GENUINELY absent from GRCm39's path**. So the shared tail is NOT a liftover artifact:
+  it is genuine **C57BL/6J-lineage absences** — piRNA clusters most strains carry but the single reference lacks (incl.
+  the 247-FPM WSB L1). The whole non-reference catch is genuine; coord-mapping confirmed the inject offset.
+- `Fig_shared_subset.{pdf,svg,png}` — collapse + TE profile + the graph-native validation + corrected interpretation.
 
 ## Scope / limitation (honest)
 Cluster-PAV compared at the **lifted-cluster master loci** (theme-21's 42,384). The non-reference clusters above are
