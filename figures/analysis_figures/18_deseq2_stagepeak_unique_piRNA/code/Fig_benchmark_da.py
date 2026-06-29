@@ -65,5 +65,5 @@ for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
 sd=pd.DataFrame({"tp":[TPN[t] for t in TPS],"real_edgeR":eA,"real_DESeq2":dA,
   "null_FP_edgeR":eB,"null_FP_DESeq2":dB,"null_p05_edgeR":eC,"null_p05_DESeq2":dC,
   "null_KS_edgeR":[perm[t].edgeR_KS.mean() for t in TPS],"null_KS_DESeq2":[perm[t].DESeq2_KS.mean() for t in TPS]})
-sd.to_csv(f"{T}/data/SourceData_Fig_benchmark_da.csv",index=False)
+sd.to_csv(f"{T}/data/source_data/SourceData_Fig_benchmark_da.csv",index=False)
 print("wrote",out); print(sd.to_string(index=False))

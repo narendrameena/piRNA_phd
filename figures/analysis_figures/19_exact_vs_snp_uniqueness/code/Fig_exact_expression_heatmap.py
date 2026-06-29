@@ -53,6 +53,11 @@ nsnp=int((g.cat==2).sum())
 fig.suptitle(f"EXACT-sequence genuinely-unique stage-peak (27/30 nt) piRNAs — {len(g):,} (incl. {nsnp:,} SNP-alleles) across 16 strains × 3 stages",fontsize=12.5,fontweight="bold",y=0.965)
 fig.text(0.5,0.025,"rows = exact-unique piRNAs (no labels), ordered home stage→strain→category · columns = strain × tp (tp-major) · magenta strip = the SNP-alleles (standing variation) the exact definition adds vs SNP-aware. "
   "CPM by libsize_window, mean of 3 reps.",ha="center",fontsize=7,color="#555")
+# --- per-figure SourceData: exactly the plotted matrix (rows=candidates in drawn order) + row category ---
+sd=g[["sequence","strain","timepoint"]].copy()
+sd["row_category"]=[CATLAB[c] for c in g.cat.values]
+for j,c in enumerate(COLS): sd[f"log2CPM1_{c}"]=Mat[:,j]
+sd.to_csv(f"{T}/data/source_data/SourceData_Fig_exact_expression_heatmap.csv.gz",index=False)
 out=f"{T}/figures/Fig_exact_expression_heatmap"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-print("wrote",out,"| matrix",Mat.shape,"| SNP-allele rows",nsnp)
+print("wrote",out,"| matrix",Mat.shape,"| SNP-allele rows",nsnp,"| SourceData",sd.shape)

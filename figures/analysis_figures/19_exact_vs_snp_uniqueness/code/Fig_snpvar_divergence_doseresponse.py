@@ -59,7 +59,7 @@ fig.tight_layout(rect=[0,0,1,0.96])
 out=f"{T}/figures/Fig_snpvar_divergence_doseresponse"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
 import csv
-with open(f"{T}/data/SourceData_Fig_snpvar_divergence_doseresponse.csv","w",newline="") as fh:
+with open(f"{T}/data/source_data/SourceData_Fig_snpvar_divergence_doseresponse.csv","w",newline="") as fh:
     w=csv.writer(fh); w.writerow(["strain","group","snp_variant_piRNAs","genomewide_SNPs_M_MGPcatalogue_Adams2015","contig_N50_Mbp_Helmy2025"])
     for s in wild: w.writerow([s,"wild",cnt[s],div[s],n50[s]])
     for c in classical_cnt: w.writerow(["(classical, pooled)","classical",c,"0.3-5.0 (cluster)",""])

@@ -43,5 +43,5 @@ fig.text(0.5,-0.02,"Order A: raw → length-filter → filterByExpr → DESeq2. 
   "Both + ≥2-read presence/absence. Difference = size factors, dispersion trend, BH denominator.",ha="center",fontsize=7,color="#666")
 out=f"{T}/figures/Fig_filter_order"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-pd.DataFrame([dict(tp=TPN[t],before_A=summ[t]["A"],after_B=summ[t]["B"],shared=summ[t]["shared"]) for t in TPS]).to_csv(f"{T}/data/SourceData_Fig_filter_order.csv",index=False)
+pd.DataFrame([dict(tp=TPN[t],before_A=summ[t]["A"],after_B=summ[t]["B"],shared=summ[t]["shared"]) for t in TPS]).to_csv(f"{T}/data/source_data/SourceData_Fig_filter_order.csv",index=False)
 print("wrote",out)

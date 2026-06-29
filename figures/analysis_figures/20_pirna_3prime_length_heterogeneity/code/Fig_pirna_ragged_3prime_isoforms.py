@@ -80,6 +80,6 @@ for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
 src=[]
 for tp,L in ENTRIES:
     n,off,anyiso=rag[(tp,L)]; src.append(dict(timepoint=TPN[tp],window_len=L,n=n,ragged_any_pct=round(100*anyiso,1),**{f"iso_{o:+d}nt_pct":round(100*off[o],1) for o in offs}))
-pd.DataFrame(src).to_csv(f"{T}/data/SourceData_Fig_pirna_ragged_3prime_isoforms.csv",index=False)
+pd.DataFrame(src).to_csv(f"{T}/data/source_data/SourceData_Fig_pirna_ragged_3prime_isoforms.csv",index=False)
 print("wrote",out)
 for tp,L in ENTRIES: print(f"  {TPN[tp]} {L}nt: n={rag[(tp,L)][0]:,} ragged-any={100*rag[(tp,L)][2]:.0f}%")

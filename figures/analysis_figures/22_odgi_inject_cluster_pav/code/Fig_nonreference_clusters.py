@@ -49,10 +49,16 @@ xc=ev.te_burden/1000; yc=ev.n_nonref; cc=["#C0392B" if w else "#4393C3" for w in
 axC.scatter(xc,yc,c=cc,s=48,edgecolor="white",lw=0.5,zorder=3)
 z=np.polyfit(xc,yc,1); xx=np.linspace(xc.min(),xc.max(),20); axC.plot(xx,np.polyval(z,xx),color="#888",lw=1.2,ls="--",zorder=2)
 rho,p=spearmanr(ev.te_burden,ev.n_nonref)
+# robustness, computed live so the annotations are reproducible: unique-read-share rho + Pearson partial r vs total output
+_ru,_pu=spearmanr(ev.te_burden,mm.set_index("strain").loc[ev.strain,"nr_pct_uniq"].values)
+_cf=pd.read_csv(f"{D}/confounding.csv"); _cf["burden"]=_cf.strain.map(burden)
+_rn=_cf.n_nonref.values-np.polyval(np.polyfit(_cf.total_fpm.values,_cf.n_nonref.values.astype(float),1),_cf.total_fpm.values)
+_rb=_cf.burden.values.astype(float)-np.polyval(np.polyfit(_cf.total_fpm.values,_cf.burden.values.astype(float),1),_cf.total_fpm.values)
+_partial=float(np.corrcoef(_rn,_rb)[0,1])
 for s,xv,yv in zip(ev.strain,xc,yc):
     if s in WILD or xv>20: axC.annotate(s.split("_")[0],(xv,yv),fontsize=5.7,color="#555",xytext=(3,2),textcoords="offset points")
 axC.set_xlabel("genome-wide non-reference TE insertions (×1000, from VCF)",fontsize=8.8); axC.set_ylabel("non-reference piRNA clusters",fontsize=9.2); axC.spines[["top","right"]].set_visible(False)
-axC.text(0.50,0.20,f"Spearman ρ = {rho:+.2f}, p = {p:.3f}\nrobust: unique-read share ρ=0.51 (p=0.044)\n+ partial r=0.50 vs total output",transform=axC.transAxes,va="top",fontsize=7.6,color="#B2182B",fontweight="bold")
+axC.text(0.50,0.20,f"Spearman ρ = {rho:+.2f}, p = {p:.3f}\nrobust: unique-read share ρ={_ru:.2f} (p={_pu:.3f})\n+ partial r={_partial:.2f} vs total output",transform=axC.transAxes,va="top",fontsize=7.6,color="#B2182B",fontweight="bold")
 axC.set_title("C  piRNA-cluster novelty tracks the DIRECT TE-insertion\nburden across strains (multimapping-independent)",fontsize=9.4,fontweight="bold",loc="left")
 # D: TE families + biology + confounders
 fl=fam[~fam.TE_family.isin(["Simple_repeat","Low_complexity","Unknown","Satellite","tRNA","rRNA","snRNA"])].head(7)[::-1]
@@ -65,6 +71,21 @@ axD.set_title("D  Young LTR/ERVK + LINE-1 — the piRNA–TE arms race",fontsize
 axD.text(0.5,-0.28,"A young active TE (ERVK/L1) inserts AFTER strains diverge → host mounts a piRNA response → a NEW, strain-specific,\nwell-expressed piRNA cluster absent from the reference (BioMNI-verified: Aravin 2007; Girard 2010; Gainetdinov 2015).\nCONFOUNDERS CHECKED: multimapping (corrected ✓) · total output (partial-controlled ✓) · lift-artifact (not divergence-differential ✓).\nCAVEAT: effect is wild-vs-classical driven (within-classical n.s.).  GRAPH-VALIDATED: the ~8% cross-strain-shared tail is GENUINELY absent\nfrom GRCm39 (odgi pav — GRCm39 covers frame+lifted controls ≈1.0, these loci 0.0); the non-reference catch is genuine, not a liftover artifact.",transform=axD.transAxes,ha="center",va="top",fontsize=6.2,color="#444",style="italic")
 fig.suptitle("Non-reference piRNA clusters: the young, TE-insertion-driven leading edge of piRNA-cluster evolution (confounder-checked across 16 strains)",fontsize=10.4,fontweight="bold",y=1.0)
 fig.tight_layout(rect=[0,0.075,1,0.96])
+# --- per-figure SourceData: every plotted value (A counts, B expression, C evolution, D TE families) ---
+sd=[]
+for _,r in a.iterrows(): sd.append(dict(panel="A_counts",key=r.strain,group=("wild" if r.wild else "classical"),metric="n_nonref_clusters",value=int(r.n_nonref)))
+sd.append(dict(panel="A_counts",key="(total)",group="",metric="n_nonref_total",value=int(a.n_nonref.sum())))
+sd.append(dict(panel="A_counts",key="(total)",group="",metric="pct_overlap_TE",value=round(100*te.n_TE_overlap.sum()/te.n_nonref.sum(),1)))
+for lab,v in zip(["reference_all","nonref_all","reference_unique","nonref_unique"],med): sd.append(dict(panel="B_expression",key=lab,group="",metric="median_FPM",value=round(float(v),2)))
+sd.append(dict(panel="B_expression",key="nonref",group="",metric="median_multimap_frac",value=round(float(np.median(mm_nr)),3)))
+sd.append(dict(panel="B_expression",key="reference",group="",metric="median_multimap_frac",value=round(float(np.median(mm_rf)),4)))
+for _,r in ev.iterrows(): sd.append(dict(panel="C_evolution",key=r.strain,group=("wild" if r.wild else "classical"),metric="te_insertion_burden_VCF",value=int(r.te_burden)))
+for _,r in ev.iterrows(): sd.append(dict(panel="C_evolution",key=r.strain,group=("wild" if r.wild else "classical"),metric="n_nonref_clusters",value=int(r.n_nonref)))
+sd.append(dict(panel="C_evolution",key="(spearman_main)",group=f"p={p:.3f}",metric="rho_burden_vs_count",value=round(float(rho),3)))
+sd.append(dict(panel="C_evolution",key="(robustness_uniqueread_share)",group=f"p={_pu:.3f}",metric="rho_burden_vs_count",value=round(_ru,3)))
+sd.append(dict(panel="C_evolution",key="(robustness_partial_vs_total_output)",group="",metric="partial_r",value=round(_partial,3)))
+for _,r in fl.iterrows(): sd.append(dict(panel="D_TEfamily",key=str(r.TE_family),group="",metric="n_annotations",value=int(r.n)))
+pd.DataFrame(sd).to_csv(f"{D}/source_data/SourceData_Fig_nonreference_clusters.csv",index=False)
 out=f"{T}/figures/Fig_nonreference_clusters"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-print("wrote",out)
+print("wrote",out,"| total",int(a.n_nonref.sum()),"| spearman",round(float(rho),3))

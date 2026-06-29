@@ -28,7 +28,7 @@ log=pd.read_csv(f"{ROOT}/resources/log_stat/strain_srna_mapping_log_stat.tab",se
 log["strain"]=log.iloc[:,0].str.split("/").str[-2]
 g=g.merge(log.groupby("strain")["Number of input reads"].sum().rename("lib_reads"),on="strain",how="left")
 g["snpvar_per_Mread"]=g.n_snpvar/g.lib_reads*1e6
-g.to_csv(f"{T}/data/SourceData_Fig_why_wild_divergence_not_depth.csv",index=False)
+g.to_csv(f"{T}/data/source_data/SourceData_Fig_why_wild_divergence_not_depth.csv",index=False)
 wd=g[g.wild]; cl=g[~g.wild]
 r82=wd.snpvar_per_Mread.mean()/cl.snpvar_per_Mread.mean(); depthx=wd.lib_reads.mean()/cl.lib_reads.mean()
 countx=wd.n_snpvar.mean()/cl.n_snpvar.mean(); detx=wd.N_exact_unique.mean()/cl.N_exact_unique.mean(); propx=wd.frac_snpvar.mean()/cl.frac_snpvar.mean()

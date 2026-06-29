@@ -61,6 +61,17 @@ axD.text(0.5,0.13,"Scope: compared at the lifted-cluster master loci. Reference-
 axD.set_title("D  Interpretation",fontsize=9.6,fontweight="bold",loc="left")
 fig.suptitle("Graph-inject vs HAL-liftover cluster-PAV: two independent methods cross-validate the piRNA-cluster conservation classification (99% agreement)",fontsize=10.8,fontweight="bold",y=1.0)
 fig.tight_layout(rect=[0,0,1,0.96])
+# --- per-figure SourceData: every plotted value (A confusion, B per-strain agreement, C class counts, D summary) ---
+sd=[]
+for i,lc_ in enumerate(ORD):
+    for j,gc_ in enumerate(["core","dispensable","private","absent"]): sd.append(dict(panel="A_confusion",key1=lc_,key2=gc_,metric="n_loci",value=int(conf.values[i,j])))
+for i,s in enumerate(S): sd.append(dict(panel="B_agreement",key1=s,key2=("wild" if s in WILD else "classical"),metric="pct_strainlocus_agreement",value=round(float(ag[i]),2)))
+for i,th in enumerate(ths):
+    for nm,arr in [("core",gcore),("dispensable",gdisp),("private",gpriv)]: sd.append(dict(panel="C_classcounts",key1=f"graph_thr>={th}",key2=nm,metric="n_loci",value=int(arr[i])))
+for nm,v in zip(["core","dispensable","private"],lc): sd.append(dict(panel="C_classcounts",key1="liftover_reference",key2=nm,metric="n_loci",value=int(v)))
+for metric,value in [("overall_agreement_pct",round(float(100*(lp==gp).mean()),2)),("graph_only_calls",int(((gp==1)&(lp==0)).sum())),("liftover_only_calls",int(((gp==0)&(lp==1)).sum()))]:
+    sd.append(dict(panel="D_summary",key1="(all)",key2="",metric=metric,value=value))
+pd.DataFrame(sd).to_csv(f"{D}/source_data/SourceData_Fig_cluster_pav_graph_vs_liftover.csv",index=False)
 out=f"{T}/figures/Fig_cluster_pav_graph_vs_liftover"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-print("wrote",out)
+print("wrote",out,"| agreement",round(float(100*(lp==gp).mean()),1),"| graph-only",int(((gp==1)&(lp==0)).sum()))

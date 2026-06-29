@@ -23,7 +23,7 @@ CANON=[s for s in STRAIN_ORDER if s!="C57BL_6"]
 SP="unique: strain-private locus"; CBS="unique: conserved-but-silent"; SH="unique: stage-shifted (heterochronic)"
 LAB={SP:"strain-private",CBS:"conserved-but-silent",SH:"stage-shifted"}; ORDER=["strain-private","conserved-but-silent","stage-shifted"]
 KCOL={"strain-private":"#7a3b9a","conserved-but-silent":"#0072B2","stage-shifted":"#009E73"}
-cache=f"{T}/data/SourceData_Fig_te_origin_stageshift.csv"
+cache=f"{T}/data/source_data/SourceData_Fig_te_origin_stageshift.csv"
 if os.path.exists(cache):
     Tb=pd.read_csv(cache); print("loaded cache")
 else:

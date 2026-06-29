@@ -47,7 +47,7 @@ def pca_scores(M, lib):
     cpm=np.log2(M/lib*1e6+1.0); Xc=cpm.T-cpm.T.mean(0)
     Uu,Sv,_=np.linalg.svd(Xc,full_matrices=False); var=100*Sv**2/np.sum(Sv**2); return Uu*Sv, var
 # ---- per-tp PCA (cached) ----
-_SRC=f"{T}/data/SourceData_Fig_pca_stagepeak.csv"; res=[]
+_SRC=f"{T}/data/source_data/SourceData_Fig_pca_stagepeak.csv"; res=[]
 if not os.path.exists(_SRC):
     for tp in TPS:
         targets=set(cls[(cls.timepoint==tp)&(cls.klass.isin(GU))].sequence)
@@ -59,7 +59,7 @@ if not os.path.exists(_SRC):
     pca=pd.DataFrame(res); pca.to_csv(_SRC,index=False)
 else: pca=pd.read_csv(_SRC)
 # ---- all-timepoints-pooled PCA (cached) ----
-_SRC2=f"{T}/data/SourceData_Fig_pca_stagepeak_alltp.csv"
+_SRC2=f"{T}/data/source_data/SourceData_Fig_pca_stagepeak_alltp.csv"
 if not os.path.exists(_SRC2):
     targets_all=set(cls[cls.klass.isin(GU)].sequence); Mall,cols,liball=load_alltp(targets_all); sc,var=pca_scores(Mall,liball)
     allp=pd.DataFrame([dict(sample=h,strain=st,tp=tp,PC1=sc[i,0],PC2=sc[i,1],pc1_var=var[0],pc2_var=var[1],n_features=Mall.shape[0]) for i,(h,st,tp) in enumerate(cols)])

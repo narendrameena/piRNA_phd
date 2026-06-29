@@ -128,5 +128,15 @@ for x2 in (z0, z1):
 pc.pbadge(axC, "C", f"Base resolution, {STRAIN.replace('_','/')} at {TPLAB[CHOSEN]} (top tp)   ·   5′ arrow RED = antisense-to-TE (silencing), grey = sense-to-TE", fs=7.6)
 fig.suptitle(TITLE, fontsize=11.5, fontweight="bold", y=0.978)
 _OD = "24_strain_private_te_loci" if OUT.startswith("Fig_private_locus") else "23_nonref_locus_atlas"
+# --- per-figure SourceData: panel-A quantitative content (per-strain×tp FPM, +strand fraction, graph coverage, PAV) + summary ---
+_sd = []
+for s in ORDER:
+    for tp in TPS:
+        _sd.append(dict(panel="A_perstrain", strain=s, timepoint=tp, fpm_allread=round(float(FPM.loc[s, tp]), 3), plus_strand_frac=round(float(PF[s].get(tp, 0.5)), 3), graph_coverage=round(float(cov[s]), 4), pav_state=PAV[s]))
+_sd.append(dict(panel="A_perstrain", strain="GRCm39", timepoint="(all)", fpm_allread=0.0, plus_strand_frac=np.nan, graph_coverage=round(gr_cov, 4), pav_state=state(gr_cov)))
+for _k, _v in [("carrier", STRAIN), ("locus", f"chr{CH}:{ps}-{pe}"), ("dominant_TE", domTE), ("present_in_of16", npres), ("partial_in", npart), ("genetically_absent_incl_GRCm39", nabs + 1), ("present_but_silent_in", nsil), ("carrier_primary_piRNAs", int(_ntot))]:
+    _sd.append(dict(panel="summary", strain=str(_k), timepoint="", fpm_allread="", plus_strand_frac="", graph_coverage="", pav_state=str(_v)))
+_dd = f"{ROOT}/figures/analysis_figures/{_OD}/data/source_data"; os.makedirs(_dd, exist_ok=True)
+pd.DataFrame(_sd).to_csv(f"{_dd}/SourceData_{OUT}.csv", index=False)
 for e in ("pdf", "svg", "png"): fig.savefig(f"{ROOT}/figures/analysis_figures/{_OD}/figures/{OUT}.{e}", bbox_inches="tight")
-print(f"   wrote {OUT}.png")
+print(f"   wrote {OUT}.png + SourceData_{OUT}.csv")

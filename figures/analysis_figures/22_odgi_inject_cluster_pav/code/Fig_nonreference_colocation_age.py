@@ -27,7 +27,8 @@ for p,c in zip(bp["boxes"],["#cccccc","#1B7837"]): p.set_facecolor(c)
 for m in bp["medians"]: m.set_color("#111")
 axB.set_xticks([0,1]); axB.set_xticklabels([f"reference /\nconserved\n(n={len(rf):,})",f"non-reference\n(n={len(nr):,})"],fontsize=8.4)
 axB.set_ylabel("TE divergence from consensus (%)\n← YOUNGER          OLDER →",fontsize=8.8); axB.spines[["top","right"]].set_visible(False)
-axB.text(0.5,0.93,f"non-ref median {np.median(nr):.1f}% vs reference {np.median(rf):.1f}%\nnon-reference TEs are YOUNGER (p=7×10⁻⁶⁸)",transform=axB.transAxes,ha="center",va="top",fontsize=7.5,color="#1B7837",fontweight="bold")
+from scipy.stats import mannwhitneyu as _mwu; _agep=_mwu(nr,rf,alternative="two-sided")[1]
+axB.text(0.5,0.93,f"non-ref median {np.median(nr):.1f}% vs reference {np.median(rf):.1f}%\nnon-reference TEs are YOUNGER (Mann-Whitney p={_agep:.0e})",transform=axB.transAxes,ha="center",va="top",fontsize=7.5,color="#1B7837",fontweight="bold")
 axB.set_title("B  Non-reference clusters sit on YOUNGER TEs\nthan conserved clusters",fontsize=9.4,fontweight="bold",loc="left")
 # C: within-family TE age
 fams=["LINE/L1","LTR/ERVK","LTR/ERVL-MaLR","LTR/ERV1"]; sub=famdf.set_index("family").loc[fams]
@@ -50,6 +51,19 @@ axD.text(0.5,0.5,"SYNTHESIS — two ages of piRNA cluster\n\n"
   bbox=dict(boxstyle="round,pad=0.7",fc="#f5f5f0",ec="#bbb"))
 fig.suptitle("Non-reference piRNA clusters are YOUNG, strain-private TE insertions; conserved clusters are OLD and shared",fontsize=10.6,fontweight="bold",y=0.99)
 fig.tight_layout(rect=[0,0.05,1,0.96])
+# --- per-figure SourceData: every plotted value (A sharing, B TE age, C by-family) ---
+sd=[]
+for k in range(16): sd.append(dict(panel="A_sharing",key=f"{k}_other_strains",metric="n_nonref_clusters",value=int((co.n_other_seq==k).sum())))
+sd.append(dict(panel="A_sharing",key="(private,n_other=0)",metric="n_clusters",value=int((co.n_other_seq==0).sum())))
+sd.append(dict(panel="A_sharing",key="(shared,n_other>0)",metric="n_clusters",value=int((co.n_other_seq>0).sum())))
+for grp,arr in [("reference_conserved",rf),("nonreference",nr)]:
+    for metric,val in [("median_div_pct",np.median(arr)),("q1_div_pct",np.percentile(arr,25)),("q3_div_pct",np.percentile(arr,75)),("n",len(arr))]:
+        sd.append(dict(panel="B_TEage",key=grp,metric=metric,value=round(float(val),2)))
+for f_,r in sub.iterrows():
+    sd.append(dict(panel="C_byfamily",key=f_,metric="ref_median_div_pct",value=round(float(r.ref_div),2)))
+    sd.append(dict(panel="C_byfamily",key=f_,metric="nonref_median_div_pct",value=round(float(r.nonref_div),2)))
+    sd.append(dict(panel="C_byfamily",key=f_,metric="p_value",value=float(r.p)))
+pd.DataFrame(sd).to_csv(f"{D}/source_data/SourceData_Fig_nonreference_colocation_age.csv",index=False)
 out=f"{T}/figures/Fig_nonreference_colocation_age"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-print("wrote",out)
+print("wrote",out,"| private",int((co.n_other_seq==0).sum()),"shared",int((co.n_other_seq>0).sum()))

@@ -55,5 +55,5 @@ fig.suptitle("Defining strain-unique piRNAs — EXACT-sequence vs SNP-aware (1-3
 fig.tight_layout(rect=[0,0,1,0.95])
 out=f"{T}/figures/Fig_exact_vs_snp_uniqueness"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-pd.DataFrame({"category":cats,"exact":ex,"snp_aware":sa}).to_csv(f"{T}/data/SourceData_Fig_exact_vs_snp_uniqueness.csv",index=False)
+pd.DataFrame({"category":cats,"exact":ex,"snp_aware":sa}).to_csv(f"{T}/data/source_data/SourceData_Fig_exact_vs_snp_uniqueness.csv",index=False)
 print("wrote",out,"| exact",d.gu_exact.sum(),"snp-aware",d.gu_snp.sum())

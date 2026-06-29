@@ -61,4 +61,4 @@ fig.suptitle("PCA of EXACT-sequence genuinely-unique stage-peak piRNA expression
 fig.tight_layout(rect=[0,0,1,0.97])
 out=f"{T}/figures/Fig_exact_pca"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-pca.to_csv(f"{T}/data/SourceData_Fig_exact_pca.csv",index=False); print("wrote",out)
+pca.to_csv(f"{T}/data/source_data/SourceData_Fig_exact_pca.csv",index=False); print("wrote",out)

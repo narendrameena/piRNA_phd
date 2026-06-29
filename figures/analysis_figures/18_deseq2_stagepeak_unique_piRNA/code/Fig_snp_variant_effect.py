@@ -74,6 +74,6 @@ fig.suptitle("Effect of SNP-variants on the within-tp unique piRNA set — strai
 fig.tight_layout(rect=[0,0,1,0.97])
 out=f"{T}/figures/Fig_snp_variant_effect"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-pd.DataFrame({"tp":[TPN[t] for t in TPS],"unique_with_refinement":with_ref,"snp_variants_removed":snpn,"naive_unique_without":without}).to_csv(f"{T}/data/SourceData_Fig_snp_variant_effect.csv",index=False)
-best[["cand_id","home","variant_strain","mm"]].to_csv(f"{T}/data/SourceData_Fig_snp_variant_effect_perSNP.csv.gz",index=False)
+pd.DataFrame({"tp":[TPN[t] for t in TPS],"unique_with_refinement":with_ref,"snp_variants_removed":snpn,"naive_unique_without":without}).to_csv(f"{T}/data/source_data/SourceData_Fig_snp_variant_effect.csv",index=False)
+best[["cand_id","home","variant_strain","mm"]].to_csv(f"{T}/data/source_data/SourceData_Fig_snp_variant_effect_perSNP.csv.gz",index=False)
 print(f"wrote {out} | SNP-variants={len(snpv_ids):,} removed; mm: {dict(mmc)}; ti/tv={ti}/{tv}")

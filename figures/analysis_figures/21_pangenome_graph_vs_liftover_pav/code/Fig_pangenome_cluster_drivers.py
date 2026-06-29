@@ -61,6 +61,16 @@ axD.legend(handles=[Patch(fc="#C0392B",label="wild-derived"),Patch(fc="#4393C3",
 axD.set_title("D  piC-DoG readthrough: whole-testis RNA reads through\ngene 3' ends into ~65% of downstream clusters",fontsize=9.5,fontweight="bold",loc="left")
 fig.suptitle("Drivers of strain-variable piRNA clusters: TE insertions (genetic novelty), gene context, antisense pseudogene fragments, and piC-DoG readthrough",fontsize=11,fontweight="bold",y=1.0)
 fig.tight_layout(rect=[0,0,1,0.96])
+# --- per-figure SourceData: every plotted value (A TE families, B devclass x context, C PGF, D readthrough) ---
+sd=[]
+for fam,cnt in top.items(): sd.append(dict(panel="A_TE",key1=fam,key2="",metric="n_SVs",value=int(cnt)))
+for d_ in DEV:
+    for c_ in CTX: sd.append(dict(panel="B_context",key1=d_,key2=c_,metric="pct_of_loci",value=round(float(ct.loc[d_,c_]),2)))
+for o in ["antisense","sense"]: sd.append(dict(panel="C_PGF",key1=o,key2="",metric="n_hits",value=int(ori.get(o,0))))
+for s,pct in rt: sd.append(dict(panel="D_readthrough",key1=s,key2=("wild" if s in WILD else "classical"),metric="pct_downstream_with_readthrough",value=round(float(pct),2)))
+for metric,value in [("n_downstream_with_readthrough",323715),("n_downstream_total",496813),("pct_overall",round(ov,2))]:
+    sd.append(dict(panel="D_readthrough",key1="(overall)",key2="",metric=metric,value=value))
+pd.DataFrame(sd).to_csv(f"{D}/source_data/SourceData_Fig_pangenome_cluster_drivers.csv",index=False)
 out=f"{T}/figures/Fig_pangenome_cluster_drivers"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-print("wrote",out)
+print("wrote",out,"| top TE",top.index[-1],"| antisense",int(ori.get('antisense',0)),"sense",int(ori.get('sense',0)),"| overall RT%",round(ov,1))

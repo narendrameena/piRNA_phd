@@ -48,5 +48,5 @@ fig.suptitle("TEST: exact-sequence 'unique' inflates by SNP-alleles of widely-sh
 fig.tight_layout(rect=[0,0,1,0.95])
 out=f"{T}/figures/Fig_snp_allele_test"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-pd.DataFrame({"cand_id":nshare.index,"n_other_strains_with_allele":nshare.values}).to_csv(f"{T}/data/SourceData_Fig_snp_allele_test.csv.gz",index=False)
+pd.DataFrame({"cand_id":nshare.index,"n_other_strains_with_allele":nshare.values}).to_csv(f"{T}/data/source_data/SourceData_Fig_snp_allele_test.csv.gz",index=False)
 print(f"wrote {out} | SNP-alleles {len(snpv):,}, mean sharing {nshare.mean():.2f} strains, mm {dict(mc)}")

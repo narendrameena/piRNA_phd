@@ -108,5 +108,14 @@ for x2 in (z0, z1):
     fig.add_artist(ConnectionPatch(xyA=((x2-ps)/N, -1.30), coordsA=axB.transData, xyB=(x2, ytop+0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0,(3,2))))
 pc.pbadge(axC, "C", f"Base resolution, {STRAIN.replace('_','/')} at {TPLAB[CHOSEN]} · 5′ arrow RED = antisense-to-TE (silencing), grey = sense-to-TE", fs=7.6)
 fig.suptitle(TITLE, fontsize=11.5, fontweight="bold", y=0.965)
+# --- per-figure SourceData: panel-A (per-strain×tp FPM, minimap2 qcov, aligned coordinate) + summary ---
+_sd = []
+for s in ORDER:
+    for tp in TPS:
+        _sd.append(dict(panel="A_perstrain", strain=s, timepoint=tp, fpm_allread=round(float(FPM.loc[s, tp]), 3), minimap2_qcov=round(float(QCOV.get(s, 0)), 3), aligned_chrom=(COORD[s][0] if COORD.get(s) else ""), aligned_pos=(COORD[s][1] if COORD.get(s) else "")))
+_sd.append(dict(panel="A_perstrain", strain="GRCm39", timepoint="(all)", fpm_allread=0.0, minimap2_qcov=round(float(QCOV.get("GRCm39", 0)), 3), aligned_chrom=(COORD["GRCm39"][0] if COORD.get("GRCm39") else ""), aligned_pos=(COORD["GRCm39"][1] if COORD.get("GRCm39") else "")))
+for _k, _v in [("carrier", STRAIN), ("locus", f"chr{CH}:{ps}-{pe}"), ("dominant_TE", domTE), ("minimap2_present_of17", npres), ("carrier_primary_piRNAs", int(_ntot))]:
+    _sd.append(dict(panel="summary", strain=str(_k), timepoint="", fpm_allread="", minimap2_qcov="", aligned_chrom="", aligned_pos=str(_v)))
+import os as _os; _os.makedirs(f"{T22}/data/source_data", exist_ok=True); pd.DataFrame(_sd).to_csv(f"{T22}/data/source_data/SourceData_{OUT}.csv", index=False)
 for e in ("pdf","svg","png"): fig.savefig(f"{T22}/figures/{OUT}.{e}", bbox_inches="tight")
-print(f"   wrote {OUT}.png")
+print(f"   wrote {OUT}.png + SourceData_{OUT}.csv")

@@ -60,6 +60,6 @@ fig.text(0.5,0.02,"Uniqueness judged ONLY within developmental stage (BioMNI 3/3
   f"Unique = insertion (strain-private) + regulatory (conserved-but-silent) + heterochronic (stage-shifted). Strict-sequence subset (excl. heterochronic) = {strict:,}.",ha="center",fontsize=7,color="#666")
 out=f"{T}/figures/Fig_deseq_stagepeak_unique"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-piv.assign(total=piv.sum(axis=1)).to_csv(f"{T}/data/SourceData_Fig_deseq_stagepeak_unique_perstrain.csv")
-comp.to_csv(f"{T}/data/SourceData_Fig_deseq_stagepeak_unique_byclass.csv")
+piv.assign(total=piv.sum(axis=1)).to_csv(f"{T}/data/source_data/SourceData_Fig_deseq_stagepeak_unique_perstrain.csv")
+comp.to_csv(f"{T}/data/source_data/SourceData_Fig_deseq_stagepeak_unique_byclass.csv")
 print("wrote",out,"| within-tp unique:",nu,"of",tot,"| strict(CBS+SP):",strict)

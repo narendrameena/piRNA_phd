@@ -49,6 +49,6 @@ fig.suptitle("Sense/antisense-to-TE of the within-tp unique mechanisms — is th
 fig.tight_layout(rect=[0,0,1,0.95])
 out=f"{T}/figures/Fig_sense_antisense_stageshift"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-pd.DataFrame(src).to_csv(f"{T}/data/SourceData_Fig_sense_antisense_stageshift.csv",index=False)
+pd.DataFrame(src).to_csv(f"{T}/data/source_data/SourceData_Fig_sense_antisense_stageshift.csv",index=False)
 print("\nantisense% per mechanism:"); [print(f"  {s['mechanism']}: {s['pct_antisense']}% (n={s['n_TE']})") for s in src]
 print("wrote",out)

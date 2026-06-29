@@ -41,5 +41,5 @@ fig.suptitle("TE-family coverage of the within-tp unique piRNAs and their sense/
 fig.tight_layout(rect=[0,0,1,0.95])
 out=f"{T}/figures/Fig_te_coverage_sense_antisense"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-g.assign(sense=100-g.anti).round(1).to_csv(f"{T}/data/SourceData_Fig_te_coverage_sense_antisense.csv")
+g.assign(sense=100-g.anti).round(1).to_csv(f"{T}/data/source_data/SourceData_Fig_te_coverage_sense_antisense.csv")
 print(f"wrote {out} | {n_te} TE-overlapping of {n_uniq} unique; overall antisense {anti_all:.1f}%; top family {TOP.index[-1]} n={int(TOP.n.values[-1])}")

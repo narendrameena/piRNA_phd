@@ -110,5 +110,20 @@ fig.tight_layout(rect=[0,0,1,0.965])
 out=f"{T}/figures/Fig_pirna_ragged_3prime_drivers"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
 pd.DataFrame([dict(panel="C_pingpong",ragged_pp=round(m.get(True),1),ragged_nonpp=round(m.get(False),1)),
-             dict(panel="E_cluster",cluster_frac=round(frac,1),ragged_cluster=round(mc.get(True),1),ragged_noncluster=round(mc.get(False),1),ragged_hi_expr=round(hi,1),ragged_lo_expr=round(lo,1))]).to_csv(f"{DD}/SourceData_Fig_drivers_summary.csv",index=False)
+             dict(panel="E_cluster",cluster_frac=round(frac,1),ragged_cluster=round(mc.get(True),1),ragged_noncluster=round(mc.get(False),1),ragged_hi_expr=round(hi,1),ragged_lo_expr=round(lo,1))]).to_csv(f"{DD}/source_data/SourceData_Fig_drivers_summary.csv",index=False)
+# --- per-figure SourceData: every plotted value across panels A-E (F = literature schematic, no data) ---
+rows=[]
+for _,r in ex.iterrows():
+    for ser,val in [("ragged_pct_by_sequence",r.rag_pct_seq),("ragged_pct_by_reads",r.rag_pct_reads),("median_reads_ragged",r.med_ab_rag),("median_reads_nonragged",r.med_ab_norag)]:
+        rows.append(dict(panel="A_expression",tp=r.tp,length_nt=r.L,strain="(all)",series=ser,value=round(float(val),2)))
+for _,r in ps.iterrows():
+    rows.append(dict(panel="B_perstrain",tp=r.tp,length_nt=r.L,strain=r.strain,series="ragged_pct_"+("wild" if r.wild else "classical"),value=round(float(r.rag_pct),2)))
+for ser,val in [("ragged_pct_nonpingpong",m.get(False)),("ragged_pct_pingpong",m.get(True)),("pingpong_10nt_overlap_z",7.2)]:
+    rows.append(dict(panel="C_pingpong",tp="16.5dpc",length_nt=27,strain="(all)",series=ser,value=round(float(val),2)))
+for (tp,L),(te,gen) in zip(ENT,teres):
+    rows.append(dict(panel="D_TEflip",tp=tp,length_nt=L,strain="(all)",series="ragged_pct_TE_derived",value=round(float(te),2)))
+    rows.append(dict(panel="D_TEflip",tp=tp,length_nt=L,strain="(all)",series="ragged_pct_genic",value=round(float(gen),2)))
+for ser,val in [("ragged_pct_noncluster",mc.get(False)),("ragged_pct_cluster",mc.get(True)),("cluster_fraction_pct",frac),("ragged_pct_lowexpr_cluster",lo),("ragged_pct_highexpr_cluster",hi)]:
+    rows.append(dict(panel="E_cluster",tp="20.5dpp",length_nt=30,strain="(all)",series=ser,value=round(float(val),2)))
+pd.DataFrame(rows).to_csv(f"{DD}/source_data/SourceData_Fig_pirna_ragged_3prime_drivers.csv",index=False)
 print("wrote",out); print("ping-pong:",round(m.get(True),1),"vs",round(m.get(False),1)); print("cluster:",round(mc.get(True),1),"vs",round(mc.get(False),1),"| hi/lo expr:",round(hi,1),round(lo,1)); print("TE flip:",[(round(a,1),round(b,1)) for a,b in teres])

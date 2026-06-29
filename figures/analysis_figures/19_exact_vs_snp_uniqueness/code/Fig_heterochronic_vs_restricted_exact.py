@@ -21,7 +21,7 @@ HET="unique: stage-shifted (heterochronic)"; RES=["unique: conserved-but-silent"
 CH="#009E73"; CR="#9aa0a6"
 d=pd.read_csv(f"{T}/data/exact_stagepeak_classified.csv.gz")
 d=d[d.klass_exact.isin([HET]+RES)].copy(); d["grp"]=np.where(d.klass_exact==HET,"HETERO","RESTRICTED")
-cache=f"{T}/data/SourceData_Fig_heterochronic_vs_restricted_exact.csv.gz"
+cache=f"{T}/data/source_data/SourceData_Fig_heterochronic_vs_restricted_exact.csv.gz"
 if os.path.exists(cache):
     d=pd.read_csv(cache)
 else:

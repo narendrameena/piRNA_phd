@@ -16,7 +16,7 @@ TPCOL={"16.5dpc":"#4393C3","12.5dpp":"#E8852B","20.5dpp":"#2ca25f"}
 DCOL={1:"#7a0030",2:"#d6336c",3:"#f7a8c4"}; WILD={"SPRET_EiJ","CAST_EiJ","PWK_PhJ","WSB_EiJ"}
 d=pd.read_csv(f"{T}/data/exact_stagepeak_classified.csv.gz"); sv=d[d.was_snp_variant].copy()
 # --- SNP-distance (mm) per candidate: cache on first run (else read the 1.1GB refinement) ---
-cache=f"{T}/data/SourceData_Fig_snpvar_source_by_strain_tp_snpdist.csv.gz"
+cache=f"{T}/data/source_data/SourceData_Fig_snpvar_source_by_strain_tp_snpdist.csv.gz"
 if os.path.exists(cache):
     cd=pd.read_csv(cache)
 else:

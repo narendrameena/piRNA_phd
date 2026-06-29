@@ -26,7 +26,7 @@ g=pd.read_csv(f"{D}/deseq_stagepeak_classified.csv.gz"); g=g[g.klass.isin(GU)].c
 g["tr"]=g.timepoint.map(TR); g["sr"]=g.strain.map(SR); g["kr"]=g.klass.map(KR)
 g=g.sort_values(["tr","sr","kr"]).reset_index(drop=True)
 COLS=[f"{tp}|{s}" for tp in TPS for s in CANON]   # 48, tp-major
-CACHE=f"{T}/data/SourceData_Fig_unique_expression_heatmap.csv.gz"
+CACHE=f"{T}/data/source_data/SourceData_Fig_unique_expression_heatmap.csv.gz"
 if os.path.exists(CACHE):
     E=pd.read_csv(CACHE,index_col=0)
 else:

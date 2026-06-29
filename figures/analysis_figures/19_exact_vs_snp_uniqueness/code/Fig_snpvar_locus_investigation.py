@@ -76,7 +76,7 @@ ORtp,ptp=fisher_exact([[fr["SNPVAR"][0],fr["SNPVAR"][1]-fr["SNPVAR"][0]],[fr["PR
 _,pcbs=fisher_exact([[fr["SNPVAR"][0],fr["SNPVAR"][1]-fr["SNPVAR"][0]],[fr["CBS"][0],fr["CBS"][1]-fr["CBS"][0]]])
 
 # ---------- H2/H4: allelic-series breadth (cached nshare) ----------
-ns=pd.read_csv(f"{T}/data/SourceData_Fig_snp_allele_test.csv.gz").rename(columns={"n_other_strains_with_allele":"nshare"})
+ns=pd.read_csv(f"{T}/data/source_data/SourceData_Fig_snp_allele_test.csv.gz").rename(columns={"n_other_strains_with_allele":"nshare"})
 ns["home"]=ns.cand_id.str.split("|").str[0]; ns["wild"]=ns.home.isin(WILD)
 wv=ns[ns.wild].nshare.values; cv=ns[~ns.wild].nshare.values; _,pw=mannwhitneyu(wv,cv,alternative="two-sided")
 
@@ -128,7 +128,7 @@ fig.suptitle("LOCUS-based investigation of the 4,394 exact-'unique' SNP-variant 
 fig.tight_layout(rect=[0,0,1,0.97])
 out=f"{T}/figures/Fig_snpvar_locus_investigation"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-c[["cand_id","set","strain","chrom","pos","strand","locus","in_TE"]].to_csv(f"{T}/data/SourceData_Fig_snpvar_locus_investigation.csv.gz",index=False)
+c[["cand_id","set","strain","chrom","pos","strand","locus","in_TE"]].to_csv(f"{T}/data/source_data/SourceData_Fig_snpvar_locus_investigation.csv.gz",index=False)
 print(f"wrote {out}")
 print(f"H1 TE-insertion: SNPVAR {pct[0]:.1f}% vs PRIVATE {pct[2]:.1f}% (Fisher p={ptp:.0e}); SNPVAR vs CBS p={pcbs:.2f}")
 print(f"H2 series breadth: median {med:.0f}/15, {100*(ns.nshare>=15).mean():.0f}% shared with all 15")

@@ -66,6 +66,20 @@ axD.text(0.5,0.06,f"42,384 master piRNA-cluster loci · 16 strains + GRCm39 · o
 axD.set_title("D  Biology: silencing vs loss",fontsize=9.6,fontweight="bold",loc="left")
 fig.suptitle("Pangenome graph vs reference liftover: strain-variable piRNA clusters are mostly EPIGENETICALLY SILENCED, not genetically lost",fontsize=11.6,fontweight="bold",y=1.0)
 fig.tight_layout(rect=[0,0,1,0.96])
+# --- per-figure SourceData: every plotted value (A confusion, B thresholds, C rescue, D summary) ---
+sd=[]
+for i,lc in enumerate(ORD):
+    for j,gc in enumerate(["core","dispensable","private","absent"]):
+        sd.append(dict(panel="A_confusion",liftover_class=lc,key=gc,metric="n_loci",value=int(conf.values[i,j])))
+for i,th in enumerate(ths):
+    for nm,arr in [("concordant_cluster+seq_pct",conc),("silencing_seq+nocluster_pct",sil),("genetic_loss_noseq_pct",loss)]:
+        sd.append(dict(panel="B_thresholds",liftover_class="(all)",key=f"graph_thr>={th}",metric=nm,value=round(float(arr[i]),2)))
+for i,lc in enumerate(ORD):
+    sd.append(dict(panel="C_rescue",liftover_class=lc,key="seq_shared_ge2strains",metric="pct",value=round(float(resc[i,0]),2)))
+    sd.append(dict(panel="C_rescue",liftover_class=lc,key="graph_private_or_absent",metric="pct",value=round(float(resc[i,1]),2)))
+for metric,value in [("n_master_loci",len(m)),("median_strains_graph_sequence",int(np.median(gn))),("median_strains_liftover_cluster",int(np.median(lp.sum(1))))]:
+    sd.append(dict(panel="D_summary",liftover_class="(all)",key="(all)",metric=metric,value=value))
+pd.DataFrame(sd).to_csv(f"{D}/source_data/SourceData_Fig_graph_vs_liftover_pav.csv",index=False)
 out=f"{T}/figures/Fig_graph_vs_liftover_pav"
 for e in ("pdf","svg","png"): fig.savefig(f"{out}.{e}",bbox_inches="tight")
-print("wrote",out)
+print("wrote",out,"| n_loci",len(m),"| private rescue%",round(resc[2,0],1),"| silencing@0.5",round(sil[0],1),"loss@0.5",round(loss[0],1))

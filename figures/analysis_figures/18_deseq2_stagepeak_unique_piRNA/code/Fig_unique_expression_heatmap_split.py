@@ -21,7 +21,7 @@ ALL=[s for s in STRAIN_ORDER if s!="C57BL_6"]; TR={t:i for i,t in enumerate(TPS)
 SP="unique: strain-private locus"; CBS="unique: conserved-but-silent"; SH="unique: stage-shifted (heterochronic)"
 GU=[SP,CBS,SH]; KR={SP:0,CBS:1,SH:2}; KCOL={SP:"#7a3b9a",CBS:"#0072B2",SH:"#009E73"}
 g=pd.read_csv(f"{D}/deseq_stagepeak_classified.csv.gz"); g=g[g.klass.isin(GU)].copy(); g["tr"]=g.timepoint.map(TR); g["kr"]=g.klass.map(KR)
-E=pd.read_csv(f"{T}/data/SourceData_Fig_unique_expression_heatmap.csv.gz",index_col=0)
+E=pd.read_csv(f"{T}/data/source_data/SourceData_Fig_unique_expression_heatmap.csv.gz",index_col=0)
 vmax=np.percentile(E.values[E.values>0],99.5)   # SHARED scale across both clades
 EXPR_CMAP=mc.LinearSegmentedColormap.from_list("onered",["#ffffff","#fff5f0","#fee0d2","#fcbba1","#fc9272","#fb6a4a","#ef3b2c","#cb181d","#a50f15","#67000d"])
 def make(name,gstrains,fig_w,fig_h,lab_fs,bottom):
