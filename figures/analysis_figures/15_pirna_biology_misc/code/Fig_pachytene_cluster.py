@@ -23,7 +23,7 @@ for _,r in cl.iterrows():
     for a in bam.fetch(chrom,s,e):
         if a.is_unmapped: continue
         L=a.reference_end-a.reference_start
-        if 24<=L<=32: (rev:=rev+1) if a.is_reverse else (f:=f+1)
+        if 25<=L<=32: (rev:=rev+1) if a.is_reverse else (f:=f+1)
     if f+rev<5000: continue
     bal=min(f,rev)/max(f,rev)                      # bidirectionality (1=perfectly balanced)
     # TE fraction of the cluster
@@ -40,7 +40,7 @@ bam=pysam.AlignmentFile(BAM,"rb")
 for a in bam.fetch(chrom,S,E):
     if a.is_unmapped: continue
     L=a.reference_end-a.reference_start
-    if not(24<=L<=32) or not a.query_sequence: continue
+    if not(25<=L<=32) or not a.query_sequence: continue
     b0=int((a.reference_start-S)/N*nb); b1=int((a.reference_end-S)/N*nb)
     for b in range(max(0,b0),min(nb,b1+1)): (rv if a.is_reverse else fwd)[b]+=1
     first.append(comp.get(a.query_sequence[-1],"N") if a.is_reverse else a.query_sequence[0])

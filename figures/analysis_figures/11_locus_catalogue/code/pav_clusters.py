@@ -222,7 +222,7 @@ def _quick_reads(strain, oc, s, e):
                 bam = pysam.AlignmentFile(b, "rb")
                 for a in bam.fetch(BAMC, s, e):
                     if a.is_unmapped or a.is_secondary: continue
-                    if 24 <= a.reference_end - a.reference_start <= 32: n += 1
+                    if 25 <= a.reference_end - a.reference_start <= 32: n += 1
                 bam.close()
             except (OSError, ValueError):
                 try: bam.close()
@@ -290,7 +290,7 @@ def fetch_primary(strain, own_chrom, ps, pe, tp, nb=200):
             for a in bam.fetch(BAMC, ps, pe):
                 if a.is_unmapped or a.is_secondary or not a.query_sequence: continue   # PRIMARY only
                 L = a.reference_end - a.reference_start
-                if not (24 <= L <= 32): continue
+                if not (25 <= L <= 32): continue
                 b0 = max(0, min(nb - 1, int((a.reference_start - ps) / N * nb))); b1 = max(0, min(nb, int((a.reference_end - ps) / N * nb)))
                 seq = a.query_sequence.upper(); rev = a.is_reverse
                 (minus if rev else plus)[b0:b1] += 1

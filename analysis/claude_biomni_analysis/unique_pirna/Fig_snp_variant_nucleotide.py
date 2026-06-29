@@ -20,7 +20,7 @@ for a in bam.fetch(until_eof=True):
     try: ref=a.get_reference_sequence().upper()
     except Exception: continue
     q=a.query_sequence
-    if len(q)!=len(ref) or not(24<=len(q)<=32): continue
+    if len(q)!=len(ref) or not(25<=len(q)<=32): continue
     spret = rc(q) if a.is_reverse else q          # SPRET piRNA 5'->3'
     cons  = rc(ref) if a.is_reverse else ref       # conserved piRNA 5'->3'
     info=(a.reference_name,a.reference_start,a.reference_end,a.is_reverse)

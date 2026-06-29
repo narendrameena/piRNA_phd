@@ -18,7 +18,7 @@ bam=pysam.AlignmentFile(BAM,"rb")
 for a in bam.fetch(CHROM,RS,RE):
     if a.is_unmapped: continue
     L=a.reference_end-a.reference_start
-    if not(24<=L<=32): continue
+    if not(25<=L<=32): continue
     key=(a.reference_start,a.reference_end,a.is_reverse)
     span[key]=span.get(key,0)+1
     if a.is_reverse: minus[a.reference_end-1]+=1     # 5' (genomic) of - read = right end

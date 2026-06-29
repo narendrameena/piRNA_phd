@@ -27,7 +27,7 @@ bam=pysam.AlignmentFile(BAM,"rb")
 for a in bam.fetch(CHROM,S,E):
     if a.is_unmapped or not a.query_sequence: continue
     L=a.reference_end-a.reference_start
-    if not (24<=L<=32): continue
+    if not (25<=L<=32): continue
     if a.is_reverse:
         p=a.reference_end-1-S
         if 0<=p<=N: minus5[p]+=1

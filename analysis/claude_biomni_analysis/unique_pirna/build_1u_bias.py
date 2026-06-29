@@ -18,7 +18,7 @@ def process(args):
         f = line.split("\t", 11)
         if len(f) < 10: continue
         seq = f[9]; L = len(seq)
-        if not (24 <= L <= 32): continue
+        if not (25 <= L <= 32): continue
         c = f[2].split("#")[-1]; c = c[3:] if c.startswith("chr") else c
         if c not in CHROMS: continue
         rev = int(f[1]) & 16

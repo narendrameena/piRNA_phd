@@ -36,7 +36,7 @@ for lab,tp in TPS:
         for a in bam.fetch(CHROM,S,E):
             if a.is_unmapped or not a.query_sequence: continue
             L=a.reference_end-a.reference_start
-            if not(24<=L<=32): continue
+            if not(25<=L<=32): continue
             b0=int((a.reference_start-S)/N*nb); b1=int((a.reference_end-S)/N*nb)
             for b in range(max(0,b0),min(nb,b1+1)): (rev if a.is_reverse else fwd)[b]+=1
             tot+=1

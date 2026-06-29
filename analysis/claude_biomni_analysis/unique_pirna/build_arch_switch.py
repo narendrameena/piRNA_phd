@@ -20,7 +20,7 @@ def arch_at(X, chrom, ps, pe, tp):
             bam = pysam.AlignmentFile(b, "rb")
             for a in bam.fetch(bamc, ps, pe):
                 if a.is_unmapped or not a.query_sequence: continue
-                if 24 <= a.reference_end - a.reference_start <= 32: m += a.is_reverse; p += (not a.is_reverse)
+                if 25 <= a.reference_end - a.reference_start <= 32: m += a.is_reverse; p += (not a.is_reverse)
             bam.close()
         except (OSError, ValueError):
             try: bam.close()

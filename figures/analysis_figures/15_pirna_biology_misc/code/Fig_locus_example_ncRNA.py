@@ -25,7 +25,7 @@ tef=teb/(E-S)*100
 bam=pysam.AlignmentFile(BAM,"rb"); fwd=rev=0; first=[]; seqs=set()
 for a in bam.fetch(f"SPRET_EiJ#1#{CHROM}",S,E):
     if a.is_unmapped or not a.query_sequence: continue
-    if not 24<=a.reference_end-a.reference_start<=32: continue
+    if not 25<=a.reference_end-a.reference_start<=32: continue
     if a.is_reverse: rev+=1
     else: fwd+=1
     first.append(comp.get(a.query_sequence[-1],"N") if a.is_reverse else a.query_sequence[0]); seqs.add(a.query_sequence)
