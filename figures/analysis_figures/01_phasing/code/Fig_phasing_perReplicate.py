@@ -74,5 +74,5 @@ sd.insert(4,"subspecies", np.where(sd["strain"].isin(WILD),"wild-derived","class
 sd=sd.rename(columns={"tp":"timepoint","rep":"replicate","frac_plus1":"plus1_fraction","pct":"plus1_pct",
     "zscore_plus1":"plus1_zscore","count_plus1":"count_plus1","n_pairs":"n_adjacent_pairs",
     "total_aln":"total_alignments_24_32nt"})
-sd.to_csv(f"{SD}/source_data/SourceData_Fig_phasing_perReplicate.csv", index=False)
-print("wrote source data:", len(sd), "rows ->", f"{SD}/source_data/SourceData_Fig_phasing_perReplicate.csv")
+sd.to_csv(f"{SD}/SourceData_Fig_phasing_perReplicate.csv", index=False)
+print("wrote source data:", len(sd), "rows ->", f"{SD}/SourceData_Fig_phasing_perReplicate.csv")
