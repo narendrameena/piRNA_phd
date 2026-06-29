@@ -1,0 +1,10 @@
+executor: slurm
+#cluster: "sbatch --output=log/cluster/{rule}.{wildcards}.out --error=log/cluster/{rule}.{wildcards}.err --partition={cluster.queue} --cpus-per-task={threads} --mem={resources.mem} --nodelist={cluster.nodelist}"
+default-resources: [mem_mb=200000, disk_mb=10240, slurm_partition="2204"]
+jobs: 999
+rerun-incomplete: true
+keep-going: true
+use-conda: true
+latency-wait: 5
+conda:
+  path: /mnt/home3/miska/nm667/miniconda3/bin/conda

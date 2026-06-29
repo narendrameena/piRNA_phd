@@ -1,0 +1,8 @@
+{
+    "__default__": {
+        "queue": "TEST",
+        "threads": "{threads}",
+        "mem": "{resources.mem}",
+        "nodelist": "node11"
+    }
+}

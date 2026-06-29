@@ -1,0 +1,10 @@
+{  
+    "__default__":{
+        "queue":["2004"],
+        "slots":"{threads}",
+        "mem":"{resources.mem}",
+        "nodelist": "node11"
+    }
+}
+
+

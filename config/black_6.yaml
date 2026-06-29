@@ -1,0 +1,146 @@
+###############################################################################
+# config.yaml
+###############################################################################
+
+# -----------------------------------------------------------------------------
+# 1. Paths to reference genome and annotation
+# -----------------------------------------------------------------------------
+reference_genome: "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/resources/black6/genome/Mus_musculus.GRCm39.dna.toplevel.fa"
+annotation_gtf:    "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/resources/black6/genome/Mus_musculus.GRCm39.113.chr.gff3"
+star_index:        "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/results/indexs/GRCm39.113"
+
+# -----------------------------------------------------------------------------
+# 2. Adapter sequences for small RNA or mRNA
+#    (Examples provided; adapt to your library prep)
+# -----------------------------------------------------------------------------
+adapters:
+  # Typical Illumina 3' adapter for small RNA (example)
+  sRNA_3prime: "TGGAATTCTCGGGTGCCAAGG"
+  #--minimum-length 20 --maximum-length 36 --discard-untrimmed -a TGGAATTCTCGGGTGCCAAGG
+  # If you have specific adapters for mRNA, you can add them here:
+  # mRNA_5prime: "XXXXX"
+  # mRNA_3prime: "YYYYY"
+
+# -----------------------------------------------------------------------------
+# 3. STAR alignment parameters
+#    "default" for standard RNA-seq; "sRNA_specific" for small RNA
+# -----------------------------------------------------------------------------
+star_params:
+  default: 
+    - "--runThreadN 8"
+    - "--outSAMtype BAM SortedByCoordinate"
+  sRNA_specific:
+    - "--alignIntronMax 1"
+    - "--alignEndsType EndToEnd"
+    - "--outFilterMultimapNmax 100000"
+    - "--winAnchorMultimapNmax 200"
+
+# -----------------------------------------------------------------------------
+# 4. Trinity parameters (optional, for de novo assembly of RNA-seq)
+# -----------------------------------------------------------------------------
+trinity_params:
+  default:
+    - "--max_memory 50G"
+    - "--CPU 8"
+
+# -----------------------------------------------------------------------------
+# 5. Sample information
+#    Each sample entry has:
+#       - type: sRNA or RNA
+#       - R1: path to read 1
+#       - R2: path to read 2 (if paired-end RNA; omit or leave None for sRNA)
+# -----------------------------------------------------------------------------
+samples:
+
+  # ---------------------------------------------------------------------------
+  # E15.5 
+  # (No explicit "sRNA" or "RNA" folder in your listing, but these appear
+  #  to be single-end data, so let's assume they're sRNA-like.)
+  # ---------------------------------------------------------------------------
+  E15_5_rep1_run1:
+    type: sRNA
+    R1: "black6/E15.5/rep1/SRR18050537_1.fastq"
+
+  E15_5_rep1_run2:
+    type: sRNA
+    R1: "black6/E15.5/rep1/SRR18050538_1.fastq"
+
+  E15_5_rep2:
+    type: sRNA
+    R1: "black6/E15.5/rep2/SRR18050535_1.fastq"
+
+  # ---------------------------------------------------------------------------
+  # E16.5 sRNA
+  # ---------------------------------------------------------------------------
+  E16_5_sRNA_run1:
+    type: sRNA
+    R1: "black6/E16_5/sRNA/SRR11774396_1.fastq"
+
+  E16_5_sRNA_run2:
+    type: sRNA
+    R1: "black6/E16_5/sRNA/SRR11774397_1.fastq"
+
+  E16_5_sRNA_run3:
+    type: sRNA
+    R1: "black6/E16_5/sRNA/SRR11774398_1.fastq"
+
+  # ---------------------------------------------------------------------------
+  # E16.5 RNA (paired-end)
+  # ---------------------------------------------------------------------------
+  E16_5_RNA_run1:
+    type: RNA
+    R1: "black6/E16_5/RNA/SRR11916388_1.fastq"
+    R2: "black6/E16_5/RNA/SRR11916388_2.fastq"
+
+  E16_5_RNA_run2:
+    type: RNA
+    R1: "black6/E16_5/RNA/SRR11916389_1.fastq"
+    R2: "black6/E16_5/RNA/SRR11916389_2.fastq"
+
+  E16_5_RNA_run3:
+    type: RNA
+    R1: "black6/E16_5/RNA/SRR11916390_1.fastq"
+    R2: "black6/E16_5/RNA/SRR11916390_2.fastq"
+
+  # ---------------------------------------------------------------------------
+  # P12.5 sRNA
+  # ---------------------------------------------------------------------------
+  P12_5_sRNA_run1:
+    type: sRNA
+    R1: "black6/P12_5/sRNA/SRR772029_1.fastq"
+
+  P12_5_sRNA_run2:
+    type: sRNA
+    R1: "black6/P12_5/sRNA/SRR772051_1.fastq"
+
+  # ---------------------------------------------------------------------------
+  # P12.5 RNA (paired-end)
+  # ---------------------------------------------------------------------------
+  P12_5_RNA_run1:
+    type: RNA
+    R1: "black6/P12_5/RNA/SRR765635_1.fastq"
+    R2: "black6/P12_5/RNA/SRR765635_2.fastq"
+
+  # ---------------------------------------------------------------------------
+  # P20.5 sRNA
+  # ---------------------------------------------------------------------------
+  P20_5_sRNA_run1:
+    type: sRNA
+    R1: "black6/P20_5/sRNA/SRR772054_1.fastq"
+
+  P20_5_sRNA_run2:
+    type: sRNA
+    R1: "black6/P20_5/sRNA/SRR772032_1.fastq"
+
+  # ---------------------------------------------------------------------------
+  # P20.5 RNA (paired-end)
+  # ---------------------------------------------------------------------------
+  P20_5_RNA_run1:
+    type: RNA
+    R1: "black6/P20_5/RNA/SRR765638_1.fastq"
+    R2: "black6/P20_5/RNA/SRR765638_2.fastq"
+
+  P20_5_RNA_run2:
+    type: RNA
+    R1: "black6/P20_5/RNA/SRR765639_1.fastq"
+    R2: "black6/P20_5/RNA/SRR765639_2.fastq"

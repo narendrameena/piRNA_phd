@@ -1,0 +1,14 @@
+{
+    "__default__":{
+        "queue":"{resources.queue}",
+        "slots":"{threads}",
+        "mem":"{resources.mem}",
+        "nodelist": "node11"
+    },
+    "trinity":{
+        "queue":"long"
+    },
+    "rScript":{
+        "queue":"teramem"
+    }
+}
