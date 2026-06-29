@@ -152,6 +152,33 @@ C57BL_6NJ, CAST_EiJ, SPRET_EiJ × {E16.5, P12.5, P20.5} × 3 replicates (27 samp
   P12.5→P20.5, all-expressed); C57BL_6NJ + CAST_EiJ (both *M. musculus*) closer to each other.
   Reproduces thesis Fig 5.21 (SPRET distinct at P20.5) + matches verified pachytene-divergence biology.
 - **Caveat:** 3-strain pilot (9 points/tp); full Fig 5.21 analogue needs the 16-strain scale-out.
+- **WHY the unique-piRNA analysis includes a PCA (rationale, data-driven with numbers).** The PCA is not
+  decorative — it does four jobs that the per-sequence strain-specific caller cannot, all verified from
+  `pca16/{tp}.pca.csv` / `pca/{tp}.pca.csv`:
+  1. **Unsupervised proof that strain identity structures the whole piRNA repertoire — the premise of the
+     entire analysis.** Before any supervised per-sequence call, PCA asks the unbiased question: do strains
+     separate on global piRNA expression alone? Overwhelmingly yes — in the 16-strain set (all-expressed,
+     top-500 variable) the **between-strain centroid distance exceeds the within-strain replicate scatter by
+     37.6× (E16.5) / 46.4× (P12.5) / 18.6× (P20.5)** (within-replicate PC1–PC2 distance 1.3–3.9 vs
+     between-strain 58.5–72.7). Strain dominates piRNA variation ⇒ there IS strain-specific piRNA biology to
+     dissect — the unique-piRNA calling is not chasing technical noise. This MOTIVATES the analysis.
+  2. **It recapitulates the known phylogeny ⇒ the signal is biological, not batch/technical.** PC1 cleanly
+     splits wild-derived (*M. m. musculus*/*spretus*: CAST/PWK/SPRET/WSB; positive PC1 end at P20.5
+     +104.6/+115.3/+125.5) from classical (*M. m. domesticus*; negative end, e.g. BALB −64.5, AKR −64.3).
+     In the 3-strain pilot SPRET (*M. spretus*, most divergent) is the single most distinct cluster.
+     Expression structure tracking subspecies divergence = the strain-private piRNAs reflect real evolution.
+  3. **Strain-distinctiveness RISES through spermatogenesis ⇒ justifies the per-timepoint design + supports
+     the core pachytene-divergence finding.** On the genuinely-unique feature set, PC1 variance climbs
+     **37.9 → 61.6 → 76.9 %** (E16.5→P12.5→P20.5, 16-strain; cf. pilot all-expressed 63 → 75 → 87 %): as germ
+     cells reach pachytene (P20.5) the repertoires become MOST strain-divergent — exactly where strain-private
+     piRNAs accumulate. This is WHY the unique-piRNA analysis is run per-timepoint, not pooled.
+  4. **Replicate-reproducibility QC for the ≥2/3-rep caller.** The tight replicate clustering (within-replicate
+     PC-distance 1.3–3.9 vs 58.5–72.7 between strains) confirms the 3 replicates/strain·tp are reproducible —
+     a prerequisite of the presence/absence (≥2/3 reps) definition; no outlier/batch sample.
+- **16-strain (scale-out) numbers (`pca16/`, 3 feature sets):** PC1 variance — all_expressed (top-500)
+  **38.3/22.2/30.9 %**; genuinely-unique features **37.9/61.6/76.9 %** (E16.5/P12.5/P20.5; n_features
+  50,078/33,502/23,381). The unique-feature PC1 rises sharply into pachytene (the divergence signal lives in
+  the strain-private piRNAs themselves). The 63/75/87 % above is the 3-strain pilot (C57/CAST/SPRET, all-expressed).
 
 ## Step 8 — pangenome TE-DRIVEN test (the decisive analysis; PLAN §4.2.1)
 - **Resource:** existing 17-strain minigraph-cactus pangenome `results/pangenome/output/

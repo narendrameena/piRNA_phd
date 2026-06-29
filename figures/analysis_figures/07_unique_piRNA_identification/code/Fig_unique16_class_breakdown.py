@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""16-strain unique-piRNA classification (pangenome locus-based, final_classified_4class.csv.gz) — the 16-strain
+"""16-strain unique-piRNA classification (pangenome locus-based, final_classified_clean_2read.csv.gz) — the 16-strain
 version of the pilot class-count figure. Per strain (CANONICAL thesis order), counts + composition of the FOUR
 classes: expressed-elsewhere (not unique), SNP-variant (allelic 1-3 mm variant of a piRNA expressed at the
 orthologous locus in another strain -> NOT novel), unique conserved-but-silent (locus present elsewhere but
@@ -51,7 +51,7 @@ ax4.set_ylabel("total cands\n(log)",fontsize=8); ax4.set_title("D  classical (bl
 ax4.spines[['top','right']].set_visible(False)
 fig.text(0.5,0.005,"Genuinely unique = conserved-but-silent (ortholog present but truly silent elsewhere) + strain-private-locus (CLEAN = maps mm0 to a real own-genome locus). SNP-variant (orange) = allelic 1-3 mm variant EXPRESSED at the orthologous "
   "locus elsewhere -> NOT novel. low-quality (tan) = called strain-private only because the read maps mm1-3 (sequencing-error/het-SNP) to its OWN assembly and so finds no mm0 ortholog -> FILTERED OUT (60,857->20,846 clean strain-private). "
-  "Wild strains (WSB/CAST/PWK/SPRET) still dominate the clean signal. Source: unique16/final_classified_clean.csv.gz (klass5); counts summed over E16.5/P12.5/P20.5.",ha="center",fontsize=6.0,color="#555")
+  "Wild strains (WSB/CAST/PWK/SPRET) still dominate the clean signal. Source: unique16/final_classified_clean_2read.csv.gz (klass5, adopted ≥2-read absence); counts summed over E16.5/P12.5/P20.5.",ha="center",fontsize=6.0,color="#555")
 fig.tight_layout(rect=[0,0.02,1,1])
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_unique16_class_breakdown.{e}",bbox_inches="tight")
 print("wrote Fig_unique16_class_breakdown.{png,pdf,svg} + source data")
