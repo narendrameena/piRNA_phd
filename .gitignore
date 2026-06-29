@@ -24,6 +24,10 @@
 /wrappers.tar.gz
 *.sif
 
+# --- tool cache + unrelated side-projects (not piRNA code; keep out of git status) ---
+/.snakemake/
+/extra/
+
 # --- pipeline code lives in its OWN git repo (avoid nested gitlink) ---
 /workflow/
 
