@@ -14,7 +14,7 @@ plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.font
 ROOT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"
 U=f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; T=f"{ROOT}/figures/analysis_figures/20_pirna_3prime_length_heterogeneity"; DD=f"{T}/data"
 TPN={"16.5dpc":"E16.5","12.5dpp":"P12.5","20.5dpp":"P20.5"}; TPCOL={"16.5dpc":"#4393C3","12.5dpp":"#E8852B","20.5dpp":"#B2182B"}
-ENT=[("16.5dpc",27),("12.5dpp",27),("12.5dpp",30),("20.5dpp",30)]; LAB=[f"{TPN[t]}\n{l} nt" for t,l in ENT]
+ENT=[("16.5dpc",27),("12.5dpp",27),("12.5dpp",30),("20.5dpp",30)]; LAB=[f"{TPN[t]}\n{l} nt" for t,l in ENT]; LABD=LAB
 fig,axs=plt.subplots(2,3,figsize=(16.5,9.7),dpi=300); (axA,axB,axC),(axD,axE,axF)=axs
 
 # ---- A: expression — ragged isoforms dominate the read pool ----
@@ -25,7 +25,11 @@ axA.bar(x+w/2,ex.rag_pct_reads,w,color=[TPCOL[t] for t in ex.tp],edgecolor="whit
 for i,r in ex.iterrows():
     axA.text(i-w/2,r.rag_pct_seq+1,f"{r.rag_pct_seq:.0f}",ha="center",va="bottom",fontsize=7,color="#777")
     axA.text(i+w/2,r.rag_pct_reads+1,f"{r.rag_pct_reads:.0f}",ha="center",va="bottom",fontsize=7.6,fontweight="bold")
-axA.set_xticks(x); axA.set_xticklabels(LAB,fontsize=8); axA.set_ylabel("% ragged-3'",fontsize=9.5); axA.set_ylim(0,100)
+_psA=pd.read_csv(f"{DD}/SourceData_perstrain_ragged.csv")   # per-strain seq-ragged% (16 strains) overlaid on the by-sequence bars
+for i,(t,l) in enumerate(ENT):
+    pv=_psA[(_psA.tp==TPN[t])&(_psA.L==l)].rag_pct.values
+    axA.scatter((i-w/2)+np.linspace(-0.12,0.12,len(pv)),pv,s=8,color="#3a3a3a",alpha=0.5,edgecolor="white",lw=0.25,zorder=4)
+axA.set_xticks(x); axA.set_xticklabels(LABD,fontsize=7.6); axA.set_ylabel("% ragged-3'  (dots on grey bar = 16 strains)",fontsize=8.5); axA.set_ylim(0,100)
 axA.legend(fontsize=7.4,frameon=False,loc="upper left"); axA.spines[["top","right"]].set_visible(False)
 axA.text(0.035,0.80,f"ragged piRNAs are MORE abundant\n(median {ex.med_ab_rag.iloc[-1]:.0f} vs {ex.med_ab_norag.iloc[-1]:.0f} reads, P20.5)",transform=axA.transAxes,ha="left",va="top",fontsize=7.2,color="#444",style="italic")
 axA.set_title("A  Ragged isoforms DOMINATE the expressed pool\n(read-weighted >> sequence-weighted) - not low-count noise",fontsize=9.3,fontweight="bold",loc="left")
@@ -38,8 +42,8 @@ for i,k in enumerate(LAB):
     xj=i+np.linspace(-0.16,0.16,n)
     axB.scatter(xj,sub.rag_pct,s=27,color=["#111" if w else SHORTCOL[tp] for w in sub.wild],edgecolor="white",lw=0.4,zorder=3)
     axB.plot([i-0.26,i+0.26],[sub.rag_pct.mean()]*2,color="#000",lw=2,zorder=4)
-axB.set_xticks(range(4)); axB.set_xticklabels(LAB,fontsize=8); axB.set_ylabel("% ragged-3'  (one point = one strain)",fontsize=9.2)
-axB.set_ylim(20,90); axB.set_xlim(-0.5,3.5); axB.spines[["top","right"]].set_visible(False)
+axB.set_xticks(range(len(LABD))); axB.set_xticklabels(LABD,fontsize=7.6); axB.set_ylabel("% ragged-3'  (one point = one strain)",fontsize=9.2)
+axB.set_ylim(20,90); axB.set_xlim(-0.5,len(LABD)-0.5); axB.spines[["top","right"]].set_visible(False)
 axB.text(0.03,0.95,"every strain: E16.5 < P20.5  (8/8)\nwild (black) ≈ classical",transform=axB.transAxes,ha="left",va="top",fontsize=7.4,color="#444",style="italic")
 axB.set_title("B  Universal across all 16 strains (bar = mean)\n- a conserved property of piRNA biogenesis",fontsize=9.3,fontweight="bold",loc="left")
 
@@ -72,7 +76,7 @@ axD.bar(x+w/2,[t[1] for t in teres],w,color="#4393C3",edgecolor="white",label="g
 for i,t in enumerate(teres):
     axD.text(i-w/2,t[0]+1,f"{t[0]:.0f}",ha="center",va="bottom",fontsize=7,fontweight="bold",color="#b2182b")
     axD.text(i+w/2,t[1]+1,f"{t[1]:.0f}",ha="center",va="bottom",fontsize=7,fontweight="bold",color="#2166ac")
-axD.set_xticks(x); axD.set_xticklabels(LAB,fontsize=8); axD.set_ylabel("% ragged-3'",fontsize=9.5); axD.set_ylim(0,85)
+axD.set_xticks(x); axD.set_xticklabels(LABD,fontsize=7.6); axD.set_ylabel("% ragged-3'",fontsize=9.5); axD.set_ylim(0,85)
 axD.legend(fontsize=7.4,frameon=False,loc="upper left"); axD.spines[["top","right"]].set_visible(False)
 axD.text(0.035,0.80,"TE > genic at E16.5  ->  genic > TE at P20.5\n(across the MILI -> MIWI transition)",transform=axD.transAxes,ha="left",va="top",fontsize=7.3,color="#444",style="italic")
 axD.set_title("D  Origin FLIPS with development: TE-silencing piRNAs\nragged early; genic/cluster piRNAs ragged in pachytene",fontsize=9.3,fontweight="bold",loc="left")

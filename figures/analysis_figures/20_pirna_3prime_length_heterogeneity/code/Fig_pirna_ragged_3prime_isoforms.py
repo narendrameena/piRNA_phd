@@ -3,8 +3,11 @@
 VARIABLE 3' length), so a shorter read is the EXACT 5' prefix of a longer piRNA isoform. piRNAs are NOT cut at a
 single exact length; they spread around the per-tp stage-characteristic window (E16.5 27 nt pre-pachytene -> P20.5
 30 nt pachytene), and the raggedness INCREASES across development, peaking in pachytene 30-nt piRNAs.
-Biology: length is set by the bound PIWI footprint (MILI ~26-27 nt pre-pachytene; MIWI ~29-30 nt pachytene) plus
+Biology: length is set by the bound PIWI footprint (pre-pachytene MILI ~26-27 nt; pachytene MIWI ~29-30 nt) plus
 3'->5' trimming by PNLDC1, terminated by HENMT1 2'-O-methylation -- trimming is not single-nt precise -> ragged 3'.
+The E16.5 pre-pachytene pool ALSO includes the fetal nuclear PIWI MIWI2 (~28 nt; de-novo TE methylation; MILI/MIWI2
+ping-pong, see drivers panel C). NOTE: MILI vs MIWI2 are NOT separable by read length (overlapping footprints + 3'
+raggedness), so the windows here are READ-LENGTH classes, not protein assignments -- 28 nt is acknowledged, not analysed.
 Data: unique_pirna/unique16/final_classified_clean_2read.csv.gz (>=2-read, 25-32 nt, within-tp classified piRNAs).
 Window (per-tp, data-verified): E16.5 -> 27; P12.5 -> 27 & 30; P20.5 -> 30 (make_stage_peak_unique.py). 24 nt excluded
 by the 1U-peak test (piRNA range 25-32 nt)."""
@@ -16,6 +19,8 @@ ROOT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"
 U=f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; T=f"{ROOT}/figures/analysis_figures/20_pirna_3prime_length_heterogeneity"
 TPS=["16.5dpc","12.5dpp","20.5dpp"]; TPN={"16.5dpc":"E16.5","12.5dpp":"P12.5","20.5dpp":"P20.5"}
 TPCOL={"16.5dpc":"#4393C3","12.5dpp":"#E8852B","20.5dpp":"#B2182B"}
+# windows are READ-LENGTH classes (the stage-characteristic peak); MILI vs MIWI2 are NOT separable by length
+# (overlapping footprints + 3' raggedness), so MIWI2 (~28 nt, fetal) is acknowledged but not analysed as its own window
 WIN={"16.5dpc":[27],"12.5dpp":[27,30],"20.5dpp":[30]}; LMIN,LMAX=25,32
 d=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["sequence","timepoint"]); d["L"]=d.sequence.str.len()
 # per-tp distinct-sequence sets by length
@@ -44,10 +49,14 @@ axA.annotate("30 nt pachytene\n(MIWI footprint)",xy=(30,y30),xytext=(28.3,top*0.
 axA.set_title("A  piRNA length is NOT a single exact cut — a broad spread that\nSHIFTS 27 nt (pre-pachytene) -> 30 nt (pachytene) across development",fontsize=9.6,fontweight="bold",loc="left")
 # B: any ragged-3' isoform fraction per tp x window (developmental increase)
 labs=[f"{TPN[tp]}\n{L} nt" for tp,L in ENTRIES]; vals=[100*rag[e][2] for e in ENTRIES]; cols=[TPCOL[tp] for tp,_ in ENTRIES]
-axB.bar(range(len(ENTRIES)),vals,color=cols,edgecolor="white")
-for i,(e,v) in enumerate(zip(ENTRIES,vals)): axB.text(i,v+1,f"{v:.0f}%\n(n={rag[e][0]:,})",ha="center",va="bottom",fontsize=7.5,fontweight="bold")
-axB.set_xticks(range(len(ENTRIES))); axB.set_xticklabels(labs,fontsize=8.3); axB.set_ylabel("% of window piRNAs with a ragged-3' isoform",fontsize=9.2)
-axB.set_ylim(0,max(vals)*1.25); axB.spines[["top","right"]].set_visible(False)
+axB.bar(range(len(ENTRIES)),vals,color=cols,edgecolor="white",zorder=2)
+_psB=pd.read_csv(f"{T}/data/SourceData_perstrain_ragged.csv")   # per-strain ragged% (16 strains) for the spread
+for i,(tp,L) in enumerate(ENTRIES):
+    pv=_psB[(_psB.tp==TPN[tp])&(_psB.L==L)].rag_pct.values
+    axB.scatter(i+np.linspace(-0.17,0.17,len(pv)),pv,s=11,color="#333",alpha=0.55,edgecolor="white",lw=0.3,zorder=4)
+    axB.text(i,max(vals[i],pv.max() if len(pv) else vals[i])+2,f"{vals[i]:.0f}%\n(n={rag[(tp,L)][0]:,})",ha="center",va="bottom",fontsize=7.1,fontweight="bold")
+axB.set_xticks(range(len(ENTRIES))); axB.set_xticklabels(labs,fontsize=8.3); axB.set_ylabel("% with a ragged-3' isoform  (bar = pooled · dots = 16 strains)",fontsize=8.3)
+axB.set_ylim(0,max(max(vals),_psB.rag_pct.max())*1.16); axB.spines[["top","right"]].set_visible(False)
 axB.set_title("B  A shorter read is the EXACT 5' prefix of a longer piRNA\n(ragged 3' ends) — rising with development, peaking in pachytene",fontsize=9.6,fontweight="bold",loc="left")
 # C: 3'-end offset MAGNITUDE profile (1/2/3 nt shorter <- | -> longer)
 offs=[-3,-2,-1,1,2,3]
@@ -70,6 +79,7 @@ axD.text(1.08,(100*rag[p27][2]+100*rag[p30][2])/2,"MILI->MIWI\nhandoff",ha="left
 axD.set_xticks([0,1,2]); axD.set_xticklabels(["E16.5","P12.5","P20.5"],fontsize=9.5); axD.set_xlim(-0.4,2.5)
 axD.set_ylabel("% ragged-3' piRNAs",fontsize=9.5); axD.set_ylim(30,100*rag[e30][2]*1.3); axD.spines[["top","right"]].set_visible(False)
 axD.legend(fontsize=7.3,frameon=False,loc="upper left")
+axD.text(0.035,0.56,"E16.5 pre-pachytene also loads MIWI2\n(~28 nt, fetal nuclear PIWI, de novo TE\nmethylation) — not separable from MILI\nby read length alone",transform=axD.transAxes,fontsize=6.2,color="#2166ac",va="top",style="italic")
 axD.text(0.97,0.05,f"raggedness climbs along BOTH tracks and jumps at the\nMILI->MIWI switch ({100*rag[e27][2]:.0f}% -> {100*rag[e30][2]:.0f}%, {rag[e30][2]/rag[e27][2]:.1f}x overall)",transform=axD.transAxes,ha="right",va="bottom",fontsize=7,color="#444",style="italic")
 axD.set_title("D  Biology: developmental MILI(27)->MIWI(30) handoff —\npachytene piRNAs MORE ragged; P12.5 carries BOTH classes",fontsize=9.6,fontweight="bold",loc="left")
 fig.suptitle("piRNA 3' ends are RAGGED, not cut at an exact length — imprecise PNLDC1 trimming around the per-stage window (27 nt pre-pachytene -> 30 nt pachytene)",fontsize=11.5,fontweight="bold",y=1.0)
