@@ -77,7 +77,7 @@ axA.spines[["top", "right"]].set_visible(False); plt.setp(axA.get_xticklabels(),
 lh = [Patch(facecolor=TPCOL[t], label=TPLAB[t]) for t in TPS] + [Patch(facecolor="#555", label="solid = + strand"), Patch(facecolor=pc.pale("#555", 0.5), label="pale = − strand")]
 axA.legend(handles=lh, fontsize=5.9, frameon=False, ncol=1, loc="upper left", bbox_to_anchor=(1.004, 1.02), handlelength=1.1, handletextpad=0.4, title="timepoint · strand", title_fontsize=6.2)
 pc.pbadge(axA, "A", "Pangenome × timepoint — PICB-cluster FPM across 16 strains (log); each bar split by HEIGHT: solid = + strand / pale = − strand", fs=8.0, y=1.18)
-pc.rtext(axA, 0.5, 0.955, [(f"present in {npres}/16 strains", pc.C_DUAL, True), ("·", "#bbb", False), (f"partial/segmental in {npart}", "#3182bd", bool(npart)), ("·", "#bbb", False), (f"genetically absent (incl. GRCm39) in {nabs+1}", pc.C_SILENCE, True), ("·", "#bbb", False), (f"present-but-silent in {nsil}", "#5a6b7a", bool(nsil))], fs=7.4, transform=fig.transFigure, center=True)
+pc.rtext(axA, 0.5, 0.945, [(f"present in {npres}/16 strains", pc.C_DUAL, True), ("·", "#bbb", False), (f"partial/segmental in {npart}", "#3182bd", bool(npart)), ("·", "#bbb", False), (f"genetically absent (incl. GRCm39) in {nabs+1}", pc.C_SILENCE, True), ("·", "#bbb", False), (f"present-but-silent in {nsil}", "#5a6b7a", bool(nsil))], fs=7.4, transform=fig.transFigure, center=True)
 # === A-cov: GRAPH coverage strip (odgi pav) — HOW present/partial each strain is (continuous; liftover = binary) ===
 def covcol(c): return "#C0392B" if c < 0.2 else cm.Blues(0.35 + 0.6 * min(c, 1.0))
 for xi, X in enumerate(ORDER):
@@ -126,7 +126,7 @@ axC.text(z0 - 0.6, ytop, "+ strand", fontsize=6.5, color="#33a02c", fontweight="
 for x2 in (z0, z1):
     fig.add_artist(ConnectionPatch(xyA=((x2 - ps) / N, -1.30), coordsA=axB.transData, xyB=(x2, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
 pc.pbadge(axC, "C", f"Base resolution, {STRAIN.replace('_','/')} at {TPLAB[CHOSEN]} (top tp)   ·   5′ arrow RED = antisense-to-TE (silencing), grey = sense-to-TE", fs=7.6)
-fig.suptitle(TITLE, fontsize=12, fontweight="bold", y=0.965)
+fig.suptitle(TITLE, fontsize=11.5, fontweight="bold", y=0.978)
 _OD = "24_strain_private_te_loci" if OUT.startswith("Fig_private_locus") else "23_nonref_locus_atlas"
 for e in ("pdf", "svg", "png"): fig.savefig(f"{ROOT}/figures/analysis_figures/{_OD}/figures/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png")
