@@ -13,7 +13,8 @@ import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
 
-cand=pd.read_csv(f"{U}/OLD_unrestricted_candidates_snapshot.csv.gz")
+cand=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz", usecols=["strain", "timepoint", "length", "sequence"])   # ADOPTED >=2-read set (klass5 5-class); synced from removed OLD_unrestricted_candidates_snapshot
+cand=cand[cand.strain.isin(["C57BL_6NJ", "CAST_EiJ", "SPRET_EiJ"])]   # 3-strain pilot subset (matches the SCOL palette below)
 TPMAP={"16.5dpc":"E16.5","12.5dpp":"P12.5","20.5dpp":"P20.5"}; TPO=["E16.5","P12.5","P20.5"]
 cand["tp"]=cand.timepoint.map(TPMAP)
 PILOT=[s for s in STRAIN_ORDER if s in set(cand.strain)]
