@@ -64,6 +64,6 @@ out = ROOT + "/analysis/claude_biomni_analysis/Fig_trinity_precursor_counts"
 for e in ("pdf", "svg", "png"): fig.savefig(f"{out}.{e}", bbox_inches="tight")
 # source data
 src = pc.pivot_table(index="strain", columns=["tp", "rep"], values="n").reindex(order)
-src.to_csv(f"{SD}/source_data/SourceData_Fig_trinity_precursor_counts.csv")
+src.to_csv(f"{SD}/SourceData_Fig_trinity_precursor_counts.csv")
 print(pc.groupby(["strain", "tp"]).n.mean().unstack().reindex(order)[TPO].round(0).to_string())
 print("wrote", out)
