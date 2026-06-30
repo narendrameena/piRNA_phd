@@ -33,7 +33,7 @@ for ax, k in zip(axes, KL):
     src.append(ct[list(TPC)].assign(klass=KLAB[k]))
 axes[0].legend(fontsize=7.5, frameon=False, ncol=3, loc="lower left", bbox_to_anchor=(0, 1.18))
 fig.suptitle("Developmental timepoint origin for EACH class × strain — 16-strain pangenome unique-piRNA classification (3-way breakdown)", fontsize=11, fontweight="bold", y=0.999)
-pd.concat(src).to_csv(f"{PG}/SourceData_step4_class_strain_timepoint16.csv")
+pd.concat(src).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_step4_class_strain_timepoint16.csv")
 axes[-1].set_xticklabels([])   # bottom-facet labels carried by the classical/wild companion below
 fig.tight_layout(rect=[0, 0, 1, 0.99])
 # classical(blue)/wild(orange) companion: total candidates per strain (subspecies colour scheme)

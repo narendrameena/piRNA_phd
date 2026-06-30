@@ -43,6 +43,6 @@ fig.text(0.5,-0.04,"Genuinely unique = conserved-but-silent (blue, locus shared 
 ax.spines[['top','right']].set_visible(False)
 fig.tight_layout()
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_spret_split.{e}",bbox_inches="tight")
-tab.to_csv(f"{PG}/SourceData_spret_split.csv")
+tab.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_spret_split.csv")
 print(tab.to_string()); print("\nTOTAL by class:\n", sp.klass5.value_counts().to_string())
 print("wrote Fig_spret_split (klass5)")

@@ -15,7 +15,7 @@ KL=["expressed elsewhere (exact)","SNP-variant (1-3mm)","low-quality: no mm0 own
 LAB=["expressed-elsewhere (not unique)","SNP-variant (allelic — not novel)","low-quality (no mm0 own-genome locus)","unique: conserved-but-silent (expression)","unique: strain-private locus (clean)"]
 COL=["#9e9e9e","#E69F00","#cdb892","#0072B2","#7a3b9a"]   # grey/orange/tan = NOT genuinely unique; blue+purple = genuinely unique (clean loci)
 ct=pd.crosstab(d.strain,d.klass5).reindex(CANON)[KL]
-pd.crosstab([d.strain,d.timepoint],d.klass5).reindex(KL,axis=1).to_csv(f"{PG}/SourceData_unique16_class_breakdown.csv")
+pd.crosstab([d.strain,d.timepoint],d.klass5).reindex(KL,axis=1).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_unique16_class_breakdown.csv")
 plt.rcParams.update({"font.family":"Liberation Sans"})
 WILD={"CAST_EiJ","PWK_PhJ","SPRET_EiJ","WSB_EiJ"}
 fig,(ax1,ax2,ax3,ax4)=plt.subplots(4,1,figsize=(13,15.4),dpi=300,gridspec_kw={"height_ratios":[1,1,1,0.34]}); x=np.arange(len(CANON)); bw=0.16

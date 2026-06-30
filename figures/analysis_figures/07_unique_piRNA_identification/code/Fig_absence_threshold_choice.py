@@ -62,5 +62,5 @@ for e in ("pdf","svg","png"): fig.savefig(f"{base}.{e}",bbox_inches="tight")
 src=pd.DataFrame({"absence_threshold":["strict_0tolerance","2read_ADOPTED","loose"],
                   "sum_strain_private":counts,"mean_readmass_coverage_pct":[round(m,4) for m in means],
                   "median_readmass_coverage_pct":[round(float(np.median(c)),4) for c in covs]})
-src.to_csv(f"{SD}/SourceData_Fig_absence_threshold_choice.csv",index=False)
+src.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_Fig_absence_threshold_choice.csv",index=False)
 print(src.to_string(index=False)); print("wrote",base)

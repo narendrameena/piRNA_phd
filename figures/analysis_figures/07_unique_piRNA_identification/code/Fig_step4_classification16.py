@@ -25,7 +25,7 @@ KL=["expressed elsewhere (exact)","SNP-variant (1-3mm)","low-quality: no mm0 own
 LAB=["expressed-elsewhere (not unique)","SNP-variant (allelic — not unique)","low-quality (no mm0 own locus)","unique: conserved-but-silent","unique: strain-private locus (clean)"]
 COL=["#9e9e9e","#E69F00","#cdb892","#0072B2","#7a3b9a"]
 TPC={"16.5dpc":"#0072B2","12.5dpp":"#009E73","20.5dpp":"#D55E00"}; TPL={"16.5dpc":"E16.5 (prepachytene)","12.5dpp":"P12.5","20.5dpp":"P20.5 (pachytene)"}
-ct=pd.crosstab(d.strain,d.klass5).reindex(CANON)[KL]; ct.to_csv(f"{PG}/SourceData_step4_classification16.csv")
+ct=pd.crosstab(d.strain,d.klass5).reindex(CANON)[KL]; ct.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_step4_classification16.csv")
 x=np.arange(len(CANON)); bw=0.16
 plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.fonttype":"none"})
 fig=plt.figure(figsize=(15,10.8),dpi=300)
@@ -54,7 +54,7 @@ ax4.legend(fontsize=7.2,frameon=False,ncol=3,loc="upper center",bbox_to_anchor=(
 ax4.set_title("D  Timepoint origin BY CLASS (pooled; text = n)",fontsize=10.2,fontweight="bold",loc="left",pad=14)
 for xi,k in zip(xb4,KL): ax4.text(xi,1.012,f"{int(tpx.loc[k,list(TPC)].sum()):,}",ha="center",va="bottom",fontsize=6,color="#777")
 ax4.spines[['top','right']].set_visible(False)
-tpx.assign(total=tpx[list(TPC)].sum(1)).to_csv(f"{PG}/SourceData_step4_classification16_tp_by_class.csv")
+tpx.assign(total=tpx[list(TPC)].sum(1)).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_step4_classification16_tp_by_class.csv")
 # ---- B: class composition per strain (stacked) ----
 prop=ct.div(ct.sum(1),axis=0); bottom=np.zeros(len(CANON))
 for i,(k,lab) in enumerate(zip(KL,LAB)):

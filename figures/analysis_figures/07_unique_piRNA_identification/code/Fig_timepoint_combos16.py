@@ -22,7 +22,7 @@ for X in ORDER:
         resid[s].extend(piv.values[single][:, oth].max(1).tolist())
 def pooled(thr): t = pd.concat(combo[thr], axis=1).sum(1).drop("none", errors="ignore"); return (t / t.sum() * 100)  # denominator = EXPRESSED loci (>=1 tp above thr), exclude "none"
 t5 = pooled(5); order = ["E16", "P12", "P20", "E16+P12", "P12+P20", "E16+P20", "E16+P12+P20"]
-pd.DataFrame({f"FPM>={thr}": pooled(thr) for thr in [1, 5, 20]}).reindex(order).to_csv(f"{SD}/Fig_timepoint_combos16_sourcedata.csv")
+pd.DataFrame({f"FPM>={thr}": pooled(thr) for thr in [1, 5, 20]}).reindex(order).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/Fig_timepoint_combos16_sourcedata.csv")
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none", "axes.linewidth": 0.8})
 fig, ax = plt.subplots(1, 3, figsize=(13.5, 5.0), dpi=300)
 # a: combo distribution

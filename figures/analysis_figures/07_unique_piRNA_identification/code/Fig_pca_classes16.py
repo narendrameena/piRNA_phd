@@ -106,6 +106,8 @@ fig.text(0.525,0.884,
          "not strains: a strain-private piRNA stably expressed in its one strain still\n"
          "qualifies — which is why a strain-private 'Combined' panel exists.",
          ha="left",va="top",fontsize=7.3,color="#444",linespacing=1.5)
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+df.to_csv(f"{_SD}/SourceData_Fig_pca_classes16.csv",index=False)   # per-candidate PCA coordinates (PC1/PC2) by class5 + timepoint view
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/pangenome_te/Fig_pca_classes16.{e}",bbox_inches="tight")
 print("wrote Fig_pca_classes16.{png,pdf,svg}")
 print(df.groupby(["klass5","view"]).size())

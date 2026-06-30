@@ -65,6 +65,12 @@ ax.text(73,8.2,"novel sequence with a clean own-genome locus,\nNOT expressed (ev
 # faint guides from leaves to summary
 for lx,col in [(16,"#9a7b3b"),(56,ORANGE),(90,GREY)]: ax.plot([lx,28],[yL-2.7,18],color=col,lw=0.6,ls=":",alpha=0.5,zorder=0)
 for lx,col in [(40,PURP),(80,BLUE)]: ax.plot([lx,73],[yL-2.7,18],color=col,lw=0.6,ls=":",alpha=0.5,zorder=0)
+import pandas as _pd, os as _os
+_SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_k=_pd.read_csv("/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/unique16/final_classified_clean_2read.csv.gz",usecols=["klass5"])
+_vc=_k.klass5.value_counts(); _tot=int(_vc.sum())
+_vc.rename_axis("klass5").reset_index(name="n_candidates").to_csv(f"{_SD}/SourceData_Fig_unique_pirna_pipeline_flowchart.csv",index=False)   # CURRENT klass5 counts computed from data (the schematic's hardcoded display numbers are separate)
+if _tot!=399812: print(f"FLAG: flowchart hardcoded total 399,812 vs CURRENT klass5 total {_tot:,} — displayed schematic counts are STALE (post-5-class-restoration); refresh the hardcoded text in a follow-up")
 fig.savefig("/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/Fig_unique_pirna_pipeline_flowchart.pdf",bbox_inches="tight")
 for e in ("svg","png"): fig.savefig(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/Fig_unique_pirna_pipeline_flowchart.{e}",bbox_inches="tight")
 print("wrote Fig_unique_pirna_pipeline_flowchart")

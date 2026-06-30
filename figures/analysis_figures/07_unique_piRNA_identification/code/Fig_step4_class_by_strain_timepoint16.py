@@ -52,7 +52,7 @@ axL.legend(handles=[Patch(facecolor=COL[i], label=LAB[i]) for i in range(len(KL)
 axP.set_xticks(x); axP.set_xticklabels([])   # strain labels carried by the classical/wild companion below
 axP.spines[["top", "right"]].set_visible(False)
 fig.suptitle("Unique-piRNA classification by strain AND timepoint — NUMBERS (A) and PERCENTAGE composition (B), 16 strains × 3 windows", fontsize=11.5, fontweight="bold", y=0.995)
-pd.DataFrame({tp: tot[tp] for tp in TPO}, index=CANON).to_csv(f"{PG}/SourceData_step4_class_by_strain_timepoint16_numbers.csv")
+pd.DataFrame({tp: tot[tp] for tp in TPO}, index=CANON).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_step4_class_by_strain_timepoint16_numbers.csv")
 fig.text(0.5, 0.006, "“0” above a bar = that strain × timepoint had 0 strain-specific candidates surviving the edgeR DA + ≥2-read absence filter (the sRNA libraries DO exist; e.g. FVB/NJ and NOD/ShiLtJ at P20.5 — the signal collapses by pachytene).", ha="center", fontsize=7.5, color="#666")
 fig.tight_layout(rect=[0, 0.02, 1, 0.97])
 # classical(blue)/wild(orange) companion: total candidates per strain (subspecies colour scheme)

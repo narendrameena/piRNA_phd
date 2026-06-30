@@ -69,6 +69,6 @@ for lab,s in zip(_cax.get_xticklabels(),CANON): lab.set_color("#C0392B" if s in 
 _cax.set_title("classical (blue) vs wild-derived (orange) — total strain-specific piRNAs per strain (intersection)", fontsize=7.5, fontweight="bold", loc="left")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{U}/Fig_strain_specific_DA16_decomposition.{e}", bbox_inches="tight")
 out = da[["strain", "timepoint", "da_only", "strain_specific"]].merge(po[["strain", "timepoint", "presence_only"]], on=["strain", "timepoint"])
-out.to_csv(f"{SD}/Fig_strain_specific_DA16_decomposition.csv", index=False)
+out.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/Fig_strain_specific_DA16_decomposition.csv", index=False)
 print("wrote Fig_strain_specific_DA16_decomposition.{png,pdf,svg} + source data")
 print("presence-only vs intersection identical?", (out.presence_only >= out.strain_specific).all(), "| max diff", int((out.presence_only - out.strain_specific).abs().max()))

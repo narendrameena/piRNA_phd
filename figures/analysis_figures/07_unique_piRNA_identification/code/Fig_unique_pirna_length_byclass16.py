@@ -41,7 +41,7 @@ fig.suptitle("piRNA length distribution per classification class, by development
 fig.text(0.5, -0.02, "One line per timepoint (E16.5 / P12.5 / P20.5); shaded band = 26–30 nt piRNA window (FWHM, mode 27); vertical dashed guides at 27 nt (prepachytene, blue) & 30 nt (pachytene, red). "
   "% = distinct candidate sequences of that class at that timepoint (≥2-read adopted); n and mode per timepoint shown in each panel's legend. Shared y-scale across panels.", ha="center", fontsize=7.2, color="#555")
 fig.tight_layout(rect=[0, 0, 1, 0.95])
-pd.DataFrame(src, columns=["class", "timepoint", "length_nt", "pct_of_sequences", "n_sequences"]).to_csv(f"{U}/pangenome_te/SourceData_unique_pirna_length_byclass16.csv", index=False)
+pd.DataFrame(src, columns=["class", "timepoint", "length_nt", "pct_of_sequences", "n_sequences"]).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_unique_pirna_length_byclass16.csv", index=False)
 for e in ("pdf", "svg", "png"): fig.savefig(f"{U}/pangenome_te/Fig_unique_pirna_length_byclass16.{e}", bbox_inches="tight")
 print("wrote Fig_unique_pirna_length_byclass16 (5 classes side by side, shared y-scale)")
 print(d.groupby("klass5").length.median())

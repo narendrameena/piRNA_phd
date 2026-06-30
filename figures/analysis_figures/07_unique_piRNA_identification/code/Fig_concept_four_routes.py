@@ -66,7 +66,7 @@ for i,(n,title,verdict,col,count,seq,chrom,st,en,strand,note) in enumerate(R):
     a,b,c=cov(chrom,st,en); x=np.arange(a,b)
     axs.fill_between(x,0,c,step="mid",color=col,alpha=0.55,lw=0); axs.axvspan(st,en,color="#e0a800",alpha=0.4)
     axs.set_xlim(a,b); axs.set_ylim(0,max(c.max(),1)*1.18)
-    axs.set_title(f"zoom-out · SPRET/EiJ {chrom}:{st:,} — real P20.5 piRNA coverage (24–32 nt)",fontsize=6.8,fontweight="bold",loc="left")
+    axs.set_title(f"zoom-out · SPRET/EiJ {chrom}:{st:,} — real P20.5 piRNA coverage (25–32 nt)",fontsize=6.8,fontweight="bold",loc="left")
     axs.tick_params(labelsize=5.3); axs.ticklabel_format(axis="x",style="plain"); axs.spines[['top','right']].set_visible(False); axs.set_ylabel("cov",fontsize=6)
     axn.axis("off")
     for k,bse in enumerate(seq):
@@ -82,5 +82,7 @@ for i,(n,title,verdict,col,count,seq,chrom,st,en,strand,note) in enumerate(R):
 bam.close()
 fig.suptitle("Four routes to a 'strain-specific' piRNA — only routes 3 & 4 are genuinely unique (expression is the criterion).\nMiddle = the cross-strain intuition (same locus in 3 strains); right = the real SPRET piRNA at its true locus, zoomed to single-base + coordinate resolution.",
              fontsize=9.2,fontweight="bold",y=0.99,linespacing=1.4)
+import os as _os, pandas as _pd; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(n,title,verdict,count,chrom,st,en,strand,seq) for n,title,verdict,col,count,seq,chrom,st,en,strand,note in R],columns=["route","title","verdict","SPRET_count","chrom","locus_start","locus_end","strand","piRNA_sequence"]).to_csv(f"{_SD}/SourceData_Fig_concept_four_routes.csv",index=False)   # the 4 representative route loci
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_concept_four_routes.{e}",bbox_inches="tight")
 print("wrote Fig_concept_four_routes.{png,pdf,svg} (3-col: verdict | cross-strain intuition | coverage+nucleotide)")

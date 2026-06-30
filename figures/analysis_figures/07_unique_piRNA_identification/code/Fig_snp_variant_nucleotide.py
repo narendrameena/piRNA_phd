@@ -63,5 +63,7 @@ ax.text(len(spret)*bw+0.4,1.27,f"{len(snps)} mismatches (✗)\n≤3 = data-drive
 fig.text(0.5,0.02,"The SPRET piRNA looked strain-specific only because its sequence carries a few SNPs; the SAME piRNA (conserved sequence) is expressed in the other strains. "
   "The STAR genome-anchored test catches this (≤3-mm match to an expressed sequence) and correctly calls it NOT unique.",ha="center",fontsize=6.4,color="#555")
 fig.tight_layout()
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+pd.DataFrame([{"SPRET_seq":spret,"conserved_seq":cons,"n_SNPs":len(snps),"SNP_positions":";".join(map(str,snps)),"conserved_locus":f"{refname}:{refstart}-{refend}","strand":"-" if isrev else "+"}]).to_csv(f"{_SD}/SourceData_Fig_snp_variant_nucleotide.csv",index=False)   # the single SNP-variant example (Route 2)
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/pangenome_te/Fig_snp_variant_nucleotide.{e}",bbox_inches="tight")
 print("wrote Fig_snp_variant_nucleotide.{png,pdf,svg}")

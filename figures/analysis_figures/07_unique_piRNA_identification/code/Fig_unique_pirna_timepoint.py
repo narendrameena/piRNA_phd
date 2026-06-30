@@ -69,7 +69,7 @@ fig.text(0.5, 0.006, "Both genuinely-unique klass5 subcategories shown. A / blue
   "(E16.5 · P12.5 · P20.5, left→right). Log y (wild strains dominate). “0” = that strain × window had 0 such candidates. Right column = pooled developmental fingerprint (Σ over 16 strains). klass5, ≥2-read.",
   ha="center", fontsize=6.6, color="#555")
 os.makedirs(SD, exist_ok=True)
-for kl in src: src[kl].to_csv(f"{SD}/SourceData_unique_pirna_timepoint_{'CBS' if 'conserved' in kl else 'private'}.csv")
+for kl in src: src[kl].to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_unique_pirna_timepoint_{'CBS' if 'conserved' in kl else 'private'}.csv")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{U}/pangenome_te/Fig_unique_pirna_timepoint.{e}", bbox_inches="tight")
 print("wrote Fig_unique_pirna_timepoint (BOTH unique subcategories; timepoints side-by-side) + source data")
 for kl in src: print(f"\n== {kl} ==  (pooled by tp: {dict(src[kl].sum())})"); print(src[kl].to_string())

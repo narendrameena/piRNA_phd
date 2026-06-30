@@ -24,7 +24,7 @@ SCOL={s:PAL[i] for i,s in enumerate(CANON)}
 MARK={s:("*" if s in WILD else "o") for s in CANON}  # wild = star
 TPCOL={"E16.5":"#4393C3","P12.5":"#E8852B","P20.5":"#B2182B"}   # timepoint colour (matches the locus figures)
 df=pd.concat([pd.read_csv(f"{U}/pca16/{t}.pca.csv") for t in ["16.5dpc","12.5dpp","20.5dpp"]],ignore_index=True)
-df.to_csv(f"{U}/SourceData_pca_unique16.csv",index=False)
+df.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_pca_unique16.csv",index=False)
 comb=pd.read_csv(f"{U}/pca16/combined_byclass.csv") if os.path.exists(f"{U}/pca16/combined_byclass.csv") else None   # all-timepoints-pooled PCA, ONE per feature-set class
 TPO=["E16.5","P12.5","P20.5"]; FSO=["all_full","all_expressed","unique"]
 FTITLE={"all_full":"ALL expressed piRNAs (every feature, no top-500 filter)","all_expressed":"All expressed piRNAs (top-500 variable)","unique":"Genuinely-unique piRNAs (16-strain)"}

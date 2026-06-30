@@ -40,5 +40,5 @@ for lab,s in zip(_cax.get_xticklabels(),order): lab.set_color("#C0392B" if s in 
 _cax.set_title("classical (blue) vs wild-derived (orange) — total candidates per strain",fontsize=7.5,fontweight="bold",loc="left")
 out=f"{U}/Fig_pilot_unique_pirna_counts"
 for ext in ("pdf","svg","png"): fig.savefig(f"{out}.{ext}",bbox_inches="tight")
-piv.to_csv(f"{U}/SourceData_pilot_unique_pirna_counts.csv")
+piv.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_pilot_unique_pirna_counts.csv")
 print("wrote",out); print(piv.astype(int).to_string())

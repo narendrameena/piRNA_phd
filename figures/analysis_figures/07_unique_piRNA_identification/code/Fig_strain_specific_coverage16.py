@@ -115,6 +115,6 @@ for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_strain_specific_coverage16.
 # source data
 out = pd.DataFrame({"strain":CANON,"cov_loose_%":loose.values,"cov_2read_%":twor.values,"cov_strict_%":strict.values})
 if HAVE_DA: out["cov_DA_%"]=per_strain("cov_DA").values
-out.to_csv(f"{SD}/Fig_strain_specific_coverage16.csv", index=False)
+out.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/Fig_strain_specific_coverage16.csv", index=False)
 print("wrote Fig_strain_specific_coverage16 (DA-only included:", HAVE_DA, ")")
 print(out.to_string(index=False))

@@ -76,5 +76,5 @@ out=pd.DataFrame({"length":list(LR)}); out["pooled_unique_pct"]=pct.reindex(LR,f
 for t in TPO: out[f"{t}_unique_pct"]=tp_pct[t].reindex(LR,fill_value=0).round(3).values
 for s in CANON: out[f"{s}_unique_pct"]=st_pct[s].reindex(LR,fill_value=0).round(3).values
 for k in KORD: out[f"{KLAB[k]}_pct"]=kl_pct[k].reindex(LR,fill_value=0).round(3).values
-out.to_csv(f"{U}/pangenome_te/SourceData_unique_pirna_length16.csv",index=False)
+out.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_unique_pirna_length16.csv",index=False)
 print("wrote Fig_unique_pirna_length16.{png,pdf,svg} + source data")

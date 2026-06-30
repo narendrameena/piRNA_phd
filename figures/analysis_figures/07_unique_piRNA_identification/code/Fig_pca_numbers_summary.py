@@ -27,7 +27,7 @@ all3=[int(cbn.get(k,0)) for k in KL5]
 TOT=sum(pooled); TOT3=sum(all3); GU=all3[3]+all3[4]; GUp=pooled[3]+pooled[4]
 pd.DataFrame({"class":KLAB,"pooled":pooled,"E16.5":[pertp[k][0] for k in KL5],"P12.5":[pertp[k][1] for k in KL5],"P20.5":[pertp[k][2] for k in KL5],
   "distinct_sequences":unique,"all3_combined":all3,"pct_of_pooled":[round(100*p/TOT,2) for p in pooled],
-  "pct_survive_to_combined":[round(100*a/p,1) for a,p in zip(all3,pooled)]}).to_csv(f"{U}/SourceData_pca_numbers_summary.csv",index=False)
+  "pct_survive_to_combined":[round(100*a/p,1) for a,p in zip(all3,pooled)]}).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_pca_numbers_summary.csv",index=False)
 plt.rcParams.update({"font.family":"Liberation Sans"})
 fig=plt.figure(figsize=(15,14.5),dpi=300)
 fig.text(0.5,0.982,"How the strain-specific piRNA candidate numbers fit together  (≥2-read adopted)",ha="center",va="top",fontsize=14,fontweight="bold")

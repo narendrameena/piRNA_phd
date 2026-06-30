@@ -75,5 +75,5 @@ _cax.set_xticks(x); _cax.set_xticklabels([s.replace("_","/") for s in CANON],rot
 for lab,s in zip(_cax.get_xticklabels(),CANON): lab.set_color("#C0392B" if s in WILD else "#333")
 _cax.set_title("classical (blue) vs wild-derived (orange) — total strain-specific piRNAs per strain",fontsize=7.5,fontweight="bold",loc="left")
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/Fig_strain_specific_DA16.{e}",bbox_inches="tight")
-tab.astype(int).to_csv(f"{SD}/Fig_strain_specific_DA16.csv")
+tab.astype(int).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/Fig_strain_specific_DA16.csv")
 print("wrote Fig_strain_specific_DA16.{png,pdf,svg} + source_data/Fig_strain_specific_DA16.csv")

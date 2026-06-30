@@ -107,5 +107,5 @@ out["bulk_reads_pct"]=bulk.reindex(LR,fill_value=0).round(3).values
 for t in TPO: out[f"{t}_unique_pct"]=tp_pct[t].reindex(LR,fill_value=0).round(3).values
 for t in TPO: out[f"{t}_composition_pct"]=comp_frac.reindex(LR)[t].round(2).values
 for s in PILOT: out[f"{s}_unique_pct"]=st_pct[s].reindex(LR,fill_value=0).round(3).values
-out.to_csv(f"{U}/SourceData_unique_pirna_length.csv",index=False)
+out.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_unique_pirna_length.csv",index=False)
 print("wrote Fig_unique_pirna_length.{png,pdf,svg} + SourceData_unique_pirna_length.csv")

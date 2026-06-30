@@ -12,7 +12,7 @@ import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
 P=f"{U}/pca"
 df=pd.concat([pd.read_csv(f"{P}/{t}.pca.csv") for t in ["16.5dpc","12.5dpp","20.5dpp"]],ignore_index=True)
-df.to_csv(f"{U}/SourceData_pca_unique.csv",index=False)
+df.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_pca_unique.csv",index=False)
 TPO=["E16.5","P12.5","P20.5"]; FSO=["all_expressed","unique"]
 FTITLE={"all_expressed":"All expressed piRNAs (top-500 variable)","unique":"Genuinely-unique piRNAs (klass5: CBS + strain-private)"}
 SCOL={"C57BL_6NJ":"#0072B2","CAST_EiJ":"#009E73","SPRET_EiJ":"#D55E00"}

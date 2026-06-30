@@ -45,5 +45,5 @@ fig.tight_layout(rect=[0,0.02,1,0.99])
 base=f"{U}/Fig_snp_variant_cutoff"
 for e in ("pdf","svg","png"): fig.savefig(f"{base}.{e}",bbox_inches="tight")
 sd=comp.assign(total=comp.sum(1)); sd.columns=[f"mm{c}" if isinstance(c,int) else c for c in sd.columns]
-sd.to_csv(f"{SD}/SourceData_Fig_snp_variant_cutoff.csv")
+sd.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_Fig_snp_variant_cutoff.csv")
 print(oc.to_string()); print("wrote",base)

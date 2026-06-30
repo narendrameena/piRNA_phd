@@ -61,6 +61,8 @@ ax.text(L*bw+0.4,1.6,f"{len(snps)} SNPs (✗)\n→ NOT unique",fontsize=8,color=
 ax.text(L*bw*0.5,3.15,"The SPRET piRNA (2 SNPs) is a near-copy of a CONSERVED piRNA expressed in CAST/EiJ — NOT a novel piRNA",ha="center",fontsize=9.3,fontweight="bold")
 fig.text(0.5,0.02,"Coordinate-anchored: SPRET piRNA at its real SPRET-genome position (top); the matching conserved piRNA at its CAST-genome position (bottom). "
   "NB the CAST copy is at a different coordinate (a paralogous family copy, not the syntenic allele) — but the sequence (±2 SNPs) IS expressed in CAST, so the genome-anchored test (≤3 mm) calls it NOT unique.",ha="center",fontsize=5.8,color="#555")
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+pd.DataFrame([{"SPRET_locus":f"{schr}:{ss}-{se}","SPRET_strand":"-" if srev else "+","CAST_locus":f"{cchr}:{cs}-{ce}","CAST_strand":"-" if crev else "+","SPRET_seq":"".join(spret),"conserved_CAST_seq":"".join(cons),"n_SNPs":len(snps),"SNP_positions":";".join(map(str,sorted(snps)))}]).to_csv(f"{_SD}/SourceData_Fig_snp_variant_coord.csv",index=False)   # the single coordinate-anchored SNP-variant example
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/pangenome_te/Fig_snp_variant_coord.{e}",bbox_inches="tight")
 from PIL import Image; print("size:",Image.open(f"{U}/pangenome_te/Fig_snp_variant_coord.png").size)
 print("wrote Fig_snp_variant_coord.{png,pdf,svg}")
