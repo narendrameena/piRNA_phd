@@ -18,7 +18,7 @@ CANON = [s for s in STRAIN_ORDER if s != "C57BL_6"]
 CLS = ["expressed elsewhere (exact)", "SNP-variant (1-3mm)", "unique: conserved-but-silent", "unique: strain-private locus"]
 CLAB = ["expressed-\nelsewhere", "SNP-variant\n(allelic)", "unique:\nconserved-silent", "unique:\nprivate-locus"]
 CCOL = ["#9e9e9e", "#E69F00", "#0072B2", "#7a3b9a"]
-cache = f"{SA}/SourceData_sense_antisense16_percand.csv.gz"
+cache = f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data/SourceData_sense_antisense16_percand.csv.gz"
 if os.path.exists(cache):
     pc = pd.read_csv(cache); print("loaded cached per-candidate orientation table")
 else:

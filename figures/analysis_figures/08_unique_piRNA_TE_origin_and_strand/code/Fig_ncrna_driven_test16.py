@@ -67,7 +67,7 @@ for X in CANON:
         n_in=sum(inlnc(*loci[n][0]) for n in ids); fold=(n_in/len(ids))/lncfrac if ids and lncfrac else np.nan
         rows.append(dict(strain=X,cls=lab,fold=round(fold,3) if ids else np.nan,n_uniq=len(ids),n_in_lncRNA=n_in,clean_lncRNA_pct=round(lncfrac*100,2)))
     print(f"{X}: clean-lncRNA={lncfrac*100:.1f}% | "+" | ".join(f"{lab}:{r['fold']}x(n={r['n_uniq']:,})" for lab,r in zip(LAB,rows[-2:])))
-df=pd.DataFrame(rows); df.to_csv(f"{PG}/SourceData_ncrna_driven_test16.csv",index=False)
+df=pd.DataFrame(rows); df.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data/SourceData_ncrna_driven_test16.csv",index=False)
 plt.rcParams.update({"font.family":"Liberation Sans"})
 fig,ax=plt.subplots(figsize=(13,6),dpi=300); x=np.arange(len(CANON)); bw=0.38
 for i,(cls,lab) in enumerate(zip(CLS,LAB)):

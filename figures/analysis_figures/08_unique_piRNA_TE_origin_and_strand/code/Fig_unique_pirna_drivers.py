@@ -19,7 +19,7 @@ BT = "/mnt/home3/miska/nm667/miniconda3/envs/ccTE/bin/bedtools"; GB = f"{PG}/gen
 CANON = [s for s in STRAIN_ORDER if s != "C57BL_6"]; TPMAP = {"16.5dpc": "E16.5", "12.5dpp": "P12.5", "20.5dpp": "P20.5"}; TPS = ["E16.5", "P12.5", "P20.5"]
 DRIVERS = [("TE", "#1B7837"), ("lncRNA", "#762A83"), ("protein-coding", "#4575B4"), ("intergenic", "#BBBBBB")]
 DCOLS = [k for k, _ in DRIVERS]
-cache = f"{PG}/SourceData_unique_pirna_drivers.csv"
+cache = f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data/SourceData_unique_pirna_drivers.csv"
 if os.path.exists(cache):
     T = pd.read_csv(cache); print("loaded cached driver table")
 else:

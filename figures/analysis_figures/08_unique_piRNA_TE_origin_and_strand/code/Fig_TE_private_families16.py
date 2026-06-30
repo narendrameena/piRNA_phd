@@ -15,7 +15,7 @@ import matplotlib.colors as mc
 ROOT = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U = f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; PG = f"{U}/pangenome_te"
 BT = "/mnt/home3/miska/nm667/miniconda3/envs/ccTE/bin/bedtools"; CANON = [s for s in STRAIN_ORDER if s != "C57BL_6"]
 SUB = [("strain-private", "unique: strain-private locus"), ("conserved-but-silent", "unique: conserved-but-silent")]
-cache = f"{PG}/SourceData_TE_private_families16_byclass.csv"
+cache = f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data/SourceData_TE_private_families16_byclass.csv"
 if os.path.exists(cache):
     T = pd.read_csv(cache); print("loaded cached by-class TE-family table")
 else:
@@ -59,7 +59,7 @@ def tefrac(klab):
     return {X: (100 * a.get(X, 0) / b.get(X, np.nan) if b.get(X, 0) else np.nan) for X in CANON}
 Msp, Mcbs = fammat("strain-private"), fammat("conserved-but-silent"); fr_sp, fr_cbs = tefrac("strain-private"), tefrac("conserved-but-silent")
 # ---- sRNA TE-family expression (reuse cached expression matrix, family x strain) ----
-E_csv = f"{PG}/SourceData_TE_private_families16_expression.csv"
+E_csv = f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data/SourceData_TE_private_families16_expression.csv"
 E = pd.read_csv(E_csv, index_col=0).reindex(index=Msp.index, columns=CANON).fillna(0.0) if os.path.exists(E_csv) else pd.DataFrame(0.0, index=Msp.index, columns=CANON)
 plt.rcParams.update({"font.family": "Liberation Sans"})
 CMAP = mc.LinearSegmentedColormap.from_list("vivBlue", ["#eaf3fb", "#9ecae8", "#3a8fd4", "#1565a8"]); CMAP.set_bad("white")

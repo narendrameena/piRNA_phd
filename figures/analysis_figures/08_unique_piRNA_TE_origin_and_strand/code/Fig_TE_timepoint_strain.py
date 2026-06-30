@@ -22,7 +22,7 @@ d = pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz")
 # total piRNAs per (strain, tp, klass) — top bars (from the classification directly)
 d2 = d[d.klass5.isin([k for _, k, _ in SUB])].assign(tp=lambda r: r.timepoint.map(TPMAP), kl=lambda r: r.klass5.map({k: lab for lab, k, _ in SUB}))
 ctall = {lab: d2[d2.kl == lab].groupby(["strain", "tp"]).size().unstack(fill_value=0).reindex(index=CANON, columns=TPS).fillna(0) for lab, _, _ in SUB}
-cache = f"{PG}/SourceData_TE_timepoint_strain_byclass.csv"
+cache = f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data/SourceData_TE_timepoint_strain_byclass.csv"
 if os.path.exists(cache):
     T = pd.read_csv(cache); print("loaded cached by-class per-locus TE table")
 else:

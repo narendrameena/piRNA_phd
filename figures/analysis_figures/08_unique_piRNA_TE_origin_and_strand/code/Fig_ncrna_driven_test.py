@@ -74,7 +74,7 @@ for X in STR:
         n_in=sum(inlnc(*loc[i]) for i in ids); fold=(n_in/len(ids))/lncfrac if ids and lncfrac else np.nan
         rows.append(dict(strain=X,cls=lab,fold=fold,n_uniq=len(ids),n_in_clean_lncRNA=n_in,obs_pct=round(100*n_in/len(ids),2) if ids else np.nan))
         print(f"   {lab.replace(chr(10),' ')}: uniq={len(ids):,} in-lncRNA={n_in:,} ({100*n_in/max(len(ids),1):.1f}%) fold={fold:.2f}x")
-df=pd.DataFrame(rows); df.to_csv(f"{PG}/SourceData_ncrna_driven_test.csv",index=False)
+df=pd.DataFrame(rows); df.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data/SourceData_ncrna_driven_test.csv",index=False)
 # ---- plot (grouped bars, log y) ----
 plt.rcParams.update({"font.family":"Liberation Sans"})
 fig,ax=plt.subplots(figsize=(11,6.2),dpi=300)

@@ -35,5 +35,8 @@ fig.text(0.5,-0.06,"Primary TE family = largest-overlap RepeatMasker annotation 
   "CAVEAT: index = main chr+MT only; ~20–26% of private piRNAs map to unplaced contigs (excluded) → TE fraction is a LOWER BOUND.",
   ha="center",fontsize=5.6,color="#666")
 fig.tight_layout()
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_sd=piv.copy(); _sd.index.name="TE_family"; _sd.to_csv(f"{_SD}/SourceData_Fig_TE_private_families.csv")            # plotted grouped-bar heights (TE family x pilot strain)
+summ.reindex(PILOT)[["TE_derived","TE_frac"]].to_csv(f"{_SD}/SourceData_Fig_TE_private_families_summary.csv")        # legend annotation (TE-derived count + fraction per strain)
 for e in ("pdf","svg","png"): fig.savefig(f"{S4}/Fig_TE_private_families.{e}",bbox_inches="tight")
-print("top families:\n",piv.to_string()); print("\nwrote Fig_TE_private_families.{png,pdf,svg}")
+print("top families:\n",piv.to_string()); print("\nwrote Fig_TE_private_families.{png,pdf,svg} + source_data")

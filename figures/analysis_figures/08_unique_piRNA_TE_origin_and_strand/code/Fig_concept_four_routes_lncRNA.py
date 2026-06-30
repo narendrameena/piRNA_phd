@@ -70,6 +70,10 @@ for rt,kl,verd,col,cnt,c,gs,ge,sym,title,note in SPEC:
     cv,qn,p0,p1,st=b; gpc=pc_over(c,gs,ge); lpc=pc_over(c,p0,p1); lte=te_over(c,p0,p1)
     REP[rt]=(seqof[qn],c,p0,p1,st,cv)
     print(f"R{rt} {sym} {c}:{p0}-{p1} {st} cov={cv:.0f} | gene-span pc-overlap={len(gpc)} | locus pc={len(lpc)} TE={len(lte)} -> {'CLEAN' if not(gpc or lpc or lte) else 'WARN'}")
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+pd.DataFrame([(rt,kl,verd,sym,cnt,REP[rt][1],REP[rt][2],REP[rt][3],REP[rt][4],REP[rt][0],round(REP[rt][5],1)) for rt,kl,verd,col,cnt,c,gs,ge,sym,title,note in SPEC],
+  columns=["route","klass5","verdict","lncRNA_gene","clean_lncRNA_count","chrom","locus_start","locus_end","strand","piRNA_sequence","max_coverage_25-32nt"]
+  ).to_csv(f"{_SD}/SourceData_Fig_concept_four_routes_lncRNA.csv",index=False)   # the 4 audited representative loci that anchor the concept panels
 # ---- cross-strain intuition (lncRNA: route 4 line is CONTINUOUS = conserved, no gap) ----
 def xstrain(ax,ridx,seq):
     ax.set_xlim(0,1); ax.set_ylim(0,1); ax.axis("off")
@@ -106,7 +110,7 @@ for i,(rt,kl,verd,col,cnt,c,gs0,ge0,sym,title,note) in enumerate(SPEC):
     a,b,arr=cov(cc,st,en); xx=np.arange(a,b)
     axs.fill_between(xx,0,arr,step="mid",color=col,alpha=0.55,lw=0); axs.axvspan(st,en,color="#e0a800",alpha=0.4)
     axs.set_xlim(a,b); axs.set_ylim(0,max(arr.max(),1)*1.18)
-    axs.set_title(f"zoom-out · SPRET/EiJ {cc}:{st:,} in lncRNA {sym} — real P20.5 piRNA coverage (24–32 nt)",fontsize=6.6,fontweight="bold",loc="left")
+    axs.set_title(f"zoom-out · SPRET/EiJ {cc}:{st:,} in lncRNA {sym} — real P20.5 piRNA coverage (25–32 nt)",fontsize=6.6,fontweight="bold",loc="left")
     axs.tick_params(labelsize=5.3); axs.ticklabel_format(axis="x",style="plain"); axs.spines[['top','right']].set_visible(False); axs.set_ylabel("cov",fontsize=6)
     axn.axis("off")
     for k,bse in enumerate(seq):
