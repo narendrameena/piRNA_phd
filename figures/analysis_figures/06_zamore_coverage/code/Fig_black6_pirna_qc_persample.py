@@ -50,7 +50,7 @@ TPS=[("E16.5","16.5dpc"),("P12.5","12.5dpp"),("P20.5","20.5dpp")]
 plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.fonttype":"none"})
 fig,ax=plt.subplots(1,3,figsize=(15.5,5.2),dpi=300); xs=np.array(LR)
 for j,(lab,tp) in enumerate(TPS):
-    a=ax[j]; a.axvspan(23.5,32.5,color="#0072B2",alpha=0.06,zorder=0); a.axvline(22,ls=":",lw=0.9,color="#888")
+    a=ax[j]; a.axvspan(24.5,32.5,color="#0072B2",alpha=0.06,zorder=0); a.axvline(22,ls=":",lw=0.9,color="#888")
     samps=SAMPLES[tp]
     b6=[s for s in samps if s[0]=="black6"]; nj=[s for s in samps if s[0]=="C57BL_6NJ"]
     cols={"black6":cm.Oranges(np.linspace(0.45,0.92,max(len(b6),1))), "C57BL_6NJ":cm.Blues(np.linspace(0.45,0.92,max(len(nj),1)))}
@@ -60,11 +60,11 @@ for j,(lab,tp) in enumerate(TPS):
         if not o or o[2]==0: gi[grp]+=1; continue
         lp,u1=curve(o); c=cols[grp][gi[grp]]; gi[grp]+=1
         a.plot(xs,lp,color=c,lw=1.4,marker="o",ms=2.0,label=f"{name} (1U {u1:.0f}%)")
-        print(f"{lab} {name}: 1U {u1:.0f}% | 24-32nt {sum(lp[L-18] for L in range(24,33)):.0f}%")
+        print(f"{lab} {name}: 1U {u1:.0f}% | 25-32nt {sum(lp[L-18] for L in range(25,33)):.0f}%")
     a.set_title(lab,fontsize=10,fontweight="bold"); a.set_xlabel("insert length (nt)",fontsize=9)
     if j==0: a.set_ylabel("% of trimmed reads",fontsize=9)
     a.set_xticks(xs[::3]); a.tick_params(labelsize=7); a.legend(fontsize=5.6,frameon=False,loc="upper right"); a.spines[['top','right']].set_visible(False)
-    a.text(28,a.get_ylim()[1]*0.97,"piRNA 24-32",fontsize=6,color="#0072B2",ha="center",va="top")
+    a.text(28,a.get_ylim()[1]*0.97,"piRNA 25-32",fontsize=6,color="#0072B2",ha="center",va="top")
 fig.suptitle("Per-sample piRNA-enrichment QC — black6 (C57BL/6) vs C57BL_6NJ: each sample, insert-length + 1U",fontsize=11,fontweight="bold",y=1.02)
 fig.text(0.5,-0.03,"Each line = ONE sample. E16.5 black6 = all 6 controls (3 TEX15/GSE150350 + 3 SPOCD1/GSE131377; NEBnext, prior-pipeline-trimmed). P12.5/P20.5 black6 = unique reps; C57BL_6NJ = project reps (TruSeq, trimmed here). 3M reads/sample.",ha="center",fontsize=6.2,color="#555")
 fig.tight_layout()

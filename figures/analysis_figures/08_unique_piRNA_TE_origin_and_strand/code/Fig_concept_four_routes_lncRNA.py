@@ -45,13 +45,13 @@ real=pysam.AlignmentFile(REAL,"rb"); cs=pysam.AlignmentFile(CS,"rb"); W=110
 def pick(kl,c,gs,ge):
     A=np.zeros(ge-gs)
     for r in real.fetch(f"{X}#1#{c}",gs,ge):
-        if r.is_unmapped or not 24<=r.reference_end-r.reference_start<=32: continue
+        if r.is_unmapped or not 25<=r.reference_end-r.reference_start<=32: continue
         A[max(gs,r.reference_start)-gs:min(ge,r.reference_end)-gs]+=1
     best=None; seen=set()
     for r in cs.fetch(f"{X}#1#{c}",gs,ge):
         qn=r.query_name
         if qn in seen or kof.get(qn)!=kl or (r.has_tag("NH") and r.get_tag("NH")!=1): continue
-        if not 24<=r.reference_end-r.reference_start<=32 or r.reference_start<gs or r.reference_end>ge: continue
+        if not 25<=r.reference_end-r.reference_start<=32 or r.reference_start<gs or r.reference_end>ge: continue
         sq=r.query_sequence or ""
         if not ((comp.get(sq[-1],"N")=="T") if r.is_reverse else (sq[:1]=="T")): continue
         seen.add(qn); cv=A[r.reference_start-gs:r.reference_end-gs].max()
@@ -60,7 +60,7 @@ def pick(kl,c,gs,ge):
 def cov(c,s,e):
     a,b=s-W,e+W; arr=np.zeros(b-a)
     for r in real.fetch(f"{X}#1#{c}",a,b):
-        if not r.is_unmapped and 24<=r.reference_end-r.reference_start<=32:
+        if not r.is_unmapped and 25<=r.reference_end-r.reference_start<=32:
             for p in range(max(a,r.reference_start),min(b,r.reference_end)): arr[p-a]+=1
     return a,b,arr
 REP={}

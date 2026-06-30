@@ -27,7 +27,7 @@ def cov(chrom,s,e):
     for r in bam.fetch(f"SPRET_EiJ#1#{chrom}",a,b):
         if r.is_unmapped: continue
         L=r.reference_end-r.reference_start
-        if 24<=L<=32:
+        if 25<=L<=32:
             for p in range(max(a,r.reference_start),min(b,r.reference_end)): c[p-a]+=1
     return a,b,c
 def xstrain(ax,ridx,seq):

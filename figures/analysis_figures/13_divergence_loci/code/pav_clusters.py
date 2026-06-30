@@ -211,7 +211,7 @@ def cluster_extent(sub, strain, tp=None, gap=30000):
     return (g[0], g[1], g[2], g[3], g[4], max(set(g[5]), key=g[5].count))
 
 def _quick_reads(strain, oc, s, e):
-    """Primary 24-32 nt sRNA read count in a candidate cluster region (pooled over tp/rep) — to pick the real
+    """Primary 25-32 nt sRNA read count in a candidate cluster region (pooled over tp/rep) — to pick the real
     cluster over a spurious repeat-paralog projection that carries no reads."""
     n = 0; BAMC = f"{strain}#1#chr{oc}"
     for tp in TPS:
@@ -274,7 +274,7 @@ def genes_at(strain, own_chrom, ps, pe):
     return genes
 
 def fetch_primary(strain, own_chrom, ps, pe, tp, nb=200):
-    """PRIMARY sRNA reads (24-32 nt, exclude secondary/multimap spillover) inside the cluster, one timepoint.
+    """PRIMARY sRNA reads (25-32 nt, exclude secondary/multimap spillover) inside the cluster, one timepoint.
     Strand split = GENOMIC strand (architecture). AS->TE = antisense relative to the overlapping TE (sense/antisense)."""
     BAMC = f"{strain}#1#chr{own_chrom}"; N = max(1, pe - ps); tes = te_at(strain, own_chrom, ps, pe)
     def tst(p):

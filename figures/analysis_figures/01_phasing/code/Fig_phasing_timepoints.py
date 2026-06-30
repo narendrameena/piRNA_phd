@@ -4,7 +4,7 @@ Nature-Genetics figure: C57BL/6NJ piRNA phasing across spermatogenesis.
 
 Input : phasing_C57BL_6NJ_1random/ALL_summary.csv  (one row per sample)
 Method: 1 random coordinate per read (STAR --outSAMmultNmax 1 --outMultimapperOrder
-        Random), 24-32 nt, GenomicRanges::follow() 3'->5' adjacency; +1 nt = phased
+        Random), 25-32 nt, GenomicRanges::follow() 3'->5' adjacency; +1 nt = phased
         (Almeida et al. Genome Biol 2025, PMID 39844208).
 
 Panels: A = +1 phasing fraction (%) by timepoint (bar=mean, dots=reps);
