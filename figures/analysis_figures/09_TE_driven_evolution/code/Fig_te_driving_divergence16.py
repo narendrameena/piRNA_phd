@@ -43,5 +43,9 @@ d.set_xticks([0, 1, 2]); d.set_xticklabels(["REGULATORY\n(trans, ≤1.5×)", "in
 d.set_title(f"d   Divergence is mostly REGULATORY ({reg:.0f}%); minority cis ({cis:.0f}%)", fontsize=9, fontweight="bold", loc="left")
 fig.suptitle("Is TE driving the divergence? — TEs are the SUBSTRATE (ERVK/L1, OR=8.6) but the strain-restricted expression is mostly REGULATORY (trans), not cis TE-sequence divergence", fontsize=10.2, fontweight="bold", y=1.005)
 fig.tight_layout()
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+ct[["base_rate","locus_rate","ratio"]].to_csv(f"{_SD}/SourceData_Fig_te_driving_divergence16_cistrans.csv",index=False)   # panels c/d: per-locus carrier-vs-silent SNP rates
+_summ=[("a","divergence_TEoverlap_pct",driver_pct["divergence"]),("a","baseline_TEoverlap_pct",driver_pct["baseline"]),("a","enrichment_OR",OR),("a","fisher_P",ORp),("d","regulatory_trans_pct",round(reg,1)),("d","intermediate_pct",round(inter,1)),("d","cis_sequence_pct",round(cis,1))]+[("b",f+"_divergence_n",fam[f][0]) for f in fam]+[("b",f+"_baseline_n",fam[f][1]) for f in fam]
+pd.DataFrame(_summ,columns=["panel","metric","value"]).to_csv(f"{_SD}/SourceData_Fig_te_driving_divergence16_summary.csv",index=False)   # panels a/b/d summary values
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/Fig_te_driving_divergence16.{e}", bbox_inches="tight")
 print(f"wrote Fig_te_driving_divergence16.{{png,pdf,svg}} | regulatory={reg:.0f}% intermediate={inter:.0f}% cis={cis:.0f}% | n_loci={len(ct)}")

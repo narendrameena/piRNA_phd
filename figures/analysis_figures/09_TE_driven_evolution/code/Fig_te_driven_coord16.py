@@ -20,7 +20,7 @@ KL=["expressed elsewhere (exact)","unique: conserved-but-silent","unique: strain
 LAB=["expressed-elsewhere (common)","unique: conserved-but-silent","unique: strain-private locus"]; COL=["#9e9e9e","#0072B2","#7a3b9a"]
 df=pd.concat([pd.read_csv(f"{PG}/{X}.coord_byclass16.csv") for X in CANON if __import__("os").path.exists(f"{PG}/{X}.coord_byclass16.csv")],ignore_index=True)
 df["fold"]=df.apply(lambda r: r["pct"]/r["exp_pct"] if r["exp_pct"]>0 else np.nan,axis=1)
-df.to_csv(f"{PG}/SourceData_te_driven_coord16.csv",index=False)
+df.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/data/source_data/SourceData_te_driven_coord16.csv",index=False)
 exp={X:df[df.strain==X].exp_pct.iloc[0] for X in CANON if (df.strain==X).any()}
 print("fold-enrichment (pct/exp) by strain x class:")
 print(df.pivot(index="strain",columns="klass",values="fold").reindex(CANON).round(2).to_string())
