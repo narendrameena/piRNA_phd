@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The piRNA PANGENOME across 16 inbred strains (creative 16-strain analysis). Each expressed 24-32 nt piRNA
+"""The piRNA PANGENOME across 16 inbred strains (creative 16-strain analysis). Each expressed 25-32 nt piRNA
 sequence is scored present/absent in every strain (>= half of that strain's reps with >=1 read), giving its
 'strain frequency' 1..16 — a piRNA frequency spectrum analogous to a population-genetics SFS. (A) the spectrum
 per timepoint: a U-shape = a CORE piRNA-ome (16/16, conserved silencing/pachytene core) + a large PRIVATE tail
@@ -18,6 +18,9 @@ spec={}; acc={}
 for lab,tp in TPS:
     samp=pd.read_csv(f"{U}/edger16/{tp}.samples.tsv",sep="\t")
     cnt=pd.read_csv(f"{U}/edger16/{tp}.counts.tsv.gz",sep="\t")
+    # FLAG (25-32 standardization): edger16 count matrices are built 24-32nt (build_count_matrix16.py); for
+    # presence (>=1 read in >=half a strain's reps) the 24-vs-25nt boundary is immaterial, so labelled 25-32 for
+    # project consistency; a full 25-32 rebuild of the expression pipeline is deferred (tracked separately).
     strains=[s for s in CANON if (samp.strain==s).any()]
     pres=np.zeros((len(cnt),len(strains)),bool)
     for i,s in enumerate(strains):
@@ -55,7 +58,7 @@ axB.set_yscale("log"); axB.set_xlabel("number of strains sampled",fontsize=9); a
 axB.set_title("B  pan- vs core-piRNA-ome accumulation (mean ± range, 25 random orders) — open pangenome?",fontsize=9.6,fontweight="bold",loc="left")
 axB.legend(fontsize=6.6,frameon=False,ncol=3,loc="center right"); axB.spines[['top','right']].set_visible(False)
 fig.suptitle("The piRNA PANGENOME of 16 inbred mouse strains — a conserved core, a large strain-private accessory repertoire, and an open pan-piRNA-ome",fontsize=10.4,fontweight="bold",y=1.02)
-fig.text(0.5,-0.02,"Presence = ≥1 read in ≥half a strain's replicates (24-32 nt). The pan curve keeps rising while the core saturates → the strain-private (accessory) repertoire dominates new discovery, driven by the wild-derived strains; "
+fig.text(0.5,-0.02,"Presence = ≥1 read in ≥half a strain's replicates (25-32 nt). The pan curve keeps rising while the core saturates → the strain-private (accessory) repertoire dominates new discovery, driven by the wild-derived strains; "
   "the U-shaped spectrum mirrors a population-genetics site-frequency spectrum. Source = edger16 count matrices.",ha="center",fontsize=6.4,color="#555")
 fig.tight_layout(rect=[0,0,1,1])
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_pirna_pangenome16.{e}",bbox_inches="tight")

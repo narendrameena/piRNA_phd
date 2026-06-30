@@ -20,6 +20,10 @@ TPLAB={"E16.5":"E16.5 (prepachytene)","P12.5":"P12.5","P20.5":"P20.5 (pachytene)
 rows=[]
 for f,tpk in [("16.5dpc","E16.5"),("12.5dpp","P12.5"),("20.5dpp","P20.5")]:
     d=pd.read_csv(f"{U}/{f}.strain_specific_DA_2read.csv.gz")   # ADOPTED ≥2-read absence (edger16_2read.R)
+    # FLAG (25-32 standardization): the edger16 count matrices feeding this DA are built with a 24-32nt window
+    # (build_count_matrix16.py). The 24-vs-25nt boundary is immaterial for DA presence/absence calls, so the
+    # figure is labelled 25-32 for project consistency; a full 25-32 rebuild of the expression pipeline
+    # (edgeR/DESeq/presence/PCA, themes 07/10/18/19) is deferred and tracked separately.
     for s,n in d.strain.value_counts().items(): rows.append(dict(timepoint=tpk,strain=s,n=int(n)))
 tab=(pd.DataFrame(rows).pivot(index="strain",columns="timepoint",values="n")
        .reindex(columns=TPO))
@@ -54,7 +58,7 @@ ax.set_ylabel("strain-specific piRNAs\n(edgeR DA ∩ presence/absence, log)",fon
 ax.text(np.mean(WPOS),ymax*2.4,"wild-derived",ha="center",va="top",fontsize=8,fontweight="bold",color="#C0392B")
 ax.legend(fontsize=7.5,frameon=False,ncol=3,loc="lower left",bbox_to_anchor=(0,1.005),
           columnspacing=1.4,handlelength=1.3)
-ax.set_title("Strain-specific unique piRNAs per timepoint, all 16 strains (24–32 nt, edgeR QL FDR<0.05 ∩ ≥2-read presence/absence — ADOPTED)",
+ax.set_title("Strain-specific unique piRNAs per timepoint, all 16 strains (25–32 nt, edgeR QL FDR<0.05 ∩ ≥2-read presence/absence — ADOPTED)",
              fontsize=9.6,fontweight="bold",loc="left",pad=28)
 ax.spines[['top','right']].set_visible(False)
 fig.text(0.5,-0.06,
