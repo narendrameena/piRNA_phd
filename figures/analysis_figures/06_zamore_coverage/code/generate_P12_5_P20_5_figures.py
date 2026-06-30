@@ -581,7 +581,7 @@ fig3.text(0.5, 0.01,
 # ── Save Fig3 input data matrices ─────────────────────────────────────────
 # Pachytene heatmap matrix
 pach_cov_mat.reset_index().to_csv(
-    os.path.join(OUT_DIR, "Fig3_pachytene_coverage_heatmap.csv"), index=False)
+    os.path.join(SD_DIR, "Fig3_pachytene_coverage_heatmap.csv"), index=False)
 print(f"  Saved Fig3_pachytene_coverage_heatmap.csv")
 
 # CDF input: per-stage average coverage per gene
@@ -589,7 +589,7 @@ for st in STAGES_MAIN:
     st_data = cov[cov["stage"] == st].groupby("gene")["max_cov"].mean().reset_index()
     st_data.columns = ["gene", "mean_max_cov"]
     st_data.to_csv(
-        os.path.join(OUT_DIR, f"Fig3_CDF_data_{st}.csv"), index=False)
+        os.path.join(SD_DIR, f"Fig3_CDF_data_{st}.csv"), index=False)
     print(f"  Saved Fig3_CDF_data_{st}.csv")
 
 # Top loci FPM comparison
