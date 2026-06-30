@@ -49,6 +49,7 @@ SAMPLES={
 TPS=[("E16.5","16.5dpc"),("P12.5","12.5dpp"),("P20.5","20.5dpp")]
 plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.fonttype":"none"})
 fig,ax=plt.subplots(1,3,figsize=(15.5,5.2),dpi=300); xs=np.array(LR)
+_src=[]   # source data: per-sample insert-length distribution + 1U%
 for j,(lab,tp) in enumerate(TPS):
     a=ax[j]; a.axvspan(24.5,32.5,color="#0072B2",alpha=0.06,zorder=0); a.axvline(22,ls=":",lw=0.9,color="#888")
     samps=SAMPLES[tp]
@@ -59,6 +60,7 @@ for j,(lab,tp) in enumerate(TPS):
         o=load()
         if not o or o[2]==0: gi[grp]+=1; continue
         lp,u1=curve(o); c=cols[grp][gi[grp]]; gi[grp]+=1
+        _src.append({"timepoint":lab,"group":grp,"sample":name,"oneU_pct":round(float(u1),2),**{f"len{L}nt_pct":round(float(lp[L-18]),4) for L in LR}})
         a.plot(xs,lp,color=c,lw=1.4,marker="o",ms=2.0,label=f"{name} (1U {u1:.0f}%)")
         print(f"{lab} {name}: 1U {u1:.0f}% | 25-32nt {sum(lp[L-18] for L in range(25,33)):.0f}%")
     a.set_title(lab,fontsize=10,fontweight="bold"); a.set_xlabel("insert length (nt)",fontsize=9)
@@ -68,5 +70,7 @@ for j,(lab,tp) in enumerate(TPS):
 fig.suptitle("Per-sample piRNA-enrichment QC — black6 (C57BL/6) vs C57BL_6NJ: each sample, insert-length + 1U",fontsize=11,fontweight="bold",y=1.02)
 fig.text(0.5,-0.03,"Each line = ONE sample. E16.5 black6 = all 6 controls (3 TEX15/GSE150350 + 3 SPOCD1/GSE131377; NEBnext, prior-pipeline-trimmed). P12.5/P20.5 black6 = unique reps; C57BL_6NJ = project reps (TruSeq, trimmed here). 3M reads/sample.",ha="center",fontsize=6.2,color="#555")
 fig.tight_layout()
+import pandas as _pd, os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/06_zamore_coverage/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame(_src).to_csv(f"{_SD}/SourceData_Fig_black6_pirna_qc_persample.csv",index=False)   # per-sample insert-length distribution (% per nt, 18-45) + 1U%
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_black6_pirna_qc_persample.{e}",bbox_inches="tight")
 print("wrote Fig_black6_pirna_qc_persample.{png,pdf,svg}")

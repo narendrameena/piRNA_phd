@@ -27,6 +27,7 @@ BASE    = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"
 XLSX    = os.path.join(BASE, "results/picb_result/C57BL_6")
 COV_CSV = os.path.join(BASE, "analysis/claude_biomni_analysis/P12_5_P20_5_zamore_coverage_per_gene.csv")
 OUT_DIR = os.path.join(BASE, "analysis/claude_biomni_analysis/claude_biomni_figures")
+SD_DIR = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/06_zamore_coverage/data/source_data"; os.makedirs(SD_DIR, exist_ok=True)  # theme source_data (consolidated)
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # ── Nature Genetics style ──────────────────────────────────────────────────────
@@ -230,7 +231,7 @@ for stat_label, func in [("median_FPM", np.median), ("mean_FPM", np.mean)]:
         round(func(cluster_dfs[k]["all_reads_primary_alignments_FPM"].values), 2)
         for k in SAMPLE_KEYS
     ]
-fig1_data.to_csv(os.path.join(OUT_DIR, "Fig1_data_matrix.csv"), index=False)
+fig1_data.to_csv(os.path.join(SD_DIR, "Fig1_data_matrix.csv"), index=False)
 print(f"  Saved Fig1_data_matrix.csv")
 
 stem1 = os.path.join(OUT_DIR, "Fig1_PICB_cluster_architecture")
@@ -446,7 +447,7 @@ for key in SAMPLE_KEYS:
         row[f"n_total_{st}"] = STAGE_TOTALS[st]
     det_rows.append(row)
 fig2_det = pd.DataFrame(det_rows)
-fig2_det.to_csv(os.path.join(OUT_DIR, "Fig2_detection_rates.csv"), index=False)
+fig2_det.to_csv(os.path.join(SD_DIR, "Fig2_detection_rates.csv"), index=False)
 print(f"  Saved Fig2_detection_rates.csv")
 
 # Per-gene coverage averaged across replicates
@@ -456,13 +457,13 @@ for tp_label, tp_samples in [("P12.5", ["P12.5_rep1","P12.5_rep2"]),
               .groupby(["gene","stage"])["max_cov"].mean()
               .reset_index()
               .rename(columns={"max_cov": "avg_max_cov"}))
-    tp_avg.to_csv(os.path.join(OUT_DIR, f"Fig2_coverage_per_gene_{tp_label}.csv"), index=False)
+    tp_avg.to_csv(os.path.join(SD_DIR, f"Fig2_coverage_per_gene_{tp_label}.csv"), index=False)
     print(f"  Saved Fig2_coverage_per_gene_{tp_label}.csv")
 
 # Pachytene scatter matrix (Fig2C)
 pach_df_out = pach_df.copy().reset_index()
 pach_df_out.columns = ["gene", "avg_cov_P12.5", "avg_cov_P20.5"]
-pach_df_out.to_csv(os.path.join(OUT_DIR, "Fig2_pachytene_scatter.csv"), index=False)
+pach_df_out.to_csv(os.path.join(SD_DIR, "Fig2_pachytene_scatter.csv"), index=False)
 print(f"  Saved Fig2_pachytene_scatter.csv")
 
 stem2 = os.path.join(OUT_DIR, "Fig2_Zamore_gene_coverage")
@@ -596,7 +597,7 @@ top_loci_out = df_p205r1[["seqnames","start","end","strand","type","locus",
                             "all_reads_primary_alignments_FPM"]].copy()
 top_loci_out.columns = ["chr","start","end","strand","type","locus","FPM_P20.5_rep1"]
 top_loci_out["FPM_P12.5_rep1"] = fpm_p125
-top_loci_out.to_csv(os.path.join(OUT_DIR, "Fig3_top_pachytene_loci_FPM.csv"), index=False)
+top_loci_out.to_csv(os.path.join(SD_DIR, "Fig3_top_pachytene_loci_FPM.csv"), index=False)
 print(f"  Saved Fig3_top_pachytene_loci_FPM.csv")
 
 stem3 = os.path.join(OUT_DIR, "Fig3_coverage_detail")
