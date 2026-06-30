@@ -37,7 +37,7 @@ for lab,tp in TPS:
     print(f"{lab}: {len(cnt):,} expressed seqs | core(16/16)={spec[lab][-1]:,} private(1/16)={spec[lab][0]:,} | pan@16={pan.mean(0)[-1]:,.0f} core@16={core.mean(0)[-1]:,.0f}")
     del cnt
 # source data
-pd.DataFrame({"strains_sharing":range(1,17),**{lab:spec[lab] for lab,_ in TPS}}).to_csv(f"{PG}/SourceData_pirna_pangenome16.csv",index=False)
+pd.DataFrame({"strains_sharing":range(1,17),**{lab:spec[lab] for lab,_ in TPS}}).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/10_cluster_pangenome_PAV/data/source_data/SourceData_pirna_pangenome16.csv",index=False)
 plt.rcParams.update({"font.family":"Liberation Sans"})
 fig,(axA,axB)=plt.subplots(1,2,figsize=(13.2,5.4),dpi=300)
 # A frequency spectrum

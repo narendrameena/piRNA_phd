@@ -39,7 +39,7 @@ axB.set_xticks(range(3)); axB.set_xticklabels([TPL[t].replace(" (", "\n(") for t
 axB.spines[["top", "right"]].set_visible(False); axB.tick_params(labelsize=8); axB.set_ylim(0, max(m90) * 1.2)
 axB.set_title("b   At pachytene, ~3% of clusters make 90% of piRNA\n(prepachytene is dispersed across many TE loci)", fontsize=9, fontweight="bold", loc="left")
 fig.suptitle("A few 'master' clusters dominate the piRNA population at pachytene — the A-MYB-driven pachytene burst (Li 2013); prepachytene TE-silencing piRNAs are dispersed", fontsize=9.6, fontweight="bold", y=1.02)
-pd.DataFrame({"timepoint": TPS, "mean_Gini": [np.mean(ginis[t]) for t in TPS], "mean_pct_clusters_for_90pct": m90}).to_csv(f"{SD}/Fig_pirna_lorenz16_sourcedata.csv", index=False)
+pd.DataFrame({"timepoint": TPS, "mean_Gini": [np.mean(ginis[t]) for t in TPS], "mean_pct_clusters_for_90pct": m90}).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/10_cluster_pangenome_PAV/data/source_data/Fig_pirna_lorenz16_sourcedata.csv", index=False)
 fig.tight_layout()
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/Fig_pirna_lorenz16.{e}", bbox_inches="tight")
 print("Gini:", {t: round(np.mean(ginis[t]), 3) for t in TPS}, "| %clusters for 90%:", {t: round(m, 1) for t, m in zip(TPS, m90)})

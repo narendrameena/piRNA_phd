@@ -60,5 +60,7 @@ xticks(f); nostpr(f); f.set_ylabel("conversion: piRNA loci per\n1,000 private in
 f.set_title(f"f   Per-insertion conversion ~constant (not higher in wild)\nwild vs classical: P = {p_prod:.2f} → excess = insertion COUNT", fontsize=8.4, fontweight="bold", loc="left")
 fig.suptitle("Strain-private TE insertions seed strain-private piRNA source loci across the 16-strain mouse pangenome — wild-derived genome divergence drives piRNA-locus gain", fontsize=11, fontweight="bold", y=1.005)
 fig.tight_layout()
+_TH="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/10_cluster_pangenome_PAV/data/source_data"; os.makedirs(_TH,exist_ok=True)
+df.to_csv(f"{_TH}/SourceData_Fig_te_driven_pangenome16.csv",index=False)   # per-strain: insertion-driven loci/fraction, private-insertion burden, sRNA depth, total clusters, conversion (all 6 panels)
 for ext in ("pdf", "svg", "png"): fig.savefig(f"{PG}/Fig_te_driven_pangenome16.{ext}", bbox_inches="tight")
 print(f"wrote Fig_te_driven_pangenome16.{{png,pdf,svg}}  (P_loci={p_loci:.2g}, P_frac={p_frac:.2g}, rho_ins={rho_ins:.2f}, rho_depth={rho_dep:.2f})")
