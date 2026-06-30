@@ -44,7 +44,7 @@ for k,X in enumerate(STR):
     ax.tick_params(labelsize=6); ax.set_xlabel("kb in Gm10505 locus",fontsize=6); ax.spines[['top','right']].set_visible(False)
     if k%4==0: ax.set_ylabel("piRNA RPM\n(+↑ / −↓)",fontsize=6.5)
     rows.append(dict(strain=X,locus=f"{chrom.split('#')[-1]}:{S}-{E}",strand=strand,total_RPM=round(tot_rpm,1),sense_pct=round(sense,1),U1_pct=round(u1,1),reads=nin,libsize=lib))
-df=pd.DataFrame(rows); df.to_csv(f"{PG}/SourceData_gm10505_16strains.csv",index=False)
+df=pd.DataFrame(rows); df.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data/SourceData_gm10505_16strains.csv",index=False)
 fig.suptitle("Conserved lncRNA-driven pachytene piRNA cluster Gm10505 across all 16 strains (P20.5) — precursor conserved + cluster active in every strain (sense, low-TE; strain-private piRNAs arise by divergence)",fontsize=10,fontweight="bold",y=1.0)
 fig.text(0.5,0.005,"Each panel = that strain's OWN orthologous Gm10505 locus (per-strain v3.5 coords; assemblies differ), real P20.5 piRNA coverage in RPM (library=total mapped). "
   "The lncRNA precursor + its sense pachytene piRNAs are present in all 16 strains (conserved); cf. the divergence-driven strain-private piRNA sequences from this same locus.",ha="center",fontsize=6.4,color="#555")

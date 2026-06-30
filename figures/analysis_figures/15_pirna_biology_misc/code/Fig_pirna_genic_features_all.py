@@ -40,7 +40,7 @@ frac = sub.div(sub.sum(axis=1), axis=0)
 # ---- source data ----
 os.makedirs(SD, exist_ok=True)
 out = frac.copy(); out.columns = [n for _, n, _ in CLASSES]
-out.reset_index().to_csv(f"{SD}/SourceData_pirna_genic_features_all.csv", index=False)
+out.reset_index().to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data/SourceData_pirna_genic_features_all.csv", index=False)
 print("intron fraction by strain (mean over tp):")
 for X in CANON:
     vals = [out.loc[(X, tp), "intron"] for tp in TPS if (X, tp) in out.index]

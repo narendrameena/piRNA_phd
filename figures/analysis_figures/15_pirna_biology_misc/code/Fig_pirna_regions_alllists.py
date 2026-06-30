@@ -52,7 +52,7 @@ def render(out, fn, scope, ylab, cats, derive):
     sub = piv[[c for c, _, _ in cats]]; frac = sub.div(sub.sum(axis=1), axis=0)
     os.makedirs(SD, exist_ok=True)
     o = frac.copy(); o.columns = [n for _, n, _ in cats]
-    o.reset_index().to_csv(f"{SD}/SourceData_{out}.csv", index=False)
+    o.reset_index().to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data/SourceData_{out}.csv", index=False)
     plt.rcParams.update({"font.family": "Liberation Sans", "font.size": 8, "axes.linewidth": 0.6,
         "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42, "svg.fonttype": "none"})
     fig, axes = plt.subplots(1, 3, figsize=(15.5, 5.2), dpi=300, sharey=True)

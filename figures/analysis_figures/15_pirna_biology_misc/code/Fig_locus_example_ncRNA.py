@@ -59,5 +59,7 @@ for xx in (g0,g1): ax.plot([xx,xx],[1.4,12.6],color="#e6e6e6",lw=0.6,ls=(0,(1,3)
 ax.text(5,0.75,"Mechanism: A-MYB (MYBL1) activates the lncRNA promoter at the pachytene stage; the precursor is processed by MOV10L1 + PLD6/Zucchini into phased, 1U pachytene piRNAs SENSE to the lncRNA, low TE.\n"
               "The lncRNA locus is CONSERVED across all 16 strains (gene symbol present in every assembly; real 16-strain coverage in Fig_gm10505_16strains) — the CONTRAST with the strain-private, antisense,\n"
               "TE-silencing IAP cluster (Fig_locus_example_IAP, private 1/16): the lncRNA-driven route to piRNA biogenesis.",ha="center",va="center",fontsize=6.6,color="#444")
+import os as _os, pandas as _pd; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([{"locus":f"{CHROM}:{S}-{E}","lncRNA":SYM,"strand":strand,"n_piRNA_species":nsp,"sense_pct":round(sense,1),"oneU_pct":round(u1,1),"TE_pct":round(tef,1),"fwd_reads":fwd,"rev_reads":rev}]).to_csv(f"{_SD}/SourceData_Fig_locus_example_ncRNA.csv",index=False)   # computed locus stats annotated in the schematic
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_locus_example_ncRNA.{e}",bbox_inches="tight")
 print(f"wrote Fig_locus_example_ncRNA.{{png,pdf,svg}} (16-strain) | {SYM} sense={sense:.1f}% 1U={u1:.1f}% TE={tef:.1f}% species={nsp:,}")

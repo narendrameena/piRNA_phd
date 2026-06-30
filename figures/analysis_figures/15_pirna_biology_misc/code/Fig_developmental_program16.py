@@ -28,7 +28,7 @@ ins_c, base_c, dv_c = cnt(ins_tp), cnt(base_tp), cnt(dv_tp)
 def fish(c): return fisher_exact([[c[0], c.sum() - c[0]], [base_c[0], base_c.sum() - base_c[0]]], alternative="greater")
 ori, pi = fish(ins_c); ordv, pdv = fish(dv_c)
 sets = {"insertion-driven": ins_c, "divergence-driven": dv_c, "baseline (all clusters)": base_c}
-pd.DataFrame({k: v for k, v in sets.items()}, index=TPS).to_csv(f"{SD}/Fig_developmental_program16_sourcedata.csv")
+pd.DataFrame({k: v for k, v in sets.items()}, index=TPS).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data/Fig_developmental_program16_sourcedata.csv")
 print("E16.5 enrichment vs baseline: insertion OR=%.2f P=%.2g | divergence OR=%.2f P=%.2g" % (ori, pi, ordv, pdv))
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none", "axes.linewidth": 0.8})
 fig, ax = plt.subplots(1, 1, figsize=(7.2, 4.6), dpi=300)

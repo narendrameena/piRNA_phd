@@ -37,7 +37,7 @@ frac = piv[[c for c, _, _ in CLASSES]].div(piv[[c for c, _, _ in CLASSES]].sum(a
 # ---- source data ----
 os.makedirs(SD, exist_ok=True)
 out = frac.copy(); out.columns = [n for _, n, _ in CLASSES]
-out.reset_index().to_csv(f"{SD}/SourceData_pirna_genic_regions.csv", index=False)
+out.reset_index().to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data/SourceData_pirna_genic_regions.csv", index=False)
 inter = out["intergenic"]
 print("intergenic fraction by strain (mean over tp):")
 for X in CANON:
