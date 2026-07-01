@@ -67,7 +67,8 @@ perchrom = pd.DataFrame({X: {c: DENS[X][c].sum() for c in CHROMS} for X in CANON
 te = pd.read_csv(f"{U}/pangenome_te/SourceData_TE_private_families16_byclass.csv")
 tep = te[te.klass=="strain-private"].copy()
 tep["grp"] = tep.strain.map(lambda s: "wild" if s in WILD else "classical")
-topfam = tep.groupby("family")["count"].sum().sort_values(ascending=False).head(8).index.tolist()
+topfam = (tep[~tep.family.astype(str).str.startswith("__")]           # drop __nseen__ (unannotated) / __nte__ (no-TE overlap) placeholders
+          .groupby("family")["count"].sum().sort_values(ascending=False).head(8).index.tolist())
 famtab = tep[tep.family.isin(topfam)].groupby(["family","grp"])["count"].sum().unstack(fill_value=0).reindex(topfam)
 
 # ---- structural-diversity zoom: the chr17 ~27.5 Mbp strain-private piRNA hotspot (each wild strain a DISTINCT private locus) ----
@@ -86,7 +87,7 @@ gs = fig.add_gridspec(3, 2, width_ratios=[1.35, 1.0], height_ratios=[1.05, 1.0, 
                       left=0.055, right=0.985, top=0.90, bottom=0.06)
 
 # ---- Panel A: genome-wide strain-private piRNA landscape (4 wild strains) ----
-axA = fig.add_subplot(gs[0:2, 0]); axA.set_xlim(0, 1); axA.set_ylim(0, len(CHROMS)); axA.axis("off")
+axA = fig.add_subplot(gs[0:2, 0]); axA.set_xlim(0, 1); axA.set_ylim(-1.9, len(CHROMS)); axA.axis("off")
 axA.set_title("A   Genome-wide strain-specific (genuinely-unique) piRNA landscape — the four wild-derived strains",
               fontsize=10.5, fontweight="bold", loc="left")
 _alld = np.array([v for X in WILD_ORD for c in CHROMS for v in DENS[X][c] if v>0]); GMAX = float(np.percentile(_alld, 88)) if _alld.size else 1.0
@@ -104,7 +105,7 @@ for ci, c in enumerate(CHROMS):
         axA.fill_between(xs, base, base+h, step="mid", color=WCOL[X], edgecolor=WCOL[X], linewidth=0.15, zorder=2)
 from matplotlib.patches import Patch
 axA.legend(handles=[Patch(facecolor=WCOL[X], label=X.replace("_","/")) for X in WILD_ORD],
-           fontsize=7.5, frameon=False, ncol=4, loc="lower center", bbox_to_anchor=(0.5, -0.02),
+           fontsize=7.5, frameon=False, ncol=4, loc="lower center", bbox_to_anchor=(0.5, 0.004),
            title="genuinely-unique piRNA loci per 2-Mb bin (filled profile = density)", title_fontsize=8)
 
 # ---- Panel E: structural-diversity locus zoom (chr17 strain-private piRNA hotspot) ----
@@ -154,7 +155,7 @@ axC.set_title("C   piRNA locus frequency spectrum — a conserved core + a large
 axD = fig.add_subplot(gs[2, 1]); xf = np.arange(len(topfam)); w = 0.4
 axD.bar(xf-w/2, famtab.get("wild",pd.Series(0,index=topfam)).values, w, color="#C0392B", label="wild-derived", edgecolor="white", linewidth=0.3)
 axD.bar(xf+w/2, famtab.get("classical",pd.Series(0,index=topfam)).values, w, color="#4393C3", label="classical", edgecolor="white", linewidth=0.3)
-axD.set_xticks(xf); axD.set_xticklabels(topfam, rotation=35, ha="right", fontsize=7); axD.tick_params(labelsize=7)
+axD.set_xticks(xf); axD.set_xticklabels(topfam, rotation=40, ha="right", fontsize=6.8); axD.tick_params(labelsize=7)
 axD.set_ylabel("strain-private piRNA loci (n)", fontsize=8.5)
 axD.legend(fontsize=6.8, frameon=False, loc="upper right"); axD.spines[["top","right"]].set_visible(False)
 axD.set_title("D   TE-family drivers of strain-private piRNA loci — young active retrotransposons (ERVK/L1)", fontsize=9.4, fontweight="bold", loc="left")
