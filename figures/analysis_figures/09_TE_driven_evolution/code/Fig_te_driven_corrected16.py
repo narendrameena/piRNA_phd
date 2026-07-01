@@ -46,6 +46,12 @@ def _smart_labels(ax, xs, ys, labels, colors, fs=5.6, off=0.085):
 # a: per-strain stacked creation + propagation
 a = ax[0]; a.bar(x, df.est_creation, color=C_CRE, label="creation (new locus, breadth ≤3)")
 a.bar(x, df.est_propagation, bottom=df.est_creation, color=C_PROP, label="propagation (insertion in conserved cluster, ≥10)")
+# value labels: bold TOTAL on top, creation count (white) inside the dark segment, propagation count in the light segment
+_ta=(df.est_creation+df.est_propagation).values; _ya=float(_ta.max()); a.set_ylim(0,_ya*1.20)
+for _xi,_cr,_pr,_tt in zip(x,df.est_creation.values,df.est_propagation.values,_ta):
+    a.text(_xi,_tt+_ya*0.012,f"{_tt:,.0f}",ha="center",va="bottom",fontsize=5.0,rotation=90,color="#222",fontweight="bold")
+    if _cr>_ya*0.055: a.text(_xi,_cr/2,f"{_cr:,.0f}",ha="center",va="center",fontsize=4.2,rotation=90,color="white",fontweight="bold")
+    if _pr>_ya*0.055: a.text(_xi,_cr+_pr/2,f"{_pr:,.0f}",ha="center",va="center",fontsize=4.2,rotation=90,color="#3d2358",fontweight="bold")
 xt(a); ns(a); a.set_ylabel("insertion-driven loci (n)", fontsize=8.5)
 a.legend(fontsize=6.6, frameon=False, loc="upper left")
 a.set_title(f"a   Insertion-driven loci split: creation vs propagation\noverall ≈{df.frac_creation.mean()*100:.0f}% creation / {df.frac_propagation.mean()*100:.0f}% propagation", fontsize=8.4, fontweight="bold", loc="left")
@@ -60,6 +66,11 @@ b.set_title(f"b   True new loci (creation) still track insertion burden\nSpearma
 cc = ax[2]; ww = 0.36
 cc.bar(x - ww / 2, df.est_creation, ww, color=C_CRE, label="creation"); cc.bar(x + ww / 2, df.est_propagation, ww, color=C_PROP, label="propagation")
 xt(cc); ns(cc); cc.set_yscale("log"); cc.set_ylabel("loci (n, log)", fontsize=8.5)
+# value labels on each grouped bar (rotated, colour-matched, on top)
+for _grp,_off,_lc in [(df.est_creation.values,-ww/2,C_CRE),(df.est_propagation.values,ww/2,"#8266a8")]:
+    for _xi,_v in zip(x+_off,_grp):
+        if _v>0: cc.text(_xi,_v*1.14,f"{_v:,.0f}",ha="center",va="bottom",fontsize=4.0,rotation=90,color=_lc,fontweight="bold")
+cc.set_ylim(top=cc.get_ylim()[1]*3.4)
 cc.legend(fontsize=6.8, frameon=False, loc="upper left")
 cc.set_title(f"c   Wild-specificity holds for BOTH\ncreation P={p_cre:.1e} ({star(p_cre)}) · propagation P={p_prop:.1e} ({star(p_prop)})", fontsize=8.4, fontweight="bold", loc="left")
 fig.suptitle("CORRECTED insertion-driven finding — most 'insertion-driven' loci are PROPAGATION (private insertion landed in a conserved cluster); a minority are CREATION (new locus), but creation still tracks insertion burden and stays wild-enriched", fontsize=9.4, fontweight="bold", y=1.02)
