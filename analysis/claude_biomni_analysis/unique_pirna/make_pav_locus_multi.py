@@ -205,6 +205,6 @@ fig.suptitle(f"{GENE}   ·   PICB piRNA cluster across the 16-strain pangenome",
 pc.rtext(axA, 0.5, 0.953, [(f"present in {len(present)}/16 strains", pc.C_DUAL, True), ("·", "#bbb", False),
                            (f"genetically absent in {nabs}", (pc.C_SILENCE if nabs else pc.C_META), bool(nabs)), ("·", "#bbb", False),
                            (f"present-but-silent (regulatory) in {nsil}", "#5a6b7a", False)], fs=7.6, transform=fig.transFigure, center=True)
-import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/data/source_data"; _os.makedirs(_SD,exist_ok=True); FPM.to_csv(f"{_SD}/SourceData_{OUT}.csv")
+import os as _os; _SD=("/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/13_divergence_loci/data/source_data" if str(OUT).startswith("Fig_divergence") else "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/data/source_data"); _os.makedirs(_SD,exist_ok=True); FPM.to_csv(f"{_SD}/SourceData_{OUT}.csv")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png ({len(present)} present strains)")
