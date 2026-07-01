@@ -101,7 +101,7 @@ for ci, c in enumerate(CHROMS):
     nb = len(DENS[WILD_ORD[0]][c]); xs = L + (np.arange(nb)+0.5)/nb * xr
     for wi, X in enumerate(WILD_ORD):
         base = y0 + 0.06 + wi*sub; d = DENS[X][c]
-        h = np.clip(d/GMAX, 0, 1) * sub*0.92
+        h = np.clip(d/GMAX, 0, 1) * sub*0.60
         axA.fill_between(xs, base, base+h, step="mid", color=WCOL[X], edgecolor=WCOL[X], linewidth=0.15, zorder=2)
 from matplotlib.patches import Patch
 axA.legend(handles=[Patch(facecolor=WCOL[X], label=X.replace("_","/")) for X in WILD_ORD],

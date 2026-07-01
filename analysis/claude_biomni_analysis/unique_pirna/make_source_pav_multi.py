@@ -233,5 +233,6 @@ for (xbr, xcc) in [((z0 - psT) / NT_, z0), ((z1 - psT) / NT_, z1)]:
     fig.add_artist(ConnectionPatch(xyA=(xbr, off_top - 1.30), coordsA=axB.transData, xyB=(xcc, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.9, ls=(0, (3, 2))))
 fig.suptitle(f"{TELAB} → strain-private piRNA SOURCE LOCUS (individual piRNAs, NOT a PICB cluster) across the 16-strain pangenome   ·   {CARRIER.replace('_','/')} chr{CHc}:{S:,}-{E:,}", fontsize=11.0, fontweight="bold", y=0.986, color="#1a1a1a")
 pc.rtext(axA, 0.5, 0.953, [(f"expressed in {len(present)}/16 strains", pc.C_DUAL, True), ("·", "#bbb", False), (f"genetically absent in {nabs}", (pc.C_SILENCE if nabs else pc.C_META), bool(nabs)), ("·", "#bbb", False), (f"present-but-silent (regulatory) in {nsil}", "#5a6b7a", False)], fs=7.6, transform=fig.transFigure, center=True)
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/12_creation_source_loci/data/source_data"; _os.makedirs(_SD,exist_ok=True); FPM.to_csv(f"{_SD}/SourceData_{OUT}.csv")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png ({len(present)} expressing strains)")

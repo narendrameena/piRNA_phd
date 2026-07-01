@@ -112,5 +112,6 @@ fig.add_artist(ConnectionPatch(xyA=((z0 - ps) / N, -1.30), coordsA=axB.transData
 fig.add_artist(ConnectionPatch(xyA=((z1 - ps) / N, -1.30), coordsA=axB.transData, xyB=(z1, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
 pc.pbadge(axC, "C", f"Base resolution, {TOP.replace('_','/')} — pooled {ztpL}   ·   5′-U = 1U   ·   5′ arrow RED = antisense-to-TE (silencing), grey = sense-to-TE", fs=7.6)
 fig.suptitle(f"{GENE} — PICB piRNA cluster: pangenome cross-strain × timepoint + nucleotide resolution", fontsize=12, fontweight="bold", y=0.965)
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/data/source_data"; _os.makedirs(_SD,exist_ok=True); FPM.to_csv(f"{_SD}/SourceData_{OUT}.csv")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png")
