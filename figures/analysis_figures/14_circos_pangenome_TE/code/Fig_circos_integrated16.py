@@ -132,5 +132,8 @@ fig.suptitle("INTEGRATED multi-omic piRNA circos — STRAIN- and TIMEPOINT-resol
              fontsize=12,fontweight="bold",y=0.995,linespacing=1.5)
 _r0=R_OUT-gap_g
 zoom_6nj(ax, rings=[("conserv",_r0-0.5*bh),("TE",_r0-1.5*bh),("private",_r0-2.5*bh),("E16.5",_r0-3*bh-0.5*sh),("P12.5",_r0-3*bh-1.5*sh),("P20.5",_r0-3*bh-2.5*sh)], theta_c=theta("1",0)-0.006, fs=4.0, spread=True)
+import os as _os, pandas as _pd; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],round(v[0],3),round(v[1],3),round(v[2],3)) for (X,tp),_dd in CL.items() for bi,v in _dd.items()],columns=["strain","timepoint","chrom","bin_start","plus_FPM","minus_FPM","dual_FPM"]).to_csv(f"{_SD}/SourceData_Fig_circos_integrated16_clusters.csv",index=False)
+_pd.DataFrame([(X,bins[bi][0],bins[bi][1],fam,round(v,3)) for X,_bd in TE.items() for bi,_fd in _bd.items() for fam,v in _fd.items()],columns=["strain","chrom","bin_start","TE_family","value"]).to_csv(f"{_SD}/SourceData_Fig_circos_integrated16_TE.csv",index=False)
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_circos_integrated16.{e}",bbox_inches="tight")
 print("wrote Fig_circos_integrated16.{png,pdf,svg}")

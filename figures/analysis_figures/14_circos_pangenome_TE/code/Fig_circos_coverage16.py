@@ -81,5 +81,7 @@ fig.suptitle("piRNA-read COVERAGE circos (sRNA bigwig) — GENOMIC-STRAND-colour
              fontsize=12.5,fontweight="bold",y=0.99,linespacing=1.5)
 _rt=R_OUT-gap_g
 zoom_6nj(ax, rings=[("E16.5",_rt-0.5*sub_h),("P12.5",_rt-1.5*sub_h),("P20.5",_rt-2.5*sub_h)], theta_c=theta("1",0)-0.006)
+import os as _os, pandas as _pd; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],round(v[0],4),round(v[1],4)) for (X,tp),_dd in COV.items() for bi,v in _dd.items()],columns=["strain","timepoint","chrom","bin_start","plus_coverage","minus_coverage"]).to_csv(f"{_SD}/SourceData_Fig_circos_coverage16.csv",index=False)
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_circos_coverage16.{e}",bbox_inches="tight")
 print("wrote Fig_circos_coverage16.{png,pdf,svg}")

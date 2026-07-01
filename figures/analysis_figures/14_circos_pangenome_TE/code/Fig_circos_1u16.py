@@ -63,5 +63,7 @@ fig.text(0.5,0.055,"BAR HEIGHT ∝ log small-RNA read depth per 2-Mb bin · COLO
 fig.suptitle("1U-SIGNATURE circos — where small RNAs are genuinely piRNA (5′-Uridine bias), 16 strains × 3 timepoints in one GRCm39 circle\n"
              "each strain = 3 nested timepoint sub-rings (inward); BAR HEIGHT = log read depth, COLOUR = 1U fraction (viridis); tall + yellow = abundant bona-fide piRNA production; strain names (red = wild) at the spoke",
              fontsize=12,fontweight="bold",y=0.99,linespacing=1.5)
+import os as _os, pandas as _pd; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],round(v[0],4),round(v[1],3)) for (X,tp),_dd in D.items() for bi,v in _dd.items()],columns=["strain","timepoint","chrom","bin_start","oneU_frac","depth"]).to_csv(f"{_SD}/SourceData_Fig_circos_1u16.csv",index=False)
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_circos_1u16.{e}",bbox_inches="tight")
 print("wrote Fig_circos_1u16.{png,pdf,svg}")
