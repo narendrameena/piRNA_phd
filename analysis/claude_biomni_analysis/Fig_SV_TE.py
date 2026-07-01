@@ -2,11 +2,16 @@
 """
 TE biology of pangenome SVs at piRNA loci.
 
-Biological story:
-  1. SVs cause genomic rearrangement of piRNA cluster loci (Panel A)
+Biological story (associational — see 2026-06-19 audit note below):
+  1. Disrupted piRNA cluster loci CO-OCCUR with genomic rearrangement / SVs (Panel A)
   2. 87.6% of those SVs overlap known TEs; LINE/L1 and SINE dominate (Panel B)
-  3. Disruption is cumulative: disrupted loci carry 2× more SVs than expressed (Panel C)
+  3. Disrupted loci sit in SV-richer REGIONS (regional SV burden, Panel C)
   4. SV burden scales with genomic divergence across strains (Panel D)
+
+AUDIT NOTE (2026-06-19): the SV->disruption link is associational, not established causation. At the
+locus itself (direct window) the SV vs no-SV disruption difference is weak/null; the elevated SV count
+in disrupted loci is a REGIONAL burden (wider windows), consistent with a rearrangement-prone-region
+confound. Causal verbs softened; claim queued for BioMNI (VERIFICATION_QUEUE.md).
 
 RepeatMasker annotation:
   DEL: annotates the deleted reference region (direct intersection)
@@ -213,7 +218,7 @@ lg_a = [mpatches.Patch(color=C_EXPR, label='Expressed'),
         mpatches.Patch(color=C_NEXPR, label='Not expressed'),
         mpatches.Patch(color=C_NLIFT, label='Not lifted')]
 ax_a.legend(handles=lg_a, fontsize=6.5, frameon=False, loc='upper right', ncol=1)
-ax_a.set_title("A   SVs cause rearrangement, not silencing\n"
+ax_a.set_title("A   Disrupted loci co-occur with SVs (mostly rearrangement, not silencing)\n"
                "    (M.m. domesticus, P20.5; outlined = has SV)",
                fontsize=7.5, fontweight='bold', loc='left')
 
@@ -297,8 +302,8 @@ ax_c.set_xticklabels([f'Expressed loci\n(has SV, n={len(e_svs)})',
                        f'Disrupted loci\n(not_lifted, n={len(d_svs)})'], fontsize=7.5)
 ax_c.set_ylabel("SVs per locus per strain", fontsize=8)
 ax_c.set_ylim(0, ymax + 1.5)
-ax_c.set_title("C   Disruption requires cumulative TE burden\n"
-               "    (disruptive loci carry 2x more SVs, p<1e-50)",
+ax_c.set_title("C   Not-lifted (structurally absent) loci sit in SV-richer regions\n"
+               "    (regional SV burden; direct-locus effect is weak — see audit note)",
                fontsize=7.5, fontweight='bold', loc='left')
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -338,6 +343,14 @@ fig.suptitle(
     "214 Zamore loci · 16 strains · PICB 2-of-3 · pangenome VCF SVs ≥300 bp · "
     "C57BL_6NJ RepeatMasker annotation",
     fontsize=8.5, fontweight='bold', y=1.012)
+
+try:   # source data (plotted per strain×locus×group SV counts → theme dir)
+    import os as _os
+    _SD = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"
+    _os.makedirs(_SD, exist_ok=True)
+    spl.to_csv(f"{_SD}/SourceData_Fig_SV_TE.csv", index=False)                                          # Panels A/B/C underlying counts
+except Exception as _e:
+    print("source-data warn:", _e)
 
 for ext in ('pdf','svg','png'):
     fig.savefig(f"{OUT}/Fig_SV_TE.{ext}", dpi=300, bbox_inches='tight')

@@ -251,6 +251,15 @@ fig.suptitle(
     "214 Zamore loci · chain-file SVs ≥300 bp · PICB 2-of-3 consensus",
     fontsize=9.5, y=1.01)
 
+try:   # source data (plotted derived tables → theme dir)
+    import os as _os
+    _SD = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"
+    _os.makedirs(_SD, exist_ok=True)
+    gdf.to_csv(f"{_SD}/SourceData_Fig_allstrains_all_timepoints_disruption.csv", index=False)        # Panel D: SV/no-SV disruption %/n/Fisher-p by stage×timepoint
+    sv_freq.rename("frac_strains_with_SV").to_frame().to_csv(f"{_SD}/SourceData_Fig_allstrains_all_timepoints_sv_freq.csv")   # per-locus SV frequency track
+except Exception as _e:
+    print("source-data warn:", _e)
+
 for ext in ('pdf', 'svg', 'png'):
     fig.savefig(f"{OUT}/Fig_allstrains_all_timepoints.{ext}",
                 dpi=300, bbox_inches='tight')

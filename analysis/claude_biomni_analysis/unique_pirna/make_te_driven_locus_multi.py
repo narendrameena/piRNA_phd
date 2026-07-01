@@ -106,5 +106,6 @@ for x in (z0, z1):
     fig.add_artist(ConnectionPatch(xyA=((x - PS) / N, -1.30), coordsA=axB.transData, xyB=(x, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
 axC.set_title(f"C  Base resolution at {TPLAB[CHOSEN]} silencing peak; 5′-U = 1U; 5′ arrow RED = ANTISENSE-to-TE (silencing), grey = sense-to-TE", fontsize=8.0, fontweight="bold", loc="left")
 fig.suptitle(f"TE-DRIVEN piRNA cluster across the 16-strain pangenome — {X.replace('_','/')} {TELAB} (coordinate-verified)", fontsize=11.8, fontweight="bold", y=0.965)
+import os as _os, pandas as _pd; _os.makedirs("/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/data/source_data",exist_ok=True); _pd.DataFrame([dict({"strain":_s,"TE_PAV":PAVd[_s]}, **{TPLAB[_t]:round(FPMv[_t][_s],3) for _t in TPS}) for _s in ORDER]).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/09_TE_driven_evolution/data/source_data/SourceData_{OUT}.csv",index=False)
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png")

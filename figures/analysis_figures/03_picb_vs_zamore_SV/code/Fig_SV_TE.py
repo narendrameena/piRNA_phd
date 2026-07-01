@@ -344,6 +344,14 @@ fig.suptitle(
     "C57BL_6NJ RepeatMasker annotation",
     fontsize=8.5, fontweight='bold', y=1.012)
 
+try:   # source data (plotted per strain×locus×group SV counts → theme dir)
+    import os as _os
+    _SD = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"
+    _os.makedirs(_SD, exist_ok=True)
+    spl.to_csv(f"{_SD}/SourceData_Fig_SV_TE.csv", index=False)                                          # Panels A/B/C underlying counts
+except Exception as _e:
+    print("source-data warn:", _e)
+
 for ext in ('pdf','svg','png'):
     fig.savefig(f"{OUT}/Fig_SV_TE.{ext}", dpi=300, bbox_inches='tight')
 plt.close(fig)

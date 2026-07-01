@@ -227,6 +227,20 @@ fig.suptitle(
     "GRCm39 reference  ·  Zamore piRNA annotation  ·  PICB cluster calls",
     fontsize=9.5, y=1.01)
 
+try:   # source data (plotted derived tables → theme dir)
+    import os as _os, pandas as _pd
+    _SD = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"
+    _os.makedirs(_SD, exist_ok=True)
+    _pd.DataFrame({"strain": list(STRAIN_ORDER),
+                   "disruption_pct":    disruption.reindex(STRAIN_ORDER).fillna(0).values,
+                   "not_lifted_pct":    liftover_fail.reindex(STRAIN_ORDER).fillna(0).values,
+                   "not_expressed_pct": nexpr.reindex(STRAIN_ORDER).fillna(0).values}).to_csv(
+        f"{_SD}/SourceData_Fig_allstrains_SV_expression_perstrain.csv", index=False)                  # Panel B
+    _pd.DataFrame({"locus": list(pachy_loci), "frac_strains_with_SV": sv_frac}).to_csv(
+        f"{_SD}/SourceData_Fig_allstrains_SV_expression_sv_frac.csv", index=False)                     # Panel A SV strip
+except Exception as _e:
+    print("source-data warn:", _e)
+
 for ext in ('pdf', 'svg', 'png'):
     fig.savefig(f"{OUT}/Fig_allstrains_SV_expression.{ext}",
                 dpi=300, bbox_inches='tight')
