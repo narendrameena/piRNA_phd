@@ -1,0 +1,91 @@
+# ===========================================================================
+# Repo policy: track ONLY scripts / code / READMEs / curated figure source-data.
+# Raw data, results, genomes, BAMs, indices, rendered figures, containers stay OUT.
+# ===========================================================================
+
+# --- large data / results / resources / backups (never tracked) ---
+/results/
+/resources/
+/data/
+/intermediate_files/
+/figures/
+/tmp/
+/tmp_cach/
+/log/
+/narumeena_macbook/
+/papers/
+/spidymm/
+/tools/
+
+# --- vendored / generated bulk (incl. downloaded third-party tools) ---
+/snakemake-wrappers-*/
+/analysis/pangenome/tool/
+/cactus_*.sif
+/wrappers.tar.gz
+*.sif
+
+# --- tool cache + unrelated side-projects (not piRNA code; keep out of git status) ---
+/.snakemake/
+/extra/
+
+# --- pipeline code lives in its OWN git repo (avoid nested gitlink) ---
+/workflow/
+
+# --- data file types anywhere ---
+*.bam
+*.bai
+*.sam
+*.cram
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.bw
+*.bigWig
+*.2bit
+*.fa
+*.fasta
+*.fai
+
+# --- logs ---
+*.log
+Log.out
+
+# --- analysis: keep code + source_data; drop bulk matrices & rendered figures ---
+analysis/**/_tmp/
+analysis/**/_tmp_fix/
+analysis/**/all_strains_pangenome/
+analysis/**/*.pdf
+analysis/**/*.png
+analysis/**/*.svg
+/all_sample_norm_count_pivot.csv
+
+# --- rendered figures / binaries anywhere: never tracked (scripts + source-data CSVs + READMEs only) ---
+*.pdf
+*.png
+*.svg
+*.eps
+*.tif
+*.tiff
+*.jpg
+*.jpeg
+
+# --- python / editor / OS noise ---
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+*.swp
+analysis/claude_biomni_analysis/unique_pirna/cluster_pav/picb_pangenome_fpm.tsv
+
+# --- rendered figures + data: regenerable from code; kept on disk, NOT in git (2026-06-20) ---
+*.png
+*.pdf
+*.svg
+*.csv
+*.tsv
+*.tsv.gz
+*.gz
+*.bed
+example_locus.json
+figures/analysis_figures/03_picb_vs_zamore_SV/data/zamore_expression_tests.txt

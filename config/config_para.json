@@ -1,0 +1,1937 @@
+{
+    "workdir": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/",
+    "resultDir": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/results",
+    "logDir": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/log",
+    "tmpDir": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/tmp",
+    "strains_genomes_path": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/resources/REL-2205-Assembly",
+    "resources": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/resources",
+    "scriptDir": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/scripts",
+    "envsDir": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/envs",
+    "tom_results": "/lustre/scratch123/hgi/projects/mouse_epi/users/tdd/projects/mice16/results",
+    "rule_dir": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/rules",
+    "ucsc_rm_url": "http://hgdownload.cse.ucsc.edu/goldenPath/mm10/bigZips/chromOut.tar.gz",
+    "ucsc_msa_url": "http://ftp-mouse.sanger.ac.uk/REL-1509-Assembly/1509_update_browser.hal",
+    "ref_genome": "GRCm38.68",
+    "min_prec_len": 500,
+    "genomes": {
+        "GRCm38.68": {
+            "indexes": {
+                "STAR": "results/indexes/GRCm38"
+            },
+            "url": "http://ftp.ensembl.org/pub/release-68/fasta/mus_musculus/dna/Mus_musculus.GRCm38.68.dna.toplevel.fa.gz",
+            "url_ann": "http://ftp.ensembl.org/pub/release-68/gtf/mus_musculus/Mus_musculus.GRCm38.68.gtf.gz"
+        },
+        "GRCm39.106": {
+            "indexes": {
+                "STAR": "results/indexes/GRCm39"
+            },
+            "url": "http://ftp.ensembl.org/pub/release-106/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz",
+            "url_ann": "http://ftp.ensembl.org/pub/release-106/gtf/mus_musculus/Mus_musculus.GRCm39.106.gtf.gz"
+        },
+        "contaminants": {
+            "indexes": {
+                "STAR": "results/indexes/contaminants"
+            }
+        },
+        "zamore": {
+            "indexes": {
+                "STAR": "results/indexes/zamore"
+            }
+        }
+    },
+    "params": {
+        "rna": {
+            "cutadapt_pe": "-a AGATCGGAAGAGC --minimum-length 20 -A AGATCGGAAGAGC",
+            "STAR": "--outFilterMultimapNmax 50 --winAnchorMultimapNmax 100 --alignEndsType EndToEnd  --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN 1 --limitBAMsortRAM 571734623688",
+            "featureCounts": "-J -p --countReadPairs -M --fraction -O  -t gene -F GTF",
+            "transcriptCounts": "-p --countReadPairs -M --fraction -O  -g parent_gene_display_xref -s 1 -F GTF "
+        },
+        "srna": {
+            "cutadapt": "--minimum-length 20 --maximum-length 36 --discard-untrimmed -a TGGAATTCTCGGGTGCCAAGG",
+            "cutadapt_C57BL_6_E16.5": "-a AGATCGGAAGA -m 16 --trimmed-only --minimum-length 23  --maximum-length 36",
+            "cutadapt_C57BL_6_E15.5_first": "-a TGGAATTCTCGGGTGCCAAGG --minimum-length 23  --maximum-length 36",
+            "cutadapt_C57BL_6_E15.5_second": "-u 4 -u -4 -o ",
+            "cutadapt_C57BL_6_P12.5_P20.5": "-a TCGTATGCCGTCTTCTGCTTGT -g GTTCAGAGTTCTACAGTCCGACGATC  --minimum-length 20 --maximum-length 36",
+            "STAR": " --outFilterMismatchNmax  0 --outFilterMultimapNmax 800 --winAnchorMultimapNmax 1600 --seedSearchStartLmax 10 --alignIntronMax 1 --alignEndsType EndToEnd  --outSAMattributes All --scoreDelOpen -10000 --scoreInsOpen -10000 --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN 1 --limitBAMsortRAM 571734623688",
+            "STAR_test": " --seedSearchStartLmax 10 --alignIntronMax 1 --alignEndsType EndToEnd  --scoreDelOpen -10000 --scoreInsOpen -10000 --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN 1 --limitBAMsortRAM 571734623688",
+            "featureCounts": "-M --fraction -O -t CDS,exon,five_prime_UTR,lnc_RNA,ncRNA,three_prime_UTR  -g Parent -F GTF ",
+            "transcriptCounts": "-M --fraction -O -g Parent -s 1 -F GTF"
+        },
+        "precursors": {
+            "minimap2": "-ax splice"
+        },
+        "intron_rpkm": {
+            "featureCounts_list1": "-M --fraction -O  -t  gene,lnc_RNA,intergenic -g ID -F GTF",
+            "featureCounts_list2": "-M --fraction -O  -t  exon,intron,CDS,five_prime_UTR,three_prime_UTR -g ID -F GTF",
+            "featureCounts_list2_cds": "-M --fraction -O  -t  CDS -g ID -F GTF",
+            "featureCounts_list2_exon": "-M --fraction -O  -t  exon,intron -g ID -F GTF",
+            "featureCounts_list2_3utr": "-M --fraction -O  -t  three_prime_UTR -g ID -F GTF",
+            "featureCounts_list2_5utr": "-M --fraction -O  -t  five_prime_UTR -g ID -F GTF",
+            "featureCounts_list3": "-M --fraction -O  -t  exon,intron,five_prime_UTR,three_prime_UTR -g ID -F GTF",
+            "featureCounts_list4": "-M --fraction -O  -t  exon,intron,five_prime_UTR,three_prime_UTR -g ID -F GTF",
+            "piRNA_count": "-M --fraction -O  -t  piRNA -g ID -F GTF"
+        },
+        "stringtie": {
+            "featureCounts": "-M --fraction -O  -t  transcript -g transcript_id -F GTF"
+        },
+        "TE_rpkm": {
+            "featureCounts": "-M --fraction -O -g Target  -F GTF -t similarity"
+        }
+    },
+    "data_dirs": {
+        "rna": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/resources/mice16_data/rna",
+        "srna": "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/resources/mice16_data/srna"
+    },
+    "samples": {
+        "srna": {
+            "C57BL_6": {
+                "16.5dpc": {
+                    "1": {
+                        "1s": "C57BL_6-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "C57BL_6-16.5dpc.2.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "C57BL_6-16.5dpc.3.1s.fastq.gz"
+                    }
+                },
+                "16.5dpc_o": {
+                    "1": {
+                        "1s": "SRR11774396_1.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "SRR11774397_1.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "SRR11774398_1.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "1s": "C57BL_6-12.5dpp.1.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "C57BL_6-12.5dpp.2.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "C57BL_6-12.5dpp.3.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1s": "C57BL_6-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "C57BL_6-20.5dpp.2.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "C57BL_6-20.5dpp.3.1s.fastq.gz"
+                    }
+                }
+            },
+            "NOD_ShiLtJ": {
+                "16.5dpc": {
+                    "1": {
+                        "2s": "NOD_ShiLtJ-16.5dpc.1.2s.fastq.gz",
+                        "1s": "NOD_ShiLtJ-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "NOD_ShiLtJ-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "NOD_ShiLtJ-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "2s": "NOD_ShiLtJ-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "NOD_ShiLtJ-12.5dpp.3.2s.fastq.gz",
+                        "1s": "NOD_ShiLtJ-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "NOD_ShiLtJ-12.5dpp.2.2s.fastq.gz",
+                        "1s": "NOD_ShiLtJ-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1s": "NOD_ShiLtJ-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "NOD_ShiLtJ-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "NOD_ShiLtJ-20.5dpp.2.2s.fastq.gz",
+                        "1s": "NOD_ShiLtJ-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "BALB_cJ": {
+                "16.5dpc": {
+                    "1": {
+                        "1g": "BALB_cJ-16.5dpc.1.1g.fastq.gz",
+                        "1s": "BALB_cJ-16.5dpc.1.1s.fastq.gz",
+                        "2s": "BALB_cJ-16.5dpc.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1g": "BALB_cJ-16.5dpc.3.1g.fastq.gz",
+                        "1s": "BALB_cJ-16.5dpc.3.1s.fastq.gz",
+                        "2s": "BALB_cJ-16.5dpc.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "BALB_cJ-16.5dpc.2.1g.fastq.gz",
+                        "1s": "BALB_cJ-16.5dpc.2.1s.fastq.gz",
+                        "2s": "BALB_cJ-16.5dpc.2.2s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "1g": "BALB_cJ-12.5dpp.1.1g.fastq.gz",
+                        "1s": "BALB_cJ-12.5dpp.1.1s.fastq.gz",
+                        "2s": "BALB_cJ-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "BALB_cJ-12.5dpp.3.3s.fastq.gz",
+                        "1g": "BALB_cJ-12.5dpp.3.1g.fastq.gz",
+                        "1s": "BALB_cJ-12.5dpp.3.1s.fastq.gz",
+                        "2s": "BALB_cJ-12.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "BALB_cJ-12.5dpp.2.1g.fastq.gz",
+                        "1s": "BALB_cJ-12.5dpp.2.1s.fastq.gz",
+                        "2s": "BALB_cJ-12.5dpp.2.2s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1g": "BALB_cJ-20.5dpp.1.1g.fastq.gz",
+                        "1s": "BALB_cJ-20.5dpp.1.1s.fastq.gz",
+                        "2s": "BALB_cJ-20.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "BALB_cJ-20.5dpp.3.3s.fastq.gz",
+                        "1g": "BALB_cJ-20.5dpp.3.1g.fastq.gz",
+                        "1s": "BALB_cJ-20.5dpp.3.1s.fastq.gz",
+                        "2s": "BALB_cJ-20.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "BALB_cJ-20.5dpp.2.1g.fastq.gz",
+                        "1s": "BALB_cJ-20.5dpp.2.1s.fastq.gz",
+                        "2s": "BALB_cJ-20.5dpp.2.2s.fastq.gz"
+                    }
+                }
+            },
+            "SPRET_EiJ": {
+                "16.5dpc": {
+                    "1": {
+                        "3s": "SPRET_EiJ-16.5dpc.1.3s.fastq.gz",
+                        "1g": "SPRET_EiJ-16.5dpc.1.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-16.5dpc.1.1s.fastq.gz",
+                        "2s": "SPRET_EiJ-16.5dpc.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "SPRET_EiJ-16.5dpc.3.3s.fastq.gz",
+                        "1g": "SPRET_EiJ-16.5dpc.3.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-16.5dpc.3.1s.fastq.gz",
+                        "4s": "SPRET_EiJ-16.5dpc.3.4s.fastq.gz",
+                        "2s": "SPRET_EiJ-16.5dpc.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "3s": "SPRET_EiJ-16.5dpc.2.3s.fastq.gz",
+                        "1g": "SPRET_EiJ-16.5dpc.2.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-16.5dpc.2.1s.fastq.gz",
+                        "4s": "SPRET_EiJ-16.5dpc.2.4s.fastq.gz",
+                        "2s": "SPRET_EiJ-16.5dpc.2.2s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "1g": "SPRET_EiJ-12.5dpp.1.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-12.5dpp.1.1s.fastq.gz",
+                        "2s": "SPRET_EiJ-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1g": "SPRET_EiJ-12.5dpp.3.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-12.5dpp.3.1s.fastq.gz",
+                        "2s": "SPRET_EiJ-12.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "SPRET_EiJ-12.5dpp.2.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-12.5dpp.2.1s.fastq.gz",
+                        "2s": "SPRET_EiJ-12.5dpp.2.2s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1g": "SPRET_EiJ-20.5dpp.1.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-20.5dpp.1.1s.fastq.gz",
+                        "2s": "SPRET_EiJ-20.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1g": "SPRET_EiJ-20.5dpp.3.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-20.5dpp.3.1s.fastq.gz",
+                        "2s": "SPRET_EiJ-20.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "SPRET_EiJ-20.5dpp.2.1g.fastq.gz",
+                        "1s": "SPRET_EiJ-20.5dpp.2.1s.fastq.gz",
+                        "2s": "SPRET_EiJ-20.5dpp.2.2s.fastq.gz"
+                    }
+                }
+            },
+            "129S1_SvImJ": {
+                "16.5dpc": {
+                    "1": {
+                        "3s": "129S1_SvImJ-16.5dpc.1.3s.fastq.gz",
+                        "2s": "129S1_SvImJ-16.5dpc.1.2s.fastq.gz",
+                        "1s": "129S1_SvImJ-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "129S1_SvImJ-16.5dpc.3.2s.fastq.gz",
+                        "1s": "129S1_SvImJ-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "129S1_SvImJ-16.5dpc.2.2s.fastq.gz",
+                        "1s": "129S1_SvImJ-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "1s": "129S1_SvImJ-12.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "129S1_SvImJ-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "129S1_SvImJ-12.5dpp.2.2s.fastq.gz",
+                        "1s": "129S1_SvImJ-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1s": "129S1_SvImJ-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "129S1_SvImJ-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "129S1_SvImJ-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "CAST_EiJ": {
+                "16.5dpc": {
+                    "1": {
+                        "3s": "CAST_EiJ-16.5dpc.1.3s.fastq.gz",
+                        "1g": "CAST_EiJ-16.5dpc.1.1g.fastq.gz",
+                        "1s": "CAST_EiJ-16.5dpc.1.1s.fastq.gz",
+                        "2s": "CAST_EiJ-16.5dpc.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1g": "CAST_EiJ-16.5dpc.3.1g.fastq.gz",
+                        "1s": "CAST_EiJ-16.5dpc.3.1s.fastq.gz",
+                        "2s": "CAST_EiJ-16.5dpc.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "3s": "CAST_EiJ-16.5dpc.2.3s.fastq.gz",
+                        "1g": "CAST_EiJ-16.5dpc.2.1g.fastq.gz",
+                        "1s": "CAST_EiJ-16.5dpc.2.1s.fastq.gz",
+                        "2s": "CAST_EiJ-16.5dpc.2.2s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "1g": "CAST_EiJ-12.5dpp.1.1g.fastq.gz",
+                        "1s": "CAST_EiJ-12.5dpp.1.1s.fastq.gz",
+                        "2s": "CAST_EiJ-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "CAST_EiJ-12.5dpp.3.3s.fastq.gz",
+                        "1g": "CAST_EiJ-12.5dpp.3.1g.fastq.gz",
+                        "1s": "CAST_EiJ-12.5dpp.3.1s.fastq.gz",
+                        "2s": "CAST_EiJ-12.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "CAST_EiJ-12.5dpp.2.1g.fastq.gz",
+                        "1s": "CAST_EiJ-12.5dpp.2.1s.fastq.gz",
+                        "2s": "CAST_EiJ-12.5dpp.2.2s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1g": "CAST_EiJ-20.5dpp.1.1g.fastq.gz",
+                        "1s": "CAST_EiJ-20.5dpp.1.1s.fastq.gz",
+                        "2s": "CAST_EiJ-20.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "CAST_EiJ-20.5dpp.3.3s.fastq.gz",
+                        "1g": "CAST_EiJ-20.5dpp.3.1g.fastq.gz",
+                        "1s": "CAST_EiJ-20.5dpp.3.1s.fastq.gz",
+                        "2s": "CAST_EiJ-20.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "CAST_EiJ-20.5dpp.2.1g.fastq.gz",
+                        "1s": "CAST_EiJ-20.5dpp.2.1s.fastq.gz",
+                        "2s": "CAST_EiJ-20.5dpp.2.2s.fastq.gz"
+                    }
+                }
+            },
+            "AKR_J": {
+                "16.5dpc": {
+                    "1": {
+                        "3s": "AKR_J-16.5dpc.1.3s.fastq.gz",
+                        "2s": "AKR_J-16.5dpc.1.2s.fastq.gz",
+                        "1s": "AKR_J-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "AKR_J-16.5dpc.3.2s.fastq.gz",
+                        "1s": "AKR_J-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "AKR_J-16.5dpc.2.2s.fastq.gz",
+                        "1s": "AKR_J-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "2s": "AKR_J-12.5dpp.1.2s.fastq.gz",
+                        "1s": "AKR_J-12.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "AKR_J-12.5dpp.3.2s.fastq.gz",
+                        "1s": "AKR_J-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "AKR_J-12.5dpp.2.2s.fastq.gz",
+                        "1s": "AKR_J-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1s": "AKR_J-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "AKR_J-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "AKR_J-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "C3H_HeJ": {
+                "16.5dpc": {
+                    "1": {
+                        "3s": "C3H_HeJ-16.5dpc.1.3s.fastq.gz",
+                        "2s": "C3H_HeJ-16.5dpc.1.2s.fastq.gz",
+                        "1s": "C3H_HeJ-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "C3H_HeJ-16.5dpc.3.3s.fastq.gz",
+                        "2s": "C3H_HeJ-16.5dpc.3.2s.fastq.gz",
+                        "1s": "C3H_HeJ-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "3s": "C3H_HeJ-16.5dpc.2.3s.fastq.gz",
+                        "2s": "C3H_HeJ-16.5dpc.2.2s.fastq.gz",
+                        "1s": "C3H_HeJ-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "3s": "C3H_HeJ-12.5dpp.1.3s.fastq.gz",
+                        "2s": "C3H_HeJ-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "C3H_HeJ-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "C3H_HeJ-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1s": "C3H_HeJ-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "C3H_HeJ-20.5dpp.3.2s.fastq.gz",
+                        "1s": "C3H_HeJ-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "C3H_HeJ-20.5dpp.2.2s.fastq.gz",
+                        "1s": "C3H_HeJ-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "PWK_PhJ": {
+                "16.5dpc": {
+                    "1": {
+                        "1s": "PWK_PhJ-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "PWK_PhJ-16.5dpc.3.2s.fastq.gz",
+                        "1s": "PWK_PhJ-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "PWK_PhJ-16.5dpc.2.2s.fastq.gz",
+                        "1s": "PWK_PhJ-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "2s": "PWK_PhJ-12.5dpp.1.2s.fastq.gz",
+                        "1s": "PWK_PhJ-12.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "PWK_PhJ-12.5dpp.3.2s.fastq.gz",
+                        "1s": "PWK_PhJ-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "PWK_PhJ-12.5dpp.2.2s.fastq.gz",
+                        "1s": "PWK_PhJ-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "3s": "PWK_PhJ-20.5dpp.1.3s.fastq.gz",
+                        "2s": "PWK_PhJ-20.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "PWK_PhJ-20.5dpp.3.2s.fastq.gz",
+                        "1s": "PWK_PhJ-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "PWK_PhJ-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "WSB_EiJ": {
+                "16.5dpc": {
+                    "1": {
+                        "3s": "WSB_EiJ-16.5dpc.1.3s.fastq.gz",
+                        "1g": "WSB_EiJ-16.5dpc.1.1g.fastq.gz",
+                        "1s": "WSB_EiJ-16.5dpc.1.1s.fastq.gz",
+                        "2s": "WSB_EiJ-16.5dpc.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "WSB_EiJ-16.5dpc.3.3s.fastq.gz",
+                        "1g": "WSB_EiJ-16.5dpc.3.1g.fastq.gz",
+                        "1s": "WSB_EiJ-16.5dpc.3.1s.fastq.gz",
+                        "2s": "WSB_EiJ-16.5dpc.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "3s": "WSB_EiJ-16.5dpc.2.3s.fastq.gz",
+                        "1g": "WSB_EiJ-16.5dpc.2.1g.fastq.gz",
+                        "1s": "WSB_EiJ-16.5dpc.2.1s.fastq.gz",
+                        "2s": "WSB_EiJ-16.5dpc.2.2s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "3s": "WSB_EiJ-12.5dpp.1.3s.fastq.gz",
+                        "1g": "WSB_EiJ-12.5dpp.1.1g.fastq.gz",
+                        "1s": "WSB_EiJ-12.5dpp.1.1s.fastq.gz",
+                        "2s": "WSB_EiJ-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "WSB_EiJ-12.5dpp.3.3s.fastq.gz",
+                        "1g": "WSB_EiJ-12.5dpp.3.1g.fastq.gz",
+                        "1s": "WSB_EiJ-12.5dpp.3.1s.fastq.gz",
+                        "4s": "WSB_EiJ-12.5dpp.3.4s.fastq.gz",
+                        "2s": "WSB_EiJ-12.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "3s": "WSB_EiJ-12.5dpp.2.3s.fastq.gz",
+                        "1g": "WSB_EiJ-12.5dpp.2.1g.fastq.gz",
+                        "1s": "WSB_EiJ-12.5dpp.2.1s.fastq.gz",
+                        "2s": "WSB_EiJ-12.5dpp.2.2s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1g": "WSB_EiJ-20.5dpp.1.1g.fastq.gz",
+                        "1s": "WSB_EiJ-20.5dpp.1.1s.fastq.gz",
+                        "2s": "WSB_EiJ-20.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1g": "WSB_EiJ-20.5dpp.3.1g.fastq.gz",
+                        "1s": "WSB_EiJ-20.5dpp.3.1s.fastq.gz",
+                        "2s": "WSB_EiJ-20.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "WSB_EiJ-20.5dpp.2.1g.fastq.gz",
+                        "1s": "WSB_EiJ-20.5dpp.2.1s.fastq.gz",
+                        "2s": "WSB_EiJ-20.5dpp.2.2s.fastq.gz"
+                    }
+                }
+            },
+            "DBA_2J": {
+                "16.5dpc": {
+                    "1": {
+                        "2s": "DBA_2J-16.5dpc.1.2s.fastq.gz",
+                        "1s": "DBA_2J-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "DBA_2J-16.5dpc.3.2s.fastq.gz",
+                        "1s": "DBA_2J-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "DBA_2J-16.5dpc.2.2s.fastq.gz",
+                        "1s": "DBA_2J-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "1s": "DBA_2J-12.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "DBA_2J-12.5dpp.3.2s.fastq.gz",
+                        "1s": "DBA_2J-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "DBA_2J-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "2s": "DBA_2J-20.5dpp.1.2s.fastq.gz",
+                        "1s": "DBA_2J-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "DBA_2J-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "DBA_2J-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "CBA_J": {
+                "16.5dpc": {
+                    "1": {
+                        "3s": "CBA_J-16.5dpc.1.3s.fastq.gz",
+                        "1g": "CBA_J-16.5dpc.1.1g.fastq.gz",
+                        "1s": "CBA_J-16.5dpc.1.1s.fastq.gz",
+                        "4s": "CBA_J-16.5dpc.1.4s.fastq.gz",
+                        "2s": "CBA_J-16.5dpc.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "CBA_J-16.5dpc.3.3s.fastq.gz",
+                        "2s": "CBA_J-16.5dpc.3.2s.fastq.gz",
+                        "1s": "CBA_J-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "CBA_J-16.5dpc.2.2s.fastq.gz",
+                        "1s": "CBA_J-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "3s": "CBA_J-12.5dpp.1.3s.fastq.gz",
+                        "1g": "CBA_J-12.5dpp.1.1g.fastq.gz",
+                        "1s": "CBA_J-12.5dpp.1.1s.fastq.gz",
+                        "2s": "CBA_J-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "CBA_J-12.5dpp.3.2s.fastq.gz",
+                        "1s": "CBA_J-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "CBA_J-12.5dpp.2.2s.fastq.gz",
+                        "1s": "CBA_J-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1g": "CBA_J-20.5dpp.1.1g.fastq.gz",
+                        "1s": "CBA_J-20.5dpp.1.1s.fastq.gz",
+                        "2s": "CBA_J-20.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "CBA_J-20.5dpp.3.2s.fastq.gz",
+                        "1s": "CBA_J-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "CBA_J-20.5dpp.2.2s.fastq.gz",
+                        "1s": "CBA_J-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "A_J": {
+                "16.5dpc": {
+                    "1": {
+                        "2s": "A_J-16.5dpc.1.2s.fastq.gz",
+                        "1s": "A_J-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "A_J-16.5dpc.3.2s.fastq.gz",
+                        "1s": "A_J-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "A_J-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "2s": "A_J-12.5dpp.1.2s.fastq.gz",
+                        "1s": "A_J-12.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "A_J-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "A_J-12.5dpp.2.2s.fastq.gz",
+                        "1s": "A_J-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1s": "A_J-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "A_J-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "A_J-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "FVB_NJ": {
+                "16.5dpc": {
+                    "1": {
+                        "2s": "FVB_NJ-16.5dpc.1.2s.fastq.gz",
+                        "1s": "FVB_NJ-16.5dpc.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "FVB_NJ-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "FVB_NJ-16.5dpc.2.2s.fastq.gz",
+                        "1s": "FVB_NJ-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "3s": "FVB_NJ-12.5dpp.1.3s.fastq.gz",
+                        "2s": "FVB_NJ-12.5dpp.1.2s.fastq.gz",
+                        "1s": "FVB_NJ-12.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "FVB_NJ-12.5dpp.3.2s.fastq.gz",
+                        "1s": "FVB_NJ-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "FVB_NJ-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1s": "FVB_NJ-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "FVB_NJ-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "FVB_NJ-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "LP_J": {
+                "16.5dpc": {
+                    "1": {
+                        "3s": "LP_J-16.5dpc.1.3s.fastq.gz",
+                        "2s": "LP_J-16.5dpc.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "LP_J-16.5dpc.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "LP_J-16.5dpc.2.1s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "2s": "LP_J-12.5dpp.1.2s.fastq.gz",
+                        "1s": "LP_J-12.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "2s": "LP_J-12.5dpp.3.2s.fastq.gz",
+                        "1s": "LP_J-12.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "LP_J-12.5dpp.2.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "2s": "LP_J-20.5dpp.1.2s.fastq.gz",
+                        "1s": "LP_J-20.5dpp.1.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "LP_J-20.5dpp.3.1s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "LP_J-20.5dpp.2.2s.fastq.gz",
+                        "1s": "LP_J-20.5dpp.2.1s.fastq.gz"
+                    }
+                }
+            },
+            "C57BL_6NJ": {
+                "16.5dpc": {
+                    "1": {
+                        "1g": "C57BL_6NJ-16.5dpc.1.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-16.5dpc.1.1s.fastq.gz",
+                        "2s": "C57BL_6NJ-16.5dpc.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "C57BL_6NJ-16.5dpc.3.3s.fastq.gz",
+                        "1g": "C57BL_6NJ-16.5dpc.3.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-16.5dpc.3.1s.fastq.gz",
+                        "4s": "C57BL_6NJ-16.5dpc.3.4s.fastq.gz",
+                        "2s": "C57BL_6NJ-16.5dpc.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "3s": "C57BL_6NJ-16.5dpc.2.3s.fastq.gz",
+                        "1g": "C57BL_6NJ-16.5dpc.2.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-16.5dpc.2.1s.fastq.gz",
+                        "2s": "C57BL_6NJ-16.5dpc.2.2s.fastq.gz"
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "1g": "C57BL_6NJ-12.5dpp.1.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-12.5dpp.1.1s.fastq.gz",
+                        "2s": "C57BL_6NJ-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1g": "C57BL_6NJ-12.5dpp.3.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-12.5dpp.3.1s.fastq.gz",
+                        "2s": "C57BL_6NJ-12.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1g": "C57BL_6NJ-12.5dpp.2.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-12.5dpp.2.1s.fastq.gz",
+                        "2s": "C57BL_6NJ-12.5dpp.2.2s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1g": "C57BL_6NJ-20.5dpp.1.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-20.5dpp.1.1s.fastq.gz",
+                        "2s": "C57BL_6NJ-20.5dpp.1.2s.fastq.gz"
+                    },
+                    "3": {
+                        "3s": "C57BL_6NJ-20.5dpp.3.3s.fastq.gz",
+                        "1g": "C57BL_6NJ-20.5dpp.3.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-20.5dpp.3.1s.fastq.gz",
+                        "2s": "C57BL_6NJ-20.5dpp.3.2s.fastq.gz"
+                    },
+                    "2": {
+                        "3s": "C57BL_6NJ-20.5dpp.2.3s.fastq.gz",
+                        "1g": "C57BL_6NJ-20.5dpp.2.1g.fastq.gz",
+                        "1s": "C57BL_6NJ-20.5dpp.2.1s.fastq.gz",
+                        "2s": "C57BL_6NJ-20.5dpp.2.2s.fastq.gz"
+                    }
+                }
+            },
+            "NZO_HlLtJ": {
+                "12.5dpp": {
+                    "1": {
+                        "1s": "NZO_HlLtJ-12.5dpp.1.1s.fastq.gz",
+                        "2s": "NZO_HlLtJ-12.5dpp.1.2s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "NZO_HlLtJ-12.5dpp.2.1s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "NZO_HlLtJ-12.5dpp.3.1s.fastq.gz",
+                        "2s": "NZO_HlLtJ-12.5dpp.3.2s.fastq.gz"
+                    }
+                },
+                "16.5dpc": {
+                    "1": {
+                        "2s": "NZO_HlLtJ-16.5dpc.1.2s.fastq.gz",
+                        "3s": "NZO_HlLtJ-16.5dpc.1.3s.fastq.gz"
+                    },
+                    "2": {
+                        "1s": "NZO_HlLtJ-16.5dpc.2.1s.fastq.gz",
+                        "2s": "NZO_HlLtJ-16.5dpc.2.2s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "NZO_HlLtJ-16.5dpc.3.1s.fastq.gz"
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1s": "NZO_HlLtJ-20.5dpp.1.1s.fastq.gz",
+                        "2s": "NZO_HlLtJ-20.5dpp.1.2s.fastq.gz"
+                    },
+                    "2": {
+                        "2s": "NZO_HlLtJ-20.5dpp.2.2s.fastq.gz",
+                        "3s": "NZO_HlLtJ-20.5dpp.2.3s.fastq.gz"
+                    },
+                    "3": {
+                        "1s": "NZO_HlLtJ-20.5dpp.3.1s.fastq.gz"
+                    }
+                }
+            }
+        },
+        "rna": {
+            "C57BL_6": {
+                "16.5dpc": {
+                    "1": {
+                        "1": {
+                            "r1": "C57BL_6-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "C57BL_6-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    },
+                    "2": {
+                        "1": {
+                            "r1": "C57BL_6-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "C57BL_6-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C57BL_6-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "C57BL_6-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "1": {
+                        "1": {
+                            "r1": "C57BL_6-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "C57BL_6-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    },
+                    "2": {
+                        "1": {
+                            "r1": "C57BL_6-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "C57BL_6-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C57BL_6-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "C57BL_6-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "20.5dpp": {
+                    "1": {
+                        "1": {
+                            "r1": "C57BL_6-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "C57BL_6-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    },
+                    "2": {
+                        "1": {
+                            "r1": "C57BL_6-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "C57BL_6-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C57BL_6-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "C57BL_6-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "129S1_SvImJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "129S1_SvImJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "129S1_SvImJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "129S1_SvImJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "129S1_SvImJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "129S1_SvImJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "129S1_SvImJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "129S1_SvImJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "129S1_SvImJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "129S1_SvImJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "129S1_SvImJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "LP_J": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "LP_J-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "LP_J-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "LP_J-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "LP_J-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "LP_J-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "LP_J-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "LP_J-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "LP_J-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "LP_J-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "LP_J-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "LP_J-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "LP_J-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "LP_J-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "LP_J-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "LP_J-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "LP_J-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "LP_J-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "LP_J-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "CBA_J": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "CBA_J-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "CBA_J-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "CBA_J-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "CBA_J-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "CBA_J-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "CBA_J-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "CBA_J-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "CBA_J-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "CBA_J-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "CBA_J-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "CBA_J-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "CBA_J-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "CBA_J-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "CBA_J-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "CBA_J-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "CBA_J-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "CBA_J-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "CBA_J-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "C3H_HeJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "C3H_HeJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C3H_HeJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "C3H_HeJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "C3H_HeJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C3H_HeJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "C3H_HeJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "C3H_HeJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C3H_HeJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "C3H_HeJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "C3H_HeJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "AKR_J": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "AKR_J-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "AKR_J-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "AKR_J-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "AKR_J-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "AKR_J-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "AKR_J-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "AKR_J-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "AKR_J-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "AKR_J-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "AKR_J-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "AKR_J-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "AKR_J-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "AKR_J-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "AKR_J-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "AKR_J-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "AKR_J-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "AKR_J-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "AKR_J-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "PWK_PhJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "PWK_PhJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "PWK_PhJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "PWK_PhJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "PWK_PhJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "PWK_PhJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "PWK_PhJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "PWK_PhJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "PWK_PhJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "PWK_PhJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "PWK_PhJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "FVB_NJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "FVB_NJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "FVB_NJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "FVB_NJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "FVB_NJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "FVB_NJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "FVB_NJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "FVB_NJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "FVB_NJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "FVB_NJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "FVB_NJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "BALB_cJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "BALB_cJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "BALB_cJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "BALB_cJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "BALB_cJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "BALB_cJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "BALB_cJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "BALB_cJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "BALB_cJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "BALB_cJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "BALB_cJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "NZO_HlLtJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "NZO_HlLtJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "NZO_HlLtJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "DBA_2J": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "DBA_2J-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "DBA_2J-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "DBA_2J-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "DBA_2J-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "DBA_2J-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "DBA_2J-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "DBA_2J-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "DBA_2J-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "DBA_2J-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "DBA_2J-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "DBA_2J-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "DBA_2J-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "DBA_2J-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "DBA_2J-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "DBA_2J-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "DBA_2J-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "DBA_2J-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "DBA_2J-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "A_J": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "A_J-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "A_J-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "A_J-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "A_J-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "A_J-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "A_J-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "A_J-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "A_J-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "A_J-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "A_J-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "A_J-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "A_J-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "A_J-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "A_J-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "A_J-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "A_J-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "A_J-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "A_J-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "C57BL_6NJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "C57BL_6NJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C57BL_6NJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "C57BL_6NJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "C57BL_6NJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C57BL_6NJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "C57BL_6NJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "C57BL_6NJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "C57BL_6NJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "C57BL_6NJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "C57BL_6NJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "SPRET_EiJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "SPRET_EiJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "SPRET_EiJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "SPRET_EiJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "SPRET_EiJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "SPRET_EiJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "SPRET_EiJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "SPRET_EiJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "SPRET_EiJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "SPRET_EiJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "SPRET_EiJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "WSB_EiJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "WSB_EiJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "WSB_EiJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "WSB_EiJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "WSB_EiJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "WSB_EiJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "WSB_EiJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "WSB_EiJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "WSB_EiJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "WSB_EiJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "WSB_EiJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "NOD_ShiLtJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "NOD_ShiLtJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "NOD_ShiLtJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            },
+            "CAST_EiJ": {
+                "20.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "CAST_EiJ-20.5dpp.2.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-20.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "CAST_EiJ-20.5dpp.3.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-20.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "CAST_EiJ-20.5dpp.1.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-20.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "16.5dpc": {
+                    "2": {
+                        "1": {
+                            "r1": "CAST_EiJ-16.5dpc.2.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-16.5dpc.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "CAST_EiJ-16.5dpc.3.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-16.5dpc.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "CAST_EiJ-16.5dpc.1.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-16.5dpc.1.1_r2.fastq.gz"
+                        }
+                    }
+                },
+                "12.5dpp": {
+                    "2": {
+                        "1": {
+                            "r1": "CAST_EiJ-12.5dpp.2.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-12.5dpp.2.1_r2.fastq.gz"
+                        }
+                    },
+                    "3": {
+                        "1": {
+                            "r1": "CAST_EiJ-12.5dpp.3.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-12.5dpp.3.1_r2.fastq.gz"
+                        }
+                    },
+                    "1": {
+                        "1": {
+                            "r1": "CAST_EiJ-12.5dpp.1.1_r1.fastq.gz",
+                            "r2": "CAST_EiJ-12.5dpp.1.1_r2.fastq.gz"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
