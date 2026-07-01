@@ -97,5 +97,8 @@ fig.legend(handles=leg,loc="lower center",bbox_to_anchor=(0.5,0.045),ncol=3,font
 fig.suptitle("TE × piRNA ARMS-RACE circos — active-TE family EXPRESSION (small-RNA sense-to-TE) vs piRNA-cluster defence across development, 16 strains × 3 timepoints in one GRCm39 circle\n"
              "per strain: STACKED TE-family EXPRESSION band (L1/ERVK/ERVL) + 3 timepoint sub-rings (inward) = PICB-cluster expression (genomic-strand architecture colour); colour = TE family / cluster strand-architecture, height = log amount (never duplicated)",
              fontsize=12,fontweight="bold",y=0.99,linespacing=1.5)
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(X,bins[bi][0],bins[bi][1],fam,round(v,3)) for X in TE for bi,fd in TE[X].items() for fam,v in fd.items()],columns=["strain","chrom","bin_start","TE_family","sRNA_expression"]).to_csv(f"{_SD}/SourceData_Fig_circos_te16_TEband.csv",index=False)   # outer TE-expression band (per strain x 2Mb bin x family)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],round(f[0],3),round(f[1],3),round(f[2],3)) for (X,tp),d in CL.items() for bi,f in d.items()],columns=["strain","timepoint","chrom","bin_start","plus_FPM","minus_FPM","dual_FPM"]).to_csv(f"{_SD}/SourceData_Fig_circos_te16_clusterrings.csv",index=False)   # 3 timepoint cluster sub-rings (per strain x tp x 2Mb bin, strand FPM)
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_circos_te16.{e}",bbox_inches="tight")
 print("wrote Fig_circos_te16.{png,pdf,svg}")
