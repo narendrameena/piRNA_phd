@@ -70,7 +70,13 @@ tep["grp"] = tep.strain.map(lambda s: "wild" if s in WILD else "classical")
 topfam = tep.groupby("family")["count"].sum().sort_values(ascending=False).head(8).index.tolist()
 famtab = tep[tep.family.isin(topfam)].groupby(["family","grp"])["count"].sum().unstack(fill_value=0).reindex(topfam)
 
-print(f"strain-private loci (any strain, deduped seq): {sum(len(v) for v in priv_by_strain.values()):,}")
+# ---- structural-diversity zoom: the chr17 ~27.5 Mbp strain-private piRNA hotspot (each wild strain a DISTINCT private locus) ----
+ZC, ZS, ZE = "17", 27_500_000, 27_620_000
+_pc = pd.read_csv(f"{U}/cluster_pav/picb_pangenome_clusters.tsv", sep="\t", dtype={"g39_chrom":str}, low_memory=False)
+_z = _pc[(_pc.g39_chrom==ZC) & (_pc.start < ZE) & (_pc.end > ZS)].copy()
+zoom = _z.sort_values("all_primary_FPM", ascending=False).groupby("strain", as_index=False).first()   # best locus per strain in the window
+
+print(f"genuinely-unique loci (any strain, deduped seq): {sum(len(v) for v in priv_by_strain.values()):,}")
 print(f"wild per-chrom private density total: {perchrom.loc[WILD_ORD].values.sum():.0f}")
 
 # =====================  FIGURE  =====================
@@ -80,11 +86,10 @@ gs = fig.add_gridspec(3, 2, width_ratios=[1.35, 1.0], height_ratios=[1.05, 1.0, 
                       left=0.055, right=0.985, top=0.90, bottom=0.06)
 
 # ---- Panel A: genome-wide strain-private piRNA landscape (4 wild strains) ----
-axA = fig.add_subplot(gs[:, 0]); axA.set_xlim(0, 1); axA.set_ylim(0, len(CHROMS)); axA.axis("off")
+axA = fig.add_subplot(gs[0:2, 0]); axA.set_xlim(0, 1); axA.set_ylim(0, len(CHROMS)); axA.axis("off")
 axA.set_title("A   Genome-wide strain-specific (genuinely-unique) piRNA landscape — the four wild-derived strains",
               fontsize=10.5, fontweight="bold", loc="left")
-GMAX = max(1.0, np.percentile([v for X in WILD_ORD for v in DENS[X][c] for c in [0]] or [1], 99) if False else
-           max((DENS[X][c].max() for X in WILD_ORD for c in CHROMS), default=1.0))
+_alld = np.array([v for X in WILD_ORD for c in CHROMS for v in DENS[X][c] if v>0]); GMAX = float(np.percentile(_alld, 88)) if _alld.size else 1.0
 row_h = 1.0; sub = row_h/ (len(WILD_ORD)+0.4)
 L, R = 0.10, 0.985
 for ci, c in enumerate(CHROMS):
@@ -96,12 +101,28 @@ for ci, c in enumerate(CHROMS):
     for wi, X in enumerate(WILD_ORD):
         base = y0 + 0.06 + wi*sub; d = DENS[X][c]
         h = np.clip(d/GMAX, 0, 1) * sub*0.92
-        axA.bar(xs, h, width=(xr/nb)*0.95, bottom=base, color=WCOL[X], align="center",
-                edgecolor="none", linewidth=0, zorder=2)
+        axA.fill_between(xs, base, base+h, step="mid", color=WCOL[X], edgecolor=WCOL[X], linewidth=0.15, zorder=2)
 from matplotlib.patches import Patch
 axA.legend(handles=[Patch(facecolor=WCOL[X], label=X.replace("_","/")) for X in WILD_ORD],
            fontsize=7.5, frameon=False, ncol=4, loc="lower center", bbox_to_anchor=(0.5, -0.02),
-           title="genuinely-unique piRNA loci per 2-Mb bin (bar height scales with density)", title_fontsize=8)
+           title="genuinely-unique piRNA loci per 2-Mb bin (filled profile = density)", title_fontsize=8)
+
+# ---- Panel E: structural-diversity locus zoom (chr17 strain-private piRNA hotspot) ----
+axE = fig.add_subplot(gs[2, 0]); axE.set_xlim(ZS/1e6, ZE/1e6); axE.set_ylim(-0.7, len(WILD_ORD)-0.3)
+axE.set_title("E   A high-diversity locus (chr17 ≈ 27.5 Mbp) — each wild strain carries a DISTINCT strain-private piRNA locus",
+              fontsize=9.6, fontweight="bold", loc="left")
+for yi, X in enumerate(WILD_ORD[::-1]):
+    axE.text(ZS/1e6-0.003, yi, X.replace("_","/"), ha="right", va="center", fontsize=7.5, fontweight="bold", color="#C0392B")
+    axE.axhline(yi, color="#eeeeee", lw=0.5, zorder=0)
+    r = zoom[zoom.strain==X]
+    if len(r):
+        s, e, fpm = r.start.iloc[0]/1e6, r.end.iloc[0]/1e6, r.all_primary_FPM.iloc[0]
+        axE.add_patch(plt.Rectangle((s, yi-0.30), max(e-s, 0.0015), 0.60, facecolor=WCOL[X], edgecolor="#222", lw=0.4, zorder=3))
+        axE.annotate(f"{fpm/1000:.0f}k FPM", ((s+e)/2, yi+0.33), ha="center", va="bottom", fontsize=6, color=WCOL[X], fontweight="bold")
+axE.set_yticks([]); axE.set_xlabel("chr17 position (Mbp)", fontsize=8.5); axE.tick_params(labelsize=7.5)
+axE.spines[["top", "right", "left"]].set_visible(False)
+axE.text(0.5, -0.34, "The piRNA analog of a high-diversity genomic locus (cf. the GBP cluster, Fig 1A): four private, non-overlapping piRNA source loci within ~80 kb — one per wild strain, silent in all 12 classical strains.",
+         transform=axE.transAxes, ha="center", fontsize=6.3, color="#666", style="italic")
 
 # ---- Panel B: genuinely-unique yield per strain ----
 axB = fig.add_subplot(gs[0, 1]); x = np.arange(len(CANON))
@@ -147,4 +168,5 @@ perchrom.to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_perchrom_density.csv
 yield_tab.assign(total=tot).to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_yield.csv")
 pd.DataFrame({"strains_carrying":xs2,"strain_private":spec_priv,"conserved_but_silent":spec_cbs}).to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_freq_spectrum.csv",index=False)
 famtab.to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TE_drivers.csv")
-print("wrote Fig_pirna_pangenome_atlas.{png,pdf,svg} + 4 source_data files")
+zoom[["strain","g39_chrom","start","end","all_primary_FPM","strand"]].to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_chr17_zoom.csv",index=False)
+print("wrote Fig_pirna_pangenome_atlas.{png,pdf,svg} + 5 source_data files")
