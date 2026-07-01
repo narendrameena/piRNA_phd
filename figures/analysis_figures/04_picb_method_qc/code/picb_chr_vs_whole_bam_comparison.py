@@ -373,6 +373,18 @@ fig.suptitle(
     "E15.5 mPGC C57BL/6  |  GRCm38  |  PICB v0.99.x",
     fontsize=9, fontweight="bold", y=0.975)
 
+# ── Source data (plotted per-chromosome inflation + thresholds → theme dir) ─────
+import os as _os, pandas as _pd
+_SD = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/04_picb_method_qc/data/source_data"
+_os.makedirs(_SD, exist_ok=True)
+_pd.DataFrame({"chr": list(CHRS),
+               "fpm_inflation_naive": list(fpm_infl),          # Panel D
+               "thresh_naive_rep1": list(thresh_naive_rep1),   # Panel E rep1 per-chr naive
+               "thresh_naive_e165": list(thresh_naive_e165),   # Panel E E16.5 per-chr naive
+               "thresh_correct_rep1": thresh_correct_rep1,      # genome-wide correct (scalar)
+               "thresh_correct_e165": thresh_correct_e165}).to_csv(
+    f"{_SD}/SourceData_PICB_chr_vs_wholebam_comparison.csv", index=False)
+
 # ── Save ──────────────────────────────────────────────────────────────────────
 OUT_DIR = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis"
 for ext, dpi in [("pdf", 600), ("svg", 150), ("png", 300)]:

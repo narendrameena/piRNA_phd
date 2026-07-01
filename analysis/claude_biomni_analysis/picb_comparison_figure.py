@@ -221,6 +221,22 @@ fig.text(
     ha="center", va="bottom", fontsize=5.5, color="#555555"
 )
 
+# ── Source data (plotted values → theme dir) ───────────────────────────────
+import os as _os
+_SD = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/04_picb_method_qc/data/source_data"
+_os.makedirs(_SD, exist_ok=True)
+pd.DataFrame({"component": categories, "chrbychr": vals_chr, "wholebam": vals_wb}).to_csv(
+    f"{_SD}/SourceData_PICB_chrbychr_vs_wholebam_A_counts.csv", index=False)          # Panel A grouped bars
+pd.DataFrame({"chr": all_chrs,
+              "chrbychr": [int(chr_per_chr.get(c, 0)) for c in all_chrs],
+              "wholebam": [int(chr_wholebam.get(c, 0)) for c in all_chrs]}).to_csv(
+    f"{_SD}/SourceData_PICB_chrbychr_vs_wholebam_C_per_chromosome.csv", index=False)  # Panel C per-chr bars
+try:  # Panel B scatter only exists when clusters matched
+    pd.DataFrame({"FPM_chrbychr": x_fpm, "FPM_wholebam": y_fpm}).to_csv(
+        f"{_SD}/SourceData_PICB_chrbychr_vs_wholebam_B_FPM_scatter.csv", index=False)
+except NameError:
+    pass
+
 # ── Save ───────────────────────────────────────────────────────────────────
 stem = os.path.join(OUT_DIR, "PICB_chrbychr_vs_wholebam")
 fig.savefig(stem + ".pdf", dpi=300, bbox_inches="tight")

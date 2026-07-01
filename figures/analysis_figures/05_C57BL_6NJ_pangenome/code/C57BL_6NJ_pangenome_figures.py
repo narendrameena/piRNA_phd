@@ -91,6 +91,7 @@ sv_df       = pd.read_csv(f"{OUT}/C57BL_6NJ_TE_sized_SVs_GRCm39.csv")
 
 print(f"  Classified loci: {len(classified)}")
 print(f"  SVs: {len(sv_df)}")
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/05_C57BL_6NJ_pangenome/data/source_data"; _os.makedirs(_SD,exist_ok=True)  # source-data → theme dir
 
 # ── FIGURE 1: Developmental classification overview ─────────────────────────
 print("\n=== Figure 1: Developmental classification ===")
@@ -120,7 +121,7 @@ ax.legend([P(facecolor=WONG["blue"],alpha=0.4), P(facecolor=WONG["blue"]),
           fontsize=4.5, frameon=False, ncol=2, loc="upper right")
 
 pd.DataFrame({"stage": stages, "n_clusters": values}).to_csv(
-    f"{OUT}/Fig1A_merge_cascade.csv", index=False)
+    f"{_SD}/SourceData_Fig1A_merge_cascade.csv", index=False)
 
 # Panel B: Developmental classification donut — clean, no in-plot labels
 ax = axes[1]
@@ -147,7 +148,7 @@ ax.legend([P(facecolor=c) for c in colors_b], labels_b,
           ncol=1, fontsize=5, frameon=False)
 
 pd.DataFrame({"dev_class": order, "n_loci": counts, "label": labels_b}).to_csv(
-    f"{OUT}/Fig1B_classification.csv", index=False)
+    f"{_SD}/SourceData_Fig1B_classification.csv", index=False)
 
 # Panel C: Cluster size violin — medians annotated only if they don't overlap
 ax = axes[2]
@@ -172,7 +173,7 @@ for i, med in enumerate(medians):
                 arrowprops=dict(arrowstyle="-", color="grey", lw=0.4))
 
 pd.concat([classified[classified["dev_class"]==c][["dev_class","size_bp"]]
-           for c in plot_classes]).to_csv(f"{OUT}/Fig1C_size_distributions.csv", index=False)
+           for c in plot_classes]).to_csv(f"{_SD}/SourceData_Fig1C_size_distributions.csv", index=False)
 
 save_fig(fig, "Fig1_developmental_classification")
 plt.close()
@@ -205,7 +206,7 @@ for i, (data, tp) in enumerate(zip([log_fpm_p12, log_fpm_p20], ["P12.5","P20.5"]
 
 pd.DataFrame({"timepoint": ["P12.5"]*len(log_fpm_p12) + ["P20.5"]*len(log_fpm_p20),
               "log10_FPM": list(log_fpm_p12) + list(log_fpm_p20)}).to_csv(
-    f"{OUT}/Fig2A_FPM_timepoints.csv", index=False)
+    f"{_SD}/SourceData_Fig2A_FPM_timepoints.csv", index=False)
 
 # Panel B: Per-class median FPM grouped bar
 ax = axes[1]
@@ -224,7 +225,7 @@ ax.set_title("B  Class FPM (median)", fontsize=7, fontweight="bold", loc="left")
 ax.legend(fontsize=5.5, frameon=False, loc="upper right")
 
 cs_plot[["dev_class","median_FPM_P12.5","median_FPM_P20.5"]].to_csv(
-    f"{OUT}/Fig2B_class_FPM.csv", index=False)
+    f"{_SD}/SourceData_Fig2B_class_FPM.csv", index=False)
 
 # Panel C: N loci per class (bar, no count labels — y-axis is sufficient)
 ax = axes[2]
@@ -238,7 +239,7 @@ ax.set_ylabel("N loci", fontsize=7)
 ax.set_title("C  Loci per class", fontsize=7, fontweight="bold", loc="left")
 ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{int(x):,}"))
 
-cs_all[["dev_class","n_loci"]].to_csv(f"{OUT}/Fig2C_loci_per_class.csv", index=False)
+cs_all[["dev_class","n_loci"]].to_csv(f"{_SD}/SourceData_Fig2C_loci_per_class.csv", index=False)
 
 save_fig(fig, "Fig2_FPM_expression")
 plt.close()
@@ -276,7 +277,7 @@ ax.legend(lines_a + lines_b, labs_a + labs_b, fontsize=5, frameon=False,
           loc="upper right")
 ax.set_title("A  SV size (dual axis)", fontsize=7, fontweight="bold", loc="left")
 
-sv_df[["sv_type","sv_size_bp"]].to_csv(f"{OUT}/Fig3A_SV_size.csv", index=False)
+sv_df[["sv_type","sv_size_bp"]].to_csv(f"{_SD}/SourceData_Fig3A_SV_size.csv", index=False)
 
 # Panel B: SV size categories (bar, no per-bar labels — y-axis suffices)
 ax = axes[1]
@@ -295,7 +296,7 @@ ax.set_title("B  SV size categories", fontsize=7, fontweight="bold", loc="left")
 ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{int(x):,}"))
 
 pd.DataFrame({"size_category": labels_b, "n_svs": counts_b}).to_csv(
-    f"{OUT}/Fig3B_SV_categories.csv", index=False)
+    f"{_SD}/SourceData_Fig3B_SV_categories.csv", index=False)
 
 # Panel C: Per-chromosome SV counts (bar, every 3rd chr labelled to prevent overlap)
 ax = axes[2]
@@ -312,7 +313,7 @@ ax.set_title("C  SVs per chromosome", fontsize=7, fontweight="bold", loc="left")
 ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{int(x):,}"))
 
 pd.DataFrame({"chr": chr_order, "n_svs": chr_counts_c}).to_csv(
-    f"{OUT}/Fig3C_SV_per_chromosome.csv", index=False)
+    f"{_SD}/SourceData_Fig3C_SV_per_chromosome.csv", index=False)
 
 save_fig(fig, "Fig3_pangenome_SV_content")
 plt.close()
