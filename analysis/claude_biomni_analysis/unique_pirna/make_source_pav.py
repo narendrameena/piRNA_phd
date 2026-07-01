@@ -101,5 +101,6 @@ for x in (z0, z1):
     fig.add_artist(ConnectionPatch(xyA=((x - ps) / N, -1.30), coordsA=axB.transData, xyB=(x, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.8, ls=(0, (3, 2))))
 pc.pbadge(axC, "C", f"Base resolution, {STRAIN.replace('_','/')} at {TPLAB[CHOSEN]} (top tp)   ·   5′-U = 1U   ·   5′ arrow RED = antisense-to-TE (silencing), grey = sense-to-TE", fs=7.6)
 fig.suptitle(f"{TELAB} → strain-private piRNA SOURCE LOCUS (individual piRNAs, NOT a PICB cluster) — pangenome layout ({STRAIN.replace('_','/')} chr{CH}:{ps:,}-{pe:,})", fontsize=11.5, fontweight="bold", y=0.965)
+import os as _os, pandas as _pd; _os.makedirs("/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/12_creation_source_loci/data/source_data",exist_ok=True); _pd.DataFrame([{"locus":f"{CHROM}:{ps}-{pe}","carrier":STRAIN,"dom_TE":domTE,"timepoint":_t,"reads_ntot":(DAT[_t]["ntot"] if DAT[_t] else 0),"RPM":round(rpm[_t],2)} for _t in TPS]).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/12_creation_source_loci/data/source_data/SourceData_{OUT}.csv",index=False)
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png")
