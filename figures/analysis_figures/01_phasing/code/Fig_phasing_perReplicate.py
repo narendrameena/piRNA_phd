@@ -5,7 +5,7 @@ Horizontal bars; sample order = canonical figure strain order (thesis Fig 4.4,
 median P20.5 PC1) -> timepoint (E16.5->P12.5->P20.5) -> replicate. Labels per sample.
 Input : phasing_allstrains_1random/ALL_summary.csv
 Method: 1 random coord/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random),
-        24-32 nt, GenomicRanges::follow 3'->5' adjacency; +1 nt = phased (Almeida GB2025).
+        25-32 nt, GenomicRanges::follow 3'->5' adjacency; +1 nt = phased (Almeida GB2025).
 Writes the source-data CSV in the exact plotted order (same script).
 """
 import sys

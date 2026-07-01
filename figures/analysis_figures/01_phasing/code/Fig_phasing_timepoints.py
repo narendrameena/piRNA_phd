@@ -78,12 +78,14 @@ for i, t in enumerate(ORDER):
 fig.suptitle("C57BL/6NJ piRNA phasing across spermatogenesis",
              fontsize=8.5, fontweight="bold", y=1.02)
 fig.text(0.5, -0.06,
-         "1 random coordinate/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random) · 24–32 nt · "
+         "1 random coordinate/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random) · 25–32 nt · "
          "GenomicRanges::follow 3′→5′ adjacency · n=3 reps/timepoint",
          ha="center", fontsize=5.6, color="#555555")
 
 fig.tight_layout(w_pad=1.6)
 out = f"{BASE}/Fig_phasing_C57BL_6NJ_timepoints"
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+df[["sample","timepoint","frac_plus1","pct","zscore_plus1"]].to_csv(f"{_SD}/SourceData_Fig_phasing_timepoints.csv",index=False)   # per-replicate +1nt phasing (fraction / % / z-score) by timepoint
 for ext in ("pdf", "svg", "png"):
     fig.savefig(f"{out}.{ext}", bbox_inches="tight")
 print("wrote", out + ".{pdf,svg,png}")

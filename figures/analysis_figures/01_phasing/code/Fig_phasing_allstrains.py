@@ -3,7 +3,7 @@
 Nature-Genetics figure: piRNA phasing across spermatogenesis in 16 mouse strains.
 Input : phasing_allstrains_1random/ALL_summary.csv
 Method: 1 random coordinate/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random),
-        24-32 nt, GenomicRanges::follow 3'->5' adjacency; +1 nt = phased (Almeida GB2025).
+        25-32 nt, GenomicRanges::follow 3'->5' adjacency; +1 nt = phased (Almeida GB2025).
 Small-multiples: one panel/strain, x = E16.5 -> P12.5 -> P20.5 (FIXED developmental
 order), y = +1 phasing %, bars=mean (orange gradient), dots=replicates. Wild strains
 (CAST/PWK/SPRET/WSB) titled in red.
@@ -58,10 +58,12 @@ for k in range(len(order),len(axes)): axes[k].axis("off")
 fig.suptitle("piRNA phasing across spermatogenesis in 16 mouse strains",fontsize=10,fontweight="bold",y=1.060)
 fig.text(0.5,1.022,"bars = mean +1-nt phasing fraction · error bar = ±SD · dots = replicates · ● = wild-derived strain (CAST/PWK/SPRET/WSB)",
          ha="center",fontsize=6,color="#444")
-fig.text(0.5,-0.018,"1 random coordinate/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random) · 24–32 nt · GenomicRanges::follow 3′→5′ adjacency · timepoints E16.5→P12.5→P20.5",
+fig.text(0.5,-0.018,"1 random coordinate/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random) · 25–32 nt · GenomicRanges::follow 3′→5′ adjacency · timepoints E16.5→P12.5→P20.5",
          ha="center",fontsize=5.6,color="#666")
 fig.tight_layout(rect=[0,0,1,0.975],h_pad=1.25,w_pad=0.8)
 out=f"{BASE}/Fig_phasing_allstrains"
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+df.to_csv(f"{_SD}/SourceData_Fig_phasing_allstrains.csv",index=False)
 for ext in ("pdf","svg","png"): fig.savefig(f"{out}.{ext}",bbox_inches="tight")
 print("wrote",out+".{pdf,svg,png}")
 # summary table

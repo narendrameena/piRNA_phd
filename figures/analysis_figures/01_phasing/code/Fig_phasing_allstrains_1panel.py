@@ -43,7 +43,7 @@ ax.legend(handles=[Patch(facecolor=COL[t], label=TPL[t]) for t in TPO], fontsize
 if WPOS: ax.text(np.mean(WPOS), 70.5, "wild-derived", ha="center", va="top", fontsize=9, fontweight="bold", color="#C0392B")
 ax.set_title("piRNA phasing across spermatogenesis — 16 mouse strains × 3 developmental windows", fontsize=12.5, fontweight="bold", loc="left")
 fig.text(0.5, -0.17, "bars = mean +1-nt phasing fraction (value on top) · error bar = ±SD · dots = replicates · wild-derived (CAST/PWK/SPRET/WSB) red + shaded · "
-  "1 random coordinate/read (STAR) · 24–32 nt · GenomicRanges::follow 3′→5′ adjacency · E16.5→P12.5→P20.5", ha="center", fontsize=7.2, color="#666")
+  "1 random coordinate/read (STAR) · 25–32 nt · GenomicRanges::follow 3′→5′ adjacency · E16.5→P12.5→P20.5", ha="center", fontsize=7.2, color="#666")
 fig.tight_layout()
 # classical(blue)/wild(orange) companion: mean +1 phasing per strain (subspecies colour coding)
 fig.subplots_adjust(bottom=0.30)
@@ -53,6 +53,8 @@ _cax.set_xticks(x); _cax.set_xticklabels([s.replace("_", "/") for s in order], r
 for lab, s in zip(_cax.get_xticklabels(), order): lab.set_color("#C0392B" if s in WILD else "#333")
 _cax.set_title("classical (blue) vs wild-derived (orange) — mean +1 phasing per strain", fontsize=8, fontweight="bold", loc="left")
 out = f"{BASE}/Fig_phasing_allstrains_1panel"
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+df.to_csv(f"{_SD}/SourceData_Fig_phasing_allstrains_1panel.csv",index=False)
 for e in ("pdf", "svg", "png"): fig.savefig(f"{out}.{e}", bbox_inches="tight")
 print("wrote", out)
 print(df.pivot_table(index="strain", columns="tp", values="pct", aggfunc="mean").reindex(order)[TPO].round(1).to_string())

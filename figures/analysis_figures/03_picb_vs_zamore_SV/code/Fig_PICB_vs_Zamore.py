@@ -310,6 +310,9 @@ fig.suptitle(
     "Pangenome VCF SVs >=300 bp · PICB 2-of-3 consensus · liftOver chain files",
     fontsize=8.5, fontweight='bold', y=1.012)
 
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+z_expr.to_csv(f"{_SD}/SourceData_Fig_PICB_vs_Zamore_zamore_expr.csv",index=False); z_sv.to_csv(f"{_SD}/SourceData_Fig_PICB_vs_Zamore_zamore_SV.csv",index=False)
+p_expr.to_csv(f"{_SD}/SourceData_Fig_PICB_vs_Zamore_picb_expr.csv",index=False); p_sv.to_csv(f"{_SD}/SourceData_Fig_PICB_vs_Zamore_picb_SV.csv",index=False)
 for ext in ('pdf', 'svg', 'png'):
     fig.savefig(f"{OUT}/Fig_PICB_vs_Zamore.{ext}", dpi=300, bbox_inches='tight')
 plt.close(fig)

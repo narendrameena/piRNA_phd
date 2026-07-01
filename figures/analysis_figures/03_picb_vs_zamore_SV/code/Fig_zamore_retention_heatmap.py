@@ -70,6 +70,8 @@ fig.text(0.5,-0.10,
     "pale = fully retained; conserved position, divergent sequence (Yu 2021 PMID 33397987)",
     ha="center",fontsize=5.6,color="#666")
 base=f"{CR}/Fig_zamore_retention_heatmap"
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+R.to_csv(f"{_SD}/SourceData_Fig_zamore_retention_heatmap.csv")
 for ext in ("pdf","svg","png"): fig.savefig(f"{base}.{ext}",bbox_inches="tight")
 print("wrote",base)
 print("mean divergence by strain (high->low):"); print(DIV.mean(axis=1).sort_values(ascending=False).round(2).head(6).to_string())

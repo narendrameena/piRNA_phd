@@ -94,5 +94,7 @@ fig.text(0.5,-0.04,
     "colour = log10(FPM+1) of overlapping combined-run PICB clusters (pangenome) · prepachytene loci fire at E16.5, pachytene at P20.5 — consistently across strains",
     ha="center",fontsize=5.6,color="#666")
 base=f"{CR}/Fig_zamore_stage_time_heatmap"
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+em.to_csv(f"{_SD}/SourceData_Fig_zamore_stage_time_heatmap.csv",index=False)
 for ext in ("pdf","svg","png"): fig.savefig(f"{base}.{ext}",bbox_inches="tight")
 print("wrote",base,"| rows(tp x strain)=",len(rlab),"cols(loci)=",len(locus_order))
