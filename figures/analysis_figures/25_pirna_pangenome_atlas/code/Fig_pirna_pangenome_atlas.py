@@ -10,7 +10,14 @@ piRNA loci — the accessory piRNA repertoire.
 (C) piRNA locus FREQUENCY SPECTRUM (how many strains carry the homologous locus) — a population-genetics
     site-frequency-spectrum analog: a conserved CORE + a large strain-PRIVATE tail (cf. Fig 1D size dist).
 (D) TE-family drivers of the strain-private loci — the transposon substrate seeding new piRNA source loci
-    (the piRNA analog of the paper's defense/immunity functional enrichment, Fig 1E)."""
+    (the piRNA analog of the paper's defense/immunity functional enrichment, Fig 1E).
+(F) piRNA STRAND across the frequency spectrum — antisense-to-TE (silencing) vs sense, per sharing level.
+(G) genomic regions covered by TE — the TE CLASS (LTR/LINE/SINE) covering the locus, across the spectrum.
+(H) per-TE-family piRNA output split by strand — antisense (silencing) vs sense.
+Panels F-H use the per-candidate sense/antisense-to-TE calls (sense_antisense/…_percand) for genuinely-unique
+(conserved-but-silent + strain-private) TE-annotated candidates, weighted by per-SEQUENCE expression
+(Σ RPM = read count / 24-32 nt library size × 1e6, per strain × timepoint; compute_percand_rpm.py) — the
+biological standard for piRNA abundance, with antisense-to-TE = the TE-silencing species."""
 import sys, os, glob
 import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
@@ -77,14 +84,36 @@ _pc = pd.read_csv(f"{U}/cluster_pav/picb_pangenome_clusters.tsv", sep="\t", dtyp
 _z = _pc[(_pc.g39_chrom==ZC) & (_pc.start < ZE) & (_pc.end > ZS)].copy()
 zoom = _z.sort_values("all_primary_FPM", ascending=False).groupby("strain", as_index=False).first()   # best locus per strain in the window
 
+# ---- per-piRNA-SEQUENCE expression (RPM) x strand (sense/antisense to TE) x TE, genuinely-unique repertoire ----
+# RPM = read count / library size (24-32 nt window) x 1e6, per (sequence, strain, timepoint), mean over reps —
+# the biological standard for piRNA abundance; antisense-to-TE piRNAs are the silencing species. Panels weight
+# by this per-sequence expression (Sum RPM), NOT by locus count. Precomputed by compute_percand_rpm.py.
+_sa = pd.read_csv(f"{U}/sense_antisense/SourceData_sense_antisense16_percand.csv.gz")
+_sa["tp"] = _sa.id.str.split("|").str[1]; _sa["sequence"] = _sa.id.str.split("|").str[-1]
+_rpm = pd.read_csv(f"{U}/unique16/percand_rpm_expr.csv.gz").rename(columns={"timepoint": "tp"})
+_sa = _sa.merge(_rpm, on=["sequence", "strain", "tp"], how="left"); _sa["rpm"] = _sa.rpm.fillna(0.0)
+_sa = _sa.merge(k.drop_duplicates("sequence")[["sequence","homolog_strains"]], on="sequence", how="left")
+_sa["nstr"] = _sa.homolog_strains.fillna("").apply(lambda s: len([x for x in str(s).split(",") if x]) if s else 1).clip(1,16)
+_sa["tesuper"] = _sa.family.astype(str).str.split("/").str[0]                                  # LTR / LINE / SINE / ...
+_gu = _sa[(~_sa.family.astype(str).str.startswith("__")) & (_sa.klass5.isin([PRIV,CBS]))]      # genuinely-unique + TE-annotated
+SUPERS = ["LTR","LINE","SINE"]
+strand_spec = _gu.groupby(["nstr","orientation"])["rpm"].sum().unstack(fill_value=0).reindex(index=range(1,17), fill_value=0)
+te_spec = _gu.groupby(["nstr","tesuper"])["rpm"].sum().unstack(fill_value=0).reindex(index=range(1,17), fill_value=0)
+te_spec["other"] = te_spec.drop(columns=[c for c in SUPERS if c in te_spec], errors="ignore").sum(axis=1)
+famH = _gu.groupby("family")["rpm"].sum().sort_values(ascending=False).head(7).index.tolist()
+fam_strand = _gu[_gu.family.isin(famH)].groupby(["family","orientation"])["rpm"].sum().unstack(fill_value=0).reindex(famH)
+for _t in (strand_spec, fam_strand):
+    for _o in ("antisense","sense"):
+        if _o not in _t.columns: _t[_o] = 0
+
 print(f"genuinely-unique loci (any strain, deduped seq): {sum(len(v) for v in priv_by_strain.values()):,}")
 print(f"wild per-chrom private density total: {perchrom.loc[WILD_ORD].values.sum():.0f}")
 
 # =====================  FIGURE  =====================
 plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.fonttype":"none","axes.linewidth":0.8})
-fig = plt.figure(figsize=(17, 11), dpi=300)
-gs = fig.add_gridspec(3, 2, width_ratios=[1.35, 1.0], height_ratios=[1.05, 1.0, 1.0], hspace=0.42, wspace=0.20,
-                      left=0.055, right=0.985, top=0.90, bottom=0.06)
+fig = plt.figure(figsize=(24, 11), dpi=300)
+gs = fig.add_gridspec(3, 3, width_ratios=[1.35, 1.0, 1.0], height_ratios=[1.05, 1.0, 1.0], hspace=0.42, wspace=0.24,
+                      left=0.045, right=0.99, top=0.90, bottom=0.06)
 
 # ---- Panel A: genome-wide strain-private piRNA landscape (4 wild strains) ----
 axA = fig.add_subplot(gs[0:2, 0]); axA.set_xlim(0, 1); axA.set_ylim(-1.9, len(CHROMS)); axA.axis("off")
@@ -160,6 +189,43 @@ axD.set_ylabel("strain-private piRNA loci (n)", fontsize=8.5)
 axD.legend(fontsize=6.8, frameon=False, loc="upper right"); axD.spines[["top","right"]].set_visible(False)
 axD.set_title("D   TE-family drivers of strain-private piRNA loci — young active retrotransposons (ERVK/L1)", fontsize=9.4, fontweight="bold", loc="left")
 
+# ---- Panel F: piRNA strand (sense/antisense to TE) across the frequency spectrum ----
+axF = fig.add_subplot(gs[0, 2])
+axF.bar(xs2, strand_spec["antisense"].values, color="#C0392B", label="antisense-to-TE (silencing)", edgecolor="white", linewidth=0.3)
+axF.bar(xs2, strand_spec["sense"].values, bottom=strand_spec["antisense"].values, color="#9e9e9e", label="sense", edgecolor="white", linewidth=0.3)
+axF.set_yscale("log"); axF.set_xticks(xs2); axF.tick_params(labelsize=7)
+axF.set_xlabel("number of strains carrying the locus  (1 = private … 16 = core)", fontsize=8)
+axF.set_ylabel("TE-associated piRNA expression\n(Σ RPM, log)", fontsize=8.2)
+axF.axvspan(0.5,1.5,color="#7a3b9a",alpha=0.06); axF.axvspan(15.5,16.5,color="#0072B2",alpha=0.06)
+axF.text(1, axF.get_ylim()[1]*0.4, "PRIVATE", ha="center", fontsize=6.3, color="#7a3b9a", fontweight="bold")
+axF.text(16, axF.get_ylim()[1]*0.4, "CORE", ha="center", fontsize=6.3, color="#0072B2", fontweight="bold")
+axF.legend(fontsize=6.3, frameon=False, loc="upper center"); axF.spines[["top","right"]].set_visible(False)
+axF.set_title("F   piRNA expression by strand across the spectrum — antisense-to-TE (silencing) vs sense", fontsize=9.2, fontweight="bold", loc="left")
+
+# ---- Panel G: TE class covering the piRNA locus, across the frequency spectrum ----
+axG = fig.add_subplot(gs[1, 2]); _gcol = {"LTR":"#6a3d9a","LINE":"#E69F00","SINE":"#1f78b4","other":"#bbbbbb"}
+_bot = np.zeros(16)
+for s in SUPERS + ["other"]:
+    _v = te_spec[s].values if s in te_spec.columns else np.zeros(16)
+    axG.bar(xs2, _v, bottom=_bot, color=_gcol[s], label=s, edgecolor="white", linewidth=0.2); _bot = _bot + _v
+axG.set_yscale("log"); axG.set_xticks(xs2); axG.tick_params(labelsize=7)
+axG.set_xlabel("number of strains carrying the locus  (1 = private … 16 = core)", fontsize=8)
+axG.set_ylabel("TE-covered piRNA expression\n(Σ RPM, log)", fontsize=8.2)
+axG.axvspan(0.5,1.5,color="#7a3b9a",alpha=0.06); axG.axvspan(15.5,16.5,color="#0072B2",alpha=0.06)
+axG.text(1, axG.get_ylim()[1]*0.4, "PRIVATE", ha="center", fontsize=6.3, color="#7a3b9a", fontweight="bold")
+axG.text(16, axG.get_ylim()[1]*0.4, "CORE", ha="center", fontsize=6.3, color="#0072B2", fontweight="bold")
+axG.legend(fontsize=6.3, frameon=False, loc="upper center", ncol=2); axG.spines[["top","right"]].set_visible(False)
+axG.set_title("G   Genomic regions covered by TE — expression by TE class across the spectrum", fontsize=9.2, fontweight="bold", loc="left")
+
+# ---- Panel H: per-TE-family sense vs antisense (TE-derived piRNA strand) ----
+axH = fig.add_subplot(gs[2, 2]); xh = np.arange(len(famH)); wh = 0.4
+axH.bar(xh-wh/2, fam_strand["antisense"].values, wh, color="#C0392B", label="antisense (silencing)", edgecolor="white", linewidth=0.3)
+axH.bar(xh+wh/2, fam_strand["sense"].values, wh, color="#9e9e9e", label="sense", edgecolor="white", linewidth=0.3)
+axH.set_xticks(xh); axH.set_xticklabels(famH, rotation=40, ha="right", fontsize=6.6); axH.tick_params(labelsize=7)
+axH.set_ylabel("TE-family piRNA expression\n(Σ RPM)", fontsize=8.2)
+axH.legend(fontsize=6.5, frameon=False, loc="upper right"); axH.spines[["top","right"]].set_visible(False)
+axH.set_title("H   TE-family piRNA expression — antisense (silencing) vs sense", fontsize=9.2, fontweight="bold", loc="left")
+
 fig.suptitle("The piRNA PANGENOME of 16 inbred mouse strains — a conserved core piRNA-ome and a large, wild-derived-dominated, TE-driven strain-private accessory repertoire\n"
              "(the piRNA counterpart of the 17-genome mouse reference pangenome, Helmy et al., Cell Genomics 2026)",
              fontsize=11.5, fontweight="bold", y=0.975, linespacing=1.5)
@@ -170,4 +236,7 @@ yield_tab.assign(total=tot).to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_y
 pd.DataFrame({"strains_carrying":xs2,"strain_private":spec_priv,"conserved_but_silent":spec_cbs}).to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_freq_spectrum.csv",index=False)
 famtab.to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TE_drivers.csv")
 zoom[["strain","g39_chrom","start","end","all_primary_FPM","strand"]].to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_chr17_zoom.csv",index=False)
-print("wrote Fig_pirna_pangenome_atlas.{png,pdf,svg} + 5 source_data files")
+strand_spec.rename_axis("strains_carrying").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_strand_spectrum.csv", index=False)     # Panel F
+te_spec.rename_axis("strains_carrying").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TEclass_spectrum.csv", index=False)       # Panel G
+fam_strand.rename_axis("family").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TEfamily_strand.csv", index=False)               # Panel H
+print("wrote Fig_pirna_pangenome_atlas.{png,pdf,svg} + 8 source_data files")
