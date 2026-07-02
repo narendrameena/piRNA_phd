@@ -105,15 +105,18 @@ fam_strand = _gu[_gu.family.isin(famH)].groupby(["family","orientation"])["rpm"]
 for _t in (strand_spec, fam_strand):
     for _o in ("antisense","sense"):
         if _o not in _t.columns: _t[_o] = 0
+anti_pct = (100*strand_spec["antisense"]/(strand_spec["antisense"]+strand_spec["sense"]).replace(0, np.nan)).reindex(range(1,17))   # % antisense (silencing) by sharing — Panel F line
+TP_ORD = ["16.5dpc","12.5dpp","20.5dpp"]; TP_LAB = {"16.5dpc":"E16.5\n(fetal)","12.5dpp":"P12.5\n(early postnatal)","20.5dpp":"P20.5\n(pachytene)"}
+tp_ks = _gu.groupby(["tp","klass5","orientation"])["rpm"].sum()                                     # developmental-timepoint layer (Panel I): tp x klass5 x strand
 
 print(f"genuinely-unique loci (any strain, deduped seq): {sum(len(v) for v in priv_by_strain.values()):,}")
 print(f"wild per-chrom private density total: {perchrom.loc[WILD_ORD].values.sum():.0f}")
 
 # =====================  FIGURE  =====================
 plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.fonttype":"none","axes.linewidth":0.8})
-fig = plt.figure(figsize=(24, 11), dpi=300)
-gs = fig.add_gridspec(3, 3, width_ratios=[1.35, 1.0, 1.0], height_ratios=[1.05, 1.0, 1.0], hspace=0.42, wspace=0.24,
-                      left=0.045, right=0.99, top=0.90, bottom=0.06)
+fig = plt.figure(figsize=(24, 13.8), dpi=300)
+gs = fig.add_gridspec(4, 3, width_ratios=[1.35, 1.0, 1.0], height_ratios=[1.05, 1.0, 1.0, 0.82], hspace=0.5, wspace=0.24,
+                      left=0.045, right=0.99, top=0.92, bottom=0.05)
 
 # ---- Panel A: genome-wide strain-private piRNA landscape (4 wild strains) ----
 axA = fig.add_subplot(gs[0:2, 0]); axA.set_xlim(0, 1); axA.set_ylim(-1.9, len(CHROMS)); axA.axis("off")
@@ -138,7 +141,7 @@ axA.legend(handles=[Patch(facecolor=WCOL[X], label=X.replace("_","/")) for X in 
            title="genuinely-unique piRNA loci per 2-Mb bin (filled profile = density)", title_fontsize=8)
 
 # ---- Panel E: structural-diversity locus zoom (chr17 strain-private piRNA hotspot) ----
-axE = fig.add_subplot(gs[2, 0]); axE.set_xlim(ZS/1e6, ZE/1e6); axE.set_ylim(-0.7, len(WILD_ORD)-0.3)
+axE = fig.add_subplot(gs[2:4, 0]); axE.set_xlim(ZS/1e6, ZE/1e6); axE.set_ylim(-0.7, len(WILD_ORD)-0.3)
 axE.set_title("E   A high-diversity locus (chr17 ≈ 27.5 Mbp) — each wild strain carries a DISTINCT strain-private piRNA locus",
               fontsize=9.6, fontweight="bold", loc="left")
 for yi, X in enumerate(WILD_ORD[::-1]):
@@ -193,6 +196,11 @@ axD.set_title("D   TE-family drivers of strain-private piRNA loci — young acti
 axF = fig.add_subplot(gs[0, 2])
 axF.bar(xs2, strand_spec["antisense"].values, color="#C0392B", label="antisense-to-TE (silencing)", edgecolor="white", linewidth=0.3)
 axF.bar(xs2, strand_spec["sense"].values, bottom=strand_spec["antisense"].values, color="#9e9e9e", label="sense", edgecolor="white", linewidth=0.3)
+axF2 = axF.twinx()                                                        # antisense-% (silencing share) line on a secondary axis
+axF2.plot(xs2, anti_pct.values, color="#111111", lw=1.4, marker="o", ms=2.6, zorder=6)
+axF2.axhline(50, color="#111111", lw=0.5, ls=(0,(3,2)), alpha=0.5)
+axF2.set_ylim(0, 100); axF2.set_ylabel("% antisense (silencing)", fontsize=7.3, color="#111111"); axF2.tick_params(labelsize=6.4)
+axF2.spines[["top"]].set_visible(False)
 axF.set_yscale("log"); axF.set_xticks(xs2); axF.tick_params(labelsize=7)
 axF.set_xlabel("number of strains carrying the locus  (1 = private … 16 = core)", fontsize=8)
 axF.set_ylabel("TE-associated piRNA expression\n(Σ RPM, log)", fontsize=8.2)
@@ -226,6 +234,26 @@ axH.set_ylabel("TE-family piRNA expression\n(Σ RPM)", fontsize=8.2)
 axH.legend(fontsize=6.5, frameon=False, loc="upper right"); axH.spines[["top","right"]].set_visible(False)
 axH.set_title("H   TE-family piRNA expression — antisense (silencing) vs sense", fontsize=9.2, fontweight="bold", loc="left")
 
+# ---- Panel I: developmental-timepoint layer — genuinely-unique piRNA expression across spermatogenesis ----
+axI = fig.add_subplot(gs[3, 1:3]); axI2 = axI.twinx()
+_KL = [(PRIV, "strain-private", "#C0392B", "#6b6b6b"), (CBS, "conserved-but-silent", "#e07b6a", "#bdbdbd")]
+xI = np.arange(len(TP_ORD)); wI = 0.36
+for j, (kk, lab, a_col, s_col) in enumerate(_KL):
+    anti = np.array([float(tp_ks.get((tp, kk, "antisense"), 0.0)) for tp in TP_ORD])
+    sens = np.array([float(tp_ks.get((tp, kk, "sense"), 0.0)) for tp in TP_ORD])
+    off = (j - 0.5) * wI
+    axI.bar(xI + off, anti, wI, color=a_col, edgecolor="white", lw=0.3, label=f"{lab} · antisense (silencing)")
+    axI.bar(xI + off, sens, wI, bottom=anti, color=s_col, edgecolor="white", lw=0.3, label=f"{lab} · sense")
+    _tt = anti + sens; pct = np.where(_tt > 0, 100*anti/_tt, np.nan)
+    axI2.plot(xI + off, pct, color="#111111", lw=1.2, marker="o", ms=4, zorder=6, ls=("-" if j == 0 else (0, (2, 1.5))))
+axI2.set_ylim(0, 100); axI2.set_ylabel("% antisense (silencing)", fontsize=7.3); axI2.tick_params(labelsize=6.4); axI2.spines[["top"]].set_visible(False)
+axI.set_xticks(xI); axI.set_xticklabels([TP_LAB[t] for t in TP_ORD], fontsize=9)
+axI.set_ylabel("piRNA expression (Σ RPM)", fontsize=8.5); axI.tick_params(labelsize=7.5); axI.margins(x=0.12)
+axI.spines[["top", "right"]].set_visible(False)
+axI.legend(fontsize=6.8, frameon=False, ncol=2, loc="upper center")
+axI.set_title("I   Developmental timepoint — genuinely-unique piRNA expression across spermatogenesis (fetal → pachytene); bars = Σ RPM by strand, line = % antisense (silencing)",
+              fontsize=9.4, fontweight="bold", loc="left")
+
 fig.suptitle("The piRNA PANGENOME of 16 inbred mouse strains — a conserved core piRNA-ome and a large, wild-derived-dominated, TE-driven strain-private accessory repertoire\n"
              "(the piRNA counterpart of the 17-genome mouse reference pangenome, Helmy et al., Cell Genomics 2026)",
              fontsize=11.5, fontweight="bold", y=0.975, linespacing=1.5)
@@ -239,4 +267,6 @@ zoom[["strain","g39_chrom","start","end","all_primary_FPM","strand"]].to_csv(f"{
 strand_spec.rename_axis("strains_carrying").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_strand_spectrum.csv", index=False)     # Panel F
 te_spec.rename_axis("strains_carrying").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TEclass_spectrum.csv", index=False)       # Panel G
 fam_strand.rename_axis("family").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TEfamily_strand.csv", index=False)               # Panel H
-print("wrote Fig_pirna_pangenome_atlas.{png,pdf,svg} + 8 source_data files")
+anti_pct.rename_axis("strains_carrying").rename("pct_antisense").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_antisense_pct.csv", index=False)   # Panel F line
+tp_ks.rename("sum_rpm").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_timepoint_strand.csv", index=False)                        # Panel I
+print("wrote Fig_pirna_pangenome_atlas.{png,pdf,svg} + 10 source_data files")
