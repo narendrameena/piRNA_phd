@@ -3,8 +3,9 @@
 unique. Three columns per route: (L) verdict + real Step-4 count; (M) the INTUITION — the same locus across
 3 strains (SPRET/CAST/C57) showing the route's defining cross-strain pattern (expressed-in-all / SNP-allele
 / silent-elsewhere / private); (R) the DATA — the real representative SPRET piRNA at its true locus, zoomed
-from real P20.5 coverage to single-base + genomic-coordinate resolution. Counts = real SPRET_EiJ Step-4
-classification; representatives = uniquely-mapping 1U candidates (step4_classified ∩ cand_self BAM), loci verified 2026-06-11."""
+from real P20.5 coverage to single-base + genomic-coordinate resolution. Counts = real SPRET_EiJ ADOPTED ≥2-read
+klass5 (16-strain 5-class system; counts read LIVE from data, never stale); a 5th QC class, low-quality (mm1-3), is filtered out, not a biological route;
+representatives = uniquely-mapping 1U candidates (step4_classified ∩ cand_self BAM), loci verified 2026-06-11."""
 import numpy as np, pysam
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, FancyBboxPatch, ConnectionPatch
@@ -12,13 +13,19 @@ U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_a
 PG=f"{U}/pangenome_te"
 BAM="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/results/STAR_srna_strain_wise/SPRET_EiJ/SPRET_EiJ-20.5dpp.1/Aligned.sortedByCoord.out.bam"
 NT={"A":"#33a02c","C":"#1f78b4","G":"#ff7f00","T":"#e31a1c","N":"#999"}
-R=[(1,"Exact sequence in ALL strains","NOT unique","#9e9e9e",24124,"TAAATGCATCTGAAGCCTTGGACGGTCC","chr12",2096248,2096276,"+",
+# ---- data-driven per-class counts (real SPRET_EiJ klass5) so the displayed route numbers never go stale ----
+import pandas as _pd
+_sc=_pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["strain","klass5"]).query("strain=='SPRET_EiJ'").klass5.value_counts()
+_R2K={1:"expressed elsewhere (exact)",2:"SNP-variant (1-3mm)",3:"unique: conserved-but-silent",4:"unique: strain-private locus"}
+_cnt=lambda n:int(_sc.get(_R2K[n],0)); _LOWQ=int(_sc.get("low-quality: no mm0 own-genome locus",0))
+print(f"SPRET_EiJ klass5 (live): routes 1-4 = {[_cnt(n) for n in (1,2,3,4)]}; low-quality (filtered) = {_LOWQ:,}")
+R=[(1,"Exact sequence in ALL strains","NOT unique","#9e9e9e",_cnt(1),"TAAATGCATCTGAAGCCTTGGACGGTCC","chr12",2096248,2096276,"+",
     "Identical piRNA made by every strain (0-mm match elsewhere)."),
-   (2,"SNP-variant of a conserved piRNA","NOT unique","#E69F00",100513,"TAAAGGTCACTCTGAATCCTGCGAGGCT","chr19",2790047,2790075,"+",
+   (2,"SNP-variant of a conserved piRNA","NOT unique","#E69F00",_cnt(2),"TAAAGGTCACTCTGAATCCTGCGAGGCT","chr19",2790047,2790075,"+",
     "SPRET ≤3-SNP allele of a conserved piRNA the others express."),
-   (3,"Conserved locus, expressed only in SPRET","UNIQUE (expression)","#0072B2",140969,"TAACGGTATCAGGTAGGTAGCACCTCTC","chr10",75578163,75578191,"-",
+   (3,"Conserved locus, expressed only in SPRET","UNIQUE (expression)","#0072B2",_cnt(3),"TAACGGTATCAGGTAGGTAGCACCTCTC","chr10",75578163,75578191,"-",
     "Locus in all strains, transcribed only in SPRET — expression divergence."),
-   (4,"Strain-private locus (e.g. TE insertion)","UNIQUE (locus gain)","#C0392B",61208,"TAAACAGTGTCAGGGCAGTCTGTACCTC","chr14",56538402,56538430,"-",
+   (4,"Strain-private locus (e.g. TE insertion)","UNIQUE (locus gain)","#C0392B",_cnt(4),"TAAACAGTGTCAGGGCAGTCTGTACCTC","chr14",56538402,56538430,"-",
     "Locus only in SPRET (absent in others) — TE-driven birth; the minority.")]
 W=110; bam=pysam.AlignmentFile(BAM,"rb")
 def cov(chrom,s,e):
@@ -65,7 +72,7 @@ for i,(n,title,verdict,col,count,seq,chrom,st,en,strand,note) in enumerate(R):
     a,b,c=cov(chrom,st,en); x=np.arange(a,b)
     axs.fill_between(x,0,c,step="mid",color=col,alpha=0.55,lw=0); axs.axvspan(st,en,color="#e0a800",alpha=0.4)
     axs.set_xlim(a,b); axs.set_ylim(0,max(c.max(),1)*1.18)
-    axs.set_title(f"zoom-out · SPRET/EiJ {chrom}:{st:,} — real P20.5 piRNA coverage (24–32 nt)",fontsize=6.8,fontweight="bold",loc="left")
+    axs.set_title(f"zoom-out · SPRET/EiJ {chrom}:{st:,} — real P20.5 piRNA coverage (25–32 nt)",fontsize=6.8,fontweight="bold",loc="left")
     axs.tick_params(labelsize=5.3); axs.ticklabel_format(axis="x",style="plain"); axs.spines[['top','right']].set_visible(False); axs.set_ylabel("cov",fontsize=6)
     axn.axis("off")
     for k,bse in enumerate(seq):
@@ -81,5 +88,7 @@ for i,(n,title,verdict,col,count,seq,chrom,st,en,strand,note) in enumerate(R):
 bam.close()
 fig.suptitle("Four routes to a 'strain-specific' piRNA — only routes 3 & 4 are genuinely unique (expression is the criterion).\nMiddle = the cross-strain intuition (same locus in 3 strains); right = the real SPRET piRNA at its true locus, zoomed to single-base + coordinate resolution.",
              fontsize=9.2,fontweight="bold",y=0.99,linespacing=1.4)
+import os as _os, pandas as _pd; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(n,title,verdict,count,chrom,st,en,strand,seq) for n,title,verdict,col,count,seq,chrom,st,en,strand,note in R],columns=["route","title","verdict","SPRET_count","chrom","locus_start","locus_end","strand","piRNA_sequence"]).to_csv(f"{_SD}/SourceData_Fig_concept_four_routes.csv",index=False)   # the 4 representative route loci
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_concept_four_routes.{e}",bbox_inches="tight")
 print("wrote Fig_concept_four_routes.{png,pdf,svg} (3-col: verdict | cross-strain intuition | coverage+nucleotide)")
