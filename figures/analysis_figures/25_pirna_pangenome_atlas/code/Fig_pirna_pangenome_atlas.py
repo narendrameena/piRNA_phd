@@ -78,11 +78,17 @@ topfam = (tep[~tep.family.astype(str).str.startswith("__")]           # drop __n
           .groupby("family")["count"].sum().sort_values(ascending=False).head(8).index.tolist())
 famtab = tep[tep.family.isin(topfam)].groupby(["family","grp"])["count"].sum().unstack(fill_value=0).reindex(topfam)
 
-# ---- structural-diversity zoom: the chr17 ~27.5 Mbp strain-private piRNA hotspot (each wild strain a DISTINCT private locus) ----
-ZC, ZS, ZE = "17", 27_500_000, 27_620_000
-_pc = pd.read_csv(f"{U}/cluster_pav/picb_pangenome_clusters.tsv", sep="\t", dtype={"g39_chrom":str}, low_memory=False)
-_z = _pc[(_pc.g39_chrom==ZC) & (_pc.start < ZE) & (_pc.end > ZS)].copy()
-zoom = _z.sort_values("all_primary_FPM", ascending=False).groupby("strain", as_index=False).first()   # best locus per strain in the window
+# ---- Panel E: a strain-private TE-driven piRNA locus (SPRET/EiJ, antisense to a young ERVK — the TE-insertion-gain origin) ----
+import pysam as _ps
+_ELOC = ("SPRET_EiJ", "13", 46306947, 46306978)                # strain-private klass5 piRNA, pachytene 20.5dpp, antisense to the TE (silencing)
+_ETE  = (46306428, 46307217, "RLTR22_Mur", "LTR/ERVK")         # young ERVK it sits in (SPRET RepeatMasker); the piRNA locus is absent in all classical strains (locus gain)
+_ea, _eb = _ETE[0]-260, _ETE[1]+260
+_ebam = _ps.AlignmentFile(f"{U.split('/analysis/')[0]}/results/STAR_srna_strain_wise/SPRET_EiJ/SPRET_EiJ-20.5dpp.1/Aligned.sortedByCoord.out.bam", "rb")
+_ecov = np.zeros(_eb-_ea)
+for _r in _ebam.fetch("SPRET_EiJ#1#chr13", _ea, _eb):
+    if _r.is_unmapped or not 25 <= _r.reference_end-_r.reference_start <= 32: continue
+    for _p in range(max(_ea, _r.reference_start), min(_eb, _r.reference_end)): _ecov[_p-_ea] += 1
+_ebam.close(); _emax = max(_ecov.max(), 1.0)
 
 # ---- per-piRNA-SEQUENCE expression (RPM) x strand (sense/antisense to TE) x TE, genuinely-unique repertoire ----
 # RPM = read count / library size (24-32 nt window) x 1e6, per (sequence, strain, timepoint), mean over reps —
@@ -146,22 +152,20 @@ axA.legend(handles=[Patch(facecolor=WCOL[X], label=X.replace("_","/")) for X in 
            fontsize=7.5, frameon=False, ncol=4, loc="lower center", bbox_to_anchor=(0.5, 0.004),
            title="genuinely-unique piRNA loci per 2-Mb bin (filled profile = density)", title_fontsize=8)
 
-# ---- Panel E: structural-diversity locus zoom (chr17 strain-private piRNA hotspot) ----
-axE = fig.add_subplot(gs[2:4, 0]); axE.set_xlim(ZS/1e6, ZE/1e6); axE.set_ylim(-0.7, len(WILD_ORD)-0.3)
-axE.set_title("E   A high-diversity locus (chr17 ≈ 27.5 Mbp) — each wild strain carries a DISTINCT strain-private piRNA locus",
-              fontsize=9.6, fontweight="bold", loc="left")
-for yi, X in enumerate(WILD_ORD[::-1]):
-    axE.text(ZS/1e6-0.003, yi, X.replace("_","/"), ha="right", va="center", fontsize=7.5, fontweight="bold", color="#C0392B")
-    axE.axhline(yi, color="#eeeeee", lw=0.5, zorder=0)
-    r = zoom[zoom.strain==X]
-    if len(r):
-        s, e, fpm = r.start.iloc[0]/1e6, r.end.iloc[0]/1e6, r.all_primary_FPM.iloc[0]
-        axE.add_patch(plt.Rectangle((s, yi-0.30), max(e-s, 0.0015), 0.60, facecolor=WCOL[X], edgecolor="#222", lw=0.4, zorder=3))
-        axE.annotate(f"{fpm/1000:.0f}k FPM", ((s+e)/2, yi+0.33), ha="center", va="bottom", fontsize=6, color=WCOL[X], fontweight="bold")
-axE.set_yticks([]); axE.set_xlabel("chr17 position (Mbp)", fontsize=8.5); axE.tick_params(labelsize=7.5)
-axE.spines[["top", "right", "left"]].set_visible(False)
-axE.text(0.5, -0.34, "The piRNA analog of a high-diversity genomic locus (cf. the GBP cluster, Fig 1A): four private, non-overlapping piRNA source loci within ~80 kb — one per wild strain, silent in all 12 classical strains.",
-         transform=axE.transAxes, ha="center", fontsize=6.3, color="#666", style="italic")
+# ---- Panel E: a strain-private TE-driven piRNA locus (SPRET/EiJ) — real pachytene coverage over a young ERVK ----
+axE = fig.add_subplot(gs[2:4, 0]); _exk = np.arange(_ea, _eb)/1e3
+axE.fill_between(_exk, 0, _ecov, step="mid", color=WCOL["SPRET_EiJ"], alpha=0.62, lw=0, zorder=3)   # SPRET 20.5dpp piRNA coverage (25-32 nt)
+axE.set_xlim(_ea/1e3, _eb/1e3); axE.set_ylim(-_emax*0.32, _emax*1.32)
+axE.add_patch(plt.Rectangle((_ETE[0]/1e3, -_emax*0.18), (_ETE[1]-_ETE[0])/1e3, _emax*0.10, facecolor="#9e9e9e", edgecolor="#555", lw=0.5, clip_on=False, zorder=4))   # the ERVK TE span
+axE.text((_ETE[0]+_ETE[1])/2e3, -_emax*0.215, f"{_ETE[2]}  ({_ETE[3]})", ha="center", va="top", fontsize=6.3, color="#555", fontweight="bold")
+axE.add_patch(plt.Rectangle((_ELOC[2]/1e3, _emax*1.02), max((_ELOC[3]-_ELOC[2])/1e3, 0.008), _emax*0.08, facecolor="#C0392B", edgecolor="none", zorder=5))   # the strain-private piRNA
+axE.text(_ea/1e3+0.015, _emax*1.18, "strain-private piRNA — antisense (silencing)", ha="left", va="center", fontsize=5.9, color="#C0392B", fontweight="bold")
+axE.set_title("E   A strain-private TE-driven piRNA locus (SPRET/EiJ)", fontsize=9.6, fontweight="bold", loc="left")
+axE.set_xlabel("chr13 position (kb)", fontsize=8.5); axE.set_ylabel("piRNA coverage (25-32 nt)", fontsize=8); axE.tick_params(labelsize=6.6)
+axE.ticklabel_format(axis="x", useOffset=False, style="plain"); axE.locator_params(axis="x", nbins=5)
+axE.spines[["top", "right"]].set_visible(False)
+axE.text(0.5, -0.33, "A young ERVK (RLTR22_Mur) insertion private to SPRET/EiJ spawns an antisense (silencing) pachytene piRNA — the TE-insertion-gain origin of the strain-private accessory repertoire (cf. panel D). The locus is absent in all 12 classical strains.",
+         transform=axE.transAxes, ha="center", fontsize=6.3, color="#666", style="italic", wrap=True)
 
 # ---- Panel B: genuinely-unique yield per strain ----
 axB = fig.add_subplot(gs[0, 1]); x = np.arange(len(CANON))
@@ -273,7 +277,7 @@ perchrom.to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_perchrom_density.csv
 yield_tab.assign(total=tot).to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_yield.csv")
 pd.DataFrame({"strains_carrying":xs2,"strain_private":spec_priv,"conserved_but_silent":spec_cbs}).to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_freq_spectrum.csv",index=False)
 famtab.to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TE_drivers.csv")
-zoom[["strain","g39_chrom","start","end","all_primary_FPM","strand"]].to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_chr17_zoom.csv",index=False)
+pd.DataFrame({"chr13_position": np.arange(_ea,_eb), "SPRET_piRNA_coverage_25_32nt": _ecov.astype(int)}).to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_panelE_ERVK_locus.csv",index=False)   # SPRET strain-private piRNA over RLTR22_Mur (LTR/ERVK), chr13:46,306,428-46,307,217
 strand_spec.rename_axis("strains_carrying").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_strand_spectrum.csv", index=False)     # Panel F
 te_spec.rename_axis("strains_carrying").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TEclass_spectrum.csv", index=False)       # Panel G
 fam_strand.rename_axis("family").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TEfamily_strand.csv", index=False)               # Panel H
