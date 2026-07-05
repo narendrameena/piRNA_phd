@@ -49,7 +49,7 @@ def track(seq,other,y,gstart,gstrand,lab,locuslab):
     # genomic coordinate ticks (every 5 bp) — real positions
     for k in range(0,L,5):
         pos = gstart+k if gstrand=="+" else gstart+(L-k)   # display genomic coordinate at this base
-        ax.text(k*bw+bw*0.46,y-0.12,f"{gstart+k:,}",ha="center",va="top",fontsize=5.0,color="#888",rotation=90)
+        ax.text(k*bw+bw*0.46,y-0.12,f"{pos:,}",ha="center",va="top",fontsize=5.0,color="#888",rotation=90)
     ax.text(0,y+0.95,locuslab,fontsize=7,color="#555")
 track(spret,cons,2.0,ss,"-" if srev else "+","SPRET/EiJ piRNA (strain-specific by sequence)",f"SPRET genome {schr}:{ss:,}-{se:,}")
 track(cons,spret,0.5,cs,"-" if crev else "+","conserved piRNA — also expressed in CAST/EiJ & C57BL/6NJ",f"CAST genome {cchr}:{cs:,}-{ce:,}")
