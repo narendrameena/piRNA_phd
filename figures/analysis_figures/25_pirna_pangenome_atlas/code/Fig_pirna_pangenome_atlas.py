@@ -181,6 +181,12 @@ axC = fig.add_subplot(gs[1, 1]); xs2 = np.arange(1, 17)
 axC.bar(xs2, spec_priv, color="#7a3b9a", label="strain-private locus", edgecolor="white", linewidth=0.3)
 axC.bar(xs2, spec_cbs, bottom=spec_priv, color="#9ecae8", label="conserved-but-silent", edgecolor="white", linewidth=0.3)
 axC.set_yscale("log"); axC.set_xticks(xs2); axC.tick_params(labelsize=7)
+axC.set_ylim(top=axC.get_ylim()[1]*2.4)                              # headroom for bar-top count labels
+for _xi,_tv in zip(xs2, spec_priv+spec_cbs):                         # creative: total loci labelled on every bar
+    if _tv<=0: continue
+    _lab = f"{_tv/1000:.1f}k".replace(".0k","k") if _tv>=1000 else f"{int(_tv)}"
+    axC.text(_xi, _tv*1.22, _lab, ha="center", va="bottom", fontsize=5.2, fontweight="bold", rotation=90,
+             color="#7a3b9a" if _xi==1 else "#0072B2" if _xi==16 else "#555")
 axC.set_xlabel("number of strains carrying the homologous locus  (1 = private … 16 = core)", fontsize=8)
 axC.set_ylabel("unique piRNA loci (log)", fontsize=8.5)
 axC.axvspan(0.5,1.5,color="#7a3b9a",alpha=0.06); axC.axvspan(15.5,16.5,color="#0072B2",alpha=0.06)
