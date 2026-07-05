@@ -68,7 +68,9 @@ _cax.set_xticks(x); _cax.set_xticklabels([s.replace("_","/") for s in CANON], ro
 for lab,s in zip(_cax.get_xticklabels(),CANON): lab.set_color("#C0392B" if s in WILD else "#333")
 _cax.set_title("classical (blue) vs wild-derived (orange) — total strain-specific piRNAs per strain (intersection)", fontsize=7.5, fontweight="bold", loc="left")
 for e in ("pdf", "svg", "png"): fig.savefig(f"{U}/Fig_strain_specific_DA16_decomposition.{e}", bbox_inches="tight")
-out = da[["strain", "timepoint", "da_only", "strain_specific"]].merge(po[["strain", "timepoint", "presence_only"]], on=["strain", "timepoint"])
+_mv = list(mats.values())   # export the PLOTTED panels (≥2-read ADOPTED), NOT the loose ≥1-read da/po columns
+out = pd.DataFrame({"da_only": _mv[0].stack(), "presence_only_2read": _mv[1].stack(), "strain_specific_2read": _mv[2].stack()}).reset_index()
+out.columns = ["strain", "timepoint", "da_only", "presence_only_2read", "strain_specific_2read"]
 out.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/Fig_strain_specific_DA16_decomposition.csv", index=False)
 print("wrote Fig_strain_specific_DA16_decomposition.{png,pdf,svg} + source data")
-print("presence-only vs intersection identical?", (out.presence_only >= out.strain_specific).all(), "| max diff", int((out.presence_only - out.strain_specific).abs().max()))
+print("presence-only(2read) vs intersection identical?", (out.presence_only_2read >= out.strain_specific_2read).all(), "| max diff", int((out.presence_only_2read - out.strain_specific_2read).abs().max()))

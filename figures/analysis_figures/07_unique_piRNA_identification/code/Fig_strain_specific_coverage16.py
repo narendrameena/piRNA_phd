@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""How much of TOTAL piRNA EXPRESSION (read-mass) is strain-private — coverage decomposition, 16 strains.
-Read-mass-weighted % of each strain's total piRNA reads that fall in the strain-private set, under the
+"""How much of TOTAL piRNA EXPRESSION (read-mass) is strain-specific — coverage decomposition, 16 strains.
+Read-mass-weighted % of each strain's total piRNA reads that fall in the strain-specific set, under the
 absence-rule ladder loose(>=2/3 reps) -> ADOPTED >=2 reads -> strict(0 reads). DA-only coverage panel is
 added automatically once edger16/*.coverage_full.csv (edger16_coverage.R) exists.
-A: per-strain strain-private coverage (3 absence rules);  B: by-group + overall summary (+DA-only when ready);
-C: DA-only vs strain-private per strain (enriched-but-not-specific vs specific) — populated when coverage_full ready.
+A: per-strain strain-specific coverage (3 absence rules);  B: by-group + overall summary (+DA-only when ready);
+C: DA-only vs strain-specific per strain (enriched-but-not-specific vs specific) — populated when coverage_full ready.
 Source: edger16/*.coverage_probe.csv (+ *.coverage_full.csv)."""
 import sys, glob
 sys.path.insert(0, "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis")
@@ -44,7 +44,7 @@ fig = plt.figure(figsize=(13, 10.5), dpi=300)
 gs = fig.add_gridspec(3, 1, height_ratios=[1.25, 0.85, 1.0], hspace=0.55)
 axA, axB, axC = fig.add_subplot(gs[0]), fig.add_subplot(gs[1]), fig.add_subplot(gs[2])
 x = np.arange(len(CANON)); bw = 0.26
-# ---- Panel A: per-strain strain-private coverage, absence ladder (log y) ----
+# ---- Panel A: per-strain strain-specific coverage, absence ladder (log y) ----
 if WPOS: axA.axvspan(min(WPOS)-0.5, max(WPOS)+0.5, color="#C0392B", alpha=0.06, zorder=0)
 for j,(lab,ser,key,sd) in enumerate([("absence: loose (≥2/3 reps)",loose,"loose",sdL),("≥2 reads (ADOPTED)",twor,"2read",sd2),("strict (0 reads)",strict,"strict",sdS)]):
     xs=x+(j-1)*bw
@@ -55,7 +55,7 @@ for j,(lab,ser,key,sd) in enumerate([("absence: loose (≥2/3 reps)",loose,"loos
 axA.set_yscale("log"); axA.set_ylim(0.005, 20)
 axA.set_xticks(x); labs=axA.set_xticklabels([s.replace("_","/") for s in CANON], rotation=45, ha="right", fontsize=7.5)
 for l,s in zip(labs,CANON): l.set_color("#C0392B" if s in WILD else "#333")
-axA.set_ylabel("strain-private piRNAs\n(% of total piRNA read-mass, log)", fontsize=8.5)
+axA.set_ylabel("strain-specific piRNAs\n(% of total piRNA read-mass, log)", fontsize=8.5)
 axA.legend(fontsize=7.5, frameon=False, ncol=3, loc="lower left", bbox_to_anchor=(0,1.005), columnspacing=1.4)
 axA.set_title("A  Strain-private piRNA expression as % of each strain's total piRNA read-mass (absence-rule ladder)", fontsize=9.6, fontweight="bold", loc="left", pad=22)
 axA.text(np.mean(WPOS), 13, "wild-derived", ha="center", va="top", fontsize=8, fontweight="bold", color="#C0392B")
@@ -80,7 +80,7 @@ axB.set_ylabel("% of total piRNA\nread-mass (log)", fontsize=8.5)
 axB.legend(fontsize=7, frameon=False, ncol=4, loc="lower left", bbox_to_anchor=(0,1.005))
 axB.set_title(f"B  Strain-private coverage by group{' (+ DA-only)' if HAVE_DA else ''} — wild ≈ {grp(True,'cov_presence_2read2'):.1f}% vs classical ≈ {grp(False,'cov_presence_2read2'):.2f}% (≥2-read)", fontsize=9.4, fontweight="bold", loc="left", pad=20)
 axB.spines[["top","right"]].set_visible(False); axB.grid(axis="y", alpha=0.25, which="both")
-# ---- Panel C: DA-only vs strain-private per strain (the enriched-vs-specific contrast) ----
+# ---- Panel C: DA-only vs strain-specific per strain (the enriched-vs-specific contrast) ----
 if HAVE_DA:
     da = per_strain("cov_DA")
     if WPOS: axC.axvspan(min(WPOS)-0.5, max(WPOS)+0.5, color="#C0392B", alpha=0.06, zorder=0)
@@ -104,11 +104,11 @@ if HAVE_DA:
     axC.set_title("C  DA-only (≈50%, enriched not specific) vs the DA-intersection under the absence ladder (loose → ≥2-read ADOPTED → strict) — the specific set shrinks as absence tightens", fontsize=8.6, fontweight="bold", loc="left", pad=22)
     axC.spines[["top","right"]].set_visible(False); axC.grid(axis="y", alpha=0.25, which="both")
 else:
-    axC.text(0.5,0.5,"Panel C (DA-only vs strain-private coverage) pending —\nedger16_coverage.R (full tagwise edgeR) still computing; re-run this script when *.coverage_full.csv is ready.",
+    axC.text(0.5,0.5,"Panel C (DA-only vs strain-specific coverage) pending —\nedger16_coverage.R (full tagwise edgeR) still computing; re-run this script when *.coverage_full.csv is ready.",
              ha="center", va="center", transform=axC.transAxes, fontsize=9, color="#999", style="italic")
     axC.axis("off")
-fig.suptitle("Expression coverage of strain-private piRNAs across 16 strains (% of total piRNA read-mass; ≥2-read absence adopted)", fontsize=10.6, fontweight="bold", y=1.0)
-fig.text(0.5,-0.01,"read-mass-weighted over 3 timepoints · total piRNA expression = all reads in a strain's libraries over every sequence · strain-private ≈ presence/absence-only (DA filter redundant) · "
+fig.suptitle("Expression coverage of strain-specific piRNAs across 16 strains (% of total piRNA read-mass; ≥2-read absence adopted)", fontsize=10.6, fontweight="bold", y=1.0)
+fig.text(0.5,-0.01,"read-mass-weighted over 3 timepoints · total piRNA expression = all reads in a strain's libraries over every sequence · strain-specific ≈ presence/absence-only (DA filter redundant) · "
     f"{'DA-only included' if HAVE_DA else 'DA-only panel pending the ~2h edger16_coverage run'} · red = wild-derived", ha="center", fontsize=6, color="#666")
 fig.tight_layout(rect=[0,0,1,0.985])
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_strain_specific_coverage16.{e}", bbox_inches="tight")
