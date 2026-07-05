@@ -534,7 +534,7 @@ ax3_B.legend(frameon=False, loc="upper left", handlelength=1.5,
 ax3_B.axvline(0.5, color="#cccccc", lw=0.5, ls=":", zorder=0)
 
 # ── Panel C: FPM at top Pachytene loci (P20.5) vs (P12.5) ─────────────────
-ax3_C.set_title("C  Top Pachytene loci — FPM at P20.5", loc="left",
+ax3_C.set_title("C  Top piRNA clusters by P20.5 FPM — P20.5 vs P12.5", loc="left",
                 fontweight="bold", pad=3)
 
 # Get Zamore Pachytene gene coordinates then cross-reference cluster FPM
@@ -550,16 +550,19 @@ df_p205r1 = df_p205r1.reset_index(drop=True)
 df_p205r1["locus"] = (df_p205r1["seqnames"].astype(str) + ":" +
     (df_p205r1["start"] / 1e6).round(1).astype(str) + "M")
 
-# Get same loci in P12.5 rep1 by coordinate match
+# Get same loci in P12.5 rep1 by interval OVERLAP — PICB re-calls cluster boundaries per sample,
+# so exact start/end never coincide across samples (an == match zeroes every P12.5 bar). Take the
+# maximally-overlapping P12.5 cluster's FPM instead.
 fpm_p125, fpm_p205 = [], []
+_p125 = cluster_dfs["P12.5_rep1"]
 for _, row in df_p205r1.iterrows():
-    p125_match = cluster_dfs["P12.5_rep1"][
-        (cluster_dfs["P12.5_rep1"]["seqnames"] == row["seqnames"]) &
-        (cluster_dfs["P12.5_rep1"]["start"] == row["start"]) &
-        (cluster_dfs["P12.5_rep1"]["end"]   == row["end"])
-    ]
-    fpm_p125.append(p125_match["all_reads_primary_alignments_FPM"].values[0]
-                    if len(p125_match) > 0 else 0.0)
+    ov = _p125[(_p125["seqnames"] == row["seqnames"]) &
+               (_p125["start"] < row["end"]) & (_p125["end"] > row["start"])]
+    if len(ov) > 0:
+        ovlen = np.minimum(ov["end"].values, row["end"]) - np.maximum(ov["start"].values, row["start"])
+        fpm_p125.append(float(ov["all_reads_primary_alignments_FPM"].values[int(np.argmax(ovlen))]))
+    else:
+        fpm_p125.append(0.0)
     fpm_p205.append(row["all_reads_primary_alignments_FPM"])
 
 ypos = np.arange(top_n)[::-1]
