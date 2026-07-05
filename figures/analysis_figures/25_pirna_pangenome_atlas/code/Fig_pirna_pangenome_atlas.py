@@ -11,7 +11,7 @@ piRNA loci — the accessory piRNA repertoire.
     site-frequency-spectrum analog: a conserved CORE + a large strain-PRIVATE tail (cf. Fig 1D size dist).
 (D) TE-family drivers of the strain-private loci — the transposon substrate seeding new piRNA source loci
     (the piRNA analog of the paper's defense/immunity functional enrichment, Fig 1E).
-(F) piRNA STRAND across the frequency spectrum — antisense-to-TE (silencing) vs sense, per sharing level.
+(F) TOTAL genuinely-unique piRNA expression across the frequency spectrum, by category — antisense-to-TE (silencing) / sense-to-TE / non-TE (other loci).
 (G) genomic regions covered by TE — the TE CLASS (LTR/LINE/SINE) covering the locus, across the spectrum.
 (H) per-TE-family piRNA output split by strand — antisense (silencing) vs sense.
 Panels F-H use the per-candidate sense/antisense-to-TE calls (sense_antisense/…_percand) for genuinely-unique
@@ -88,26 +88,32 @@ zoom = _z.sort_values("all_primary_FPM", ascending=False).groupby("strain", as_i
 # RPM = read count / library size (24-32 nt window) x 1e6, per (sequence, strain, timepoint), mean over reps —
 # the biological standard for piRNA abundance; antisense-to-TE piRNAs are the silencing species. Panels weight
 # by this per-sequence expression (Sum RPM), NOT by locus count. Precomputed by compute_percand_rpm.py.
+# _rpm = ALL genuinely-unique candidates (per-sequence RPM); _sa = the TE-overlapping subset with sense/antisense-to-TE.
+_rpm = pd.read_csv(f"{U}/unique16/percand_rpm_expr.csv.gz").rename(columns={"timepoint": "tp"})
 _sa = pd.read_csv(f"{U}/sense_antisense/SourceData_sense_antisense16_percand.csv.gz")
 _sa["tp"] = _sa.id.str.split("|").str[1]; _sa["sequence"] = _sa.id.str.split("|").str[-1]
-_rpm = pd.read_csv(f"{U}/unique16/percand_rpm_expr.csv.gz").rename(columns={"timepoint": "tp"})
-_sa = _sa.merge(_rpm, on=["sequence", "strain", "tp"], how="left"); _sa["rpm"] = _sa.rpm.fillna(0.0)
-_sa = _sa.merge(k.drop_duplicates("sequence")[["sequence","homolog_strains"]], on="sequence", how="left")
-_sa["nstr"] = _sa.homolog_strains.fillna("").apply(lambda s: len([x for x in str(s).split(",") if x]) if s else 1).clip(1,16)
-_sa["tesuper"] = _sa.family.astype(str).str.split("/").str[0]                                  # LTR / LINE / SINE / ...
-_gu = _sa[(~_sa.family.astype(str).str.startswith("__")) & (_sa.klass5.isin([PRIV,CBS]))]      # genuinely-unique + TE-annotated
+_sa = _sa.drop_duplicates(["sequence","strain","tp"])                                          # one TE-orientation per candidate
+_all = _rpm.merge(_sa[["sequence","strain","tp","orientation","family"]], on=["sequence","strain","tp"], how="left")   # non-TE candidates -> NaN orientation
+_all = _all.merge(k.drop_duplicates("sequence")[["sequence","homolog_strains","klass5"]], on="sequence", how="left")
+_all["nstr"] = _all.homolog_strains.fillna("").apply(lambda s: len([x for x in str(s).split(",") if x]) if s else 1).clip(1,16)
+_all["cat"] = _all.orientation.fillna("non-TE")                                                # antisense (to TE, silencing) / sense (to TE) / non-TE (other loci)
+# ---- Panel F: TOTAL genuinely-unique piRNA expression by category across the frequency spectrum ----
+strand_spec = _all.groupby(["nstr","cat"])["rpm"].sum().unstack(fill_value=0).reindex(index=range(1,17), fill_value=0)
+for _c in ("antisense","sense","non-TE"):
+    if _c not in strand_spec.columns: strand_spec[_c] = 0
+anti_pct = (100*strand_spec["antisense"]/(strand_spec["antisense"]+strand_spec["sense"]).replace(0, np.nan)).reindex(range(1,17))   # silencing share of the TE-overlapping part — Panel F line
+tp_cat = _all.groupby(["tp","cat"])["rpm"].sum().unstack(fill_value=0)                          # Panel I: TOTAL by timepoint x category (antisense-to-TE / sense-to-TE / non-TE)
+# ---- TE-overlapping genuinely-unique subset for Panels G / H / I ----
+_gu = _all[_all.orientation.notna()].copy(); _gu["tesuper"] = _gu.family.astype(str).str.split("/").str[0]              # LTR / LINE / SINE / ...
 SUPERS = ["LTR","LINE","SINE"]
-strand_spec = _gu.groupby(["nstr","orientation"])["rpm"].sum().unstack(fill_value=0).reindex(index=range(1,17), fill_value=0)
 te_spec = _gu.groupby(["nstr","tesuper"])["rpm"].sum().unstack(fill_value=0).reindex(index=range(1,17), fill_value=0)
 te_spec["other"] = te_spec.drop(columns=[c for c in SUPERS if c in te_spec], errors="ignore").sum(axis=1)
 famH = _gu.groupby("family")["rpm"].sum().sort_values(ascending=False).head(7).index.tolist()
 fam_strand = _gu[_gu.family.isin(famH)].groupby(["family","orientation"])["rpm"].sum().unstack(fill_value=0).reindex(famH)
-for _t in (strand_spec, fam_strand):
-    for _o in ("antisense","sense"):
-        if _o not in _t.columns: _t[_o] = 0
-anti_pct = (100*strand_spec["antisense"]/(strand_spec["antisense"]+strand_spec["sense"]).replace(0, np.nan)).reindex(range(1,17))   # % antisense (silencing) by sharing — Panel F line
+for _o in ("antisense","sense"):
+    if _o not in fam_strand.columns: fam_strand[_o] = 0
 TP_ORD = ["16.5dpc","12.5dpp","20.5dpp"]; TP_LAB = {"16.5dpc":"E16.5\n(fetal)","12.5dpp":"P12.5\n(early postnatal)","20.5dpp":"P20.5\n(pachytene)"}
-tp_ks = _gu.groupby(["tp","klass5","orientation"])["rpm"].sum()                                     # developmental-timepoint layer (Panel I): tp x klass5 x strand
+# (Panel I uses tp_cat — the total-by-timepoint x category aggregation above)
 
 print(f"genuinely-unique loci (any strain, deduped seq): {sum(len(v) for v in priv_by_strain.values()):,}")
 print(f"wild per-chrom private density total: {perchrom.loc[WILD_ORD].values.sum():.0f}")
@@ -194,21 +200,22 @@ axD.set_title("D   TE-family drivers of strain-private piRNA loci — young acti
 
 # ---- Panel F: piRNA strand (sense/antisense to TE) across the frequency spectrum ----
 axF = fig.add_subplot(gs[0, 2])
-axF.bar(xs2, strand_spec["antisense"].values, color="#C0392B", label="antisense-to-TE (silencing)", edgecolor="white", linewidth=0.3)
-axF.bar(xs2, strand_spec["sense"].values, bottom=strand_spec["antisense"].values, color="#9e9e9e", label="sense", edgecolor="white", linewidth=0.3)
-axF2 = axF.twinx()                                                        # antisense-% (silencing share) line on a secondary axis
+_fcum = np.zeros(16)   # TOTAL genuinely-unique piRNA, stacked: antisense-to-TE (silencing) + sense-to-TE + non-TE
+for _lab, _col, _key in [("antisense-to-TE (silencing)","#C0392B","antisense"), ("sense-to-TE","#9e9e9e","sense"), ("non-TE (other loci)","#a9c7dd","non-TE")]:
+    _v = strand_spec[_key].values; axF.bar(xs2, _v, bottom=_fcum, color=_col, label=_lab, edgecolor="white", linewidth=0.3); _fcum = _fcum + _v
+axF2 = axF.twinx()                                                        # % antisense of the TE-overlapping part (silencing share) on a secondary axis
 axF2.plot(xs2, anti_pct.values, color="#111111", lw=1.4, marker="o", ms=2.6, zorder=6)
 axF2.axhline(50, color="#111111", lw=0.5, ls=(0,(3,2)), alpha=0.5)
-axF2.set_ylim(0, 100); axF2.set_ylabel("% antisense (silencing)", fontsize=7.3, color="#111111"); axF2.tick_params(labelsize=6.4)
+axF2.set_ylim(0, 100); axF2.set_ylabel("% antisense of TE-overlapping (silencing)", fontsize=7.0, color="#111111"); axF2.tick_params(labelsize=6.4)
 axF2.spines[["top"]].set_visible(False)
 axF.set_yscale("log"); axF.set_xticks(xs2); axF.tick_params(labelsize=7)
 axF.set_xlabel("number of strains carrying the locus  (1 = private … 16 = core)", fontsize=8)
-axF.set_ylabel("TE-associated piRNA expression\n(Σ RPM, log)", fontsize=8.2)
+axF.set_ylabel("TOTAL genuinely-unique piRNA\nexpression (Σ RPM, log)", fontsize=8.2)
 axF.axvspan(0.5,1.5,color="#7a3b9a",alpha=0.06); axF.axvspan(15.5,16.5,color="#0072B2",alpha=0.06)
 axF.text(1, axF.get_ylim()[1]*0.4, "PRIVATE", ha="center", fontsize=6.3, color="#7a3b9a", fontweight="bold")
 axF.text(16, axF.get_ylim()[1]*0.4, "CORE", ha="center", fontsize=6.3, color="#0072B2", fontweight="bold")
-axF.legend(fontsize=6.3, frameon=False, loc="upper center"); axF.spines[["top","right"]].set_visible(False)
-axF.set_title("F   piRNA expression by strand across the spectrum — antisense-to-TE (silencing) vs sense", fontsize=9.2, fontweight="bold", loc="left")
+axF.legend(fontsize=6.0, frameon=False, loc="upper center"); axF.spines[["top","right"]].set_visible(False)
+axF.set_title("F   Total piRNA expression across the spectrum — antisense-to-TE (silencing) / sense-to-TE / non-TE", fontsize=8.8, fontweight="bold", loc="left")
 
 # ---- Panel G: TE class covering the piRNA locus, across the frequency spectrum ----
 axG = fig.add_subplot(gs[1, 2]); _gcol = {"LTR":"#6a3d9a","LINE":"#E69F00","SINE":"#1f78b4","other":"#bbbbbb"}
@@ -234,25 +241,22 @@ axH.set_ylabel("TE-family piRNA expression\n(Σ RPM)", fontsize=8.2)
 axH.legend(fontsize=6.5, frameon=False, loc="upper right"); axH.spines[["top","right"]].set_visible(False)
 axH.set_title("H   TE-family piRNA expression — antisense (silencing) vs sense", fontsize=9.2, fontweight="bold", loc="left")
 
-# ---- Panel I: developmental-timepoint layer — genuinely-unique piRNA expression across spermatogenesis ----
+# ---- Panel I: developmental timepoint — the SAME total (3-category) across spermatogenesis (fetal -> pachytene) ----
 axI = fig.add_subplot(gs[3, 1:3]); axI2 = axI.twinx()
-_KL = [(PRIV, "strain-private", "#C0392B", "#6b6b6b"), (CBS, "conserved-but-silent", "#e07b6a", "#bdbdbd")]
-xI = np.arange(len(TP_ORD)); wI = 0.36
-for j, (kk, lab, a_col, s_col) in enumerate(_KL):
-    anti = np.array([float(tp_ks.get((tp, kk, "antisense"), 0.0)) for tp in TP_ORD])
-    sens = np.array([float(tp_ks.get((tp, kk, "sense"), 0.0)) for tp in TP_ORD])
-    off = (j - 0.5) * wI
-    axI.bar(xI + off, anti, wI, color=a_col, edgecolor="white", lw=0.3, label=f"{lab} · antisense (silencing)")
-    axI.bar(xI + off, sens, wI, bottom=anti, color=s_col, edgecolor="white", lw=0.3, label=f"{lab} · sense")
-    _tt = anti + sens; pct = np.where(_tt > 0, 100*anti/_tt, np.nan)
-    axI2.plot(xI + off, pct, color="#111111", lw=1.2, marker="o", ms=4, zorder=6, ls=("-" if j == 0 else (0, (2, 1.5))))
-axI2.set_ylim(0, 100); axI2.set_ylabel("% antisense (silencing)", fontsize=7.3); axI2.tick_params(labelsize=6.4); axI2.spines[["top"]].set_visible(False)
+xI = np.arange(len(TP_ORD)); wI = 0.5; _cum = np.zeros(len(TP_ORD))
+for _key, _col, _lab in [("antisense","#C0392B","antisense-to-TE (silencing)"), ("sense","#9e9e9e","sense-to-TE"), ("non-TE","#a9c7dd","non-TE (other loci)")]:
+    _v = np.array([float(tp_cat.loc[tp, _key]) if (tp in tp_cat.index and _key in tp_cat.columns) else 0.0 for tp in TP_ORD])
+    axI.bar(xI, _v, wI, bottom=_cum, color=_col, edgecolor="white", lw=0.3, label=_lab); _cum = _cum + _v
+_ant = np.array([float(tp_cat.loc[tp,"antisense"]) if (tp in tp_cat.index and "antisense" in tp_cat.columns) else 0.0 for tp in TP_ORD])
+_sen = np.array([float(tp_cat.loc[tp,"sense"]) if (tp in tp_cat.index and "sense" in tp_cat.columns) else 0.0 for tp in TP_ORD])
+axI2.plot(xI, np.where((_ant+_sen) > 0, 100*_ant/(_ant+_sen), np.nan), color="#111111", lw=1.6, marker="o", ms=5.5, zorder=6)
+axI2.set_ylim(0, 100); axI2.set_ylabel("% antisense of TE-overlapping (silencing)", fontsize=7.3); axI2.tick_params(labelsize=6.4); axI2.spines[["top"]].set_visible(False)
 axI.set_xticks(xI); axI.set_xticklabels([TP_LAB[t] for t in TP_ORD], fontsize=9)
-axI.set_ylabel("piRNA expression (Σ RPM)", fontsize=8.5); axI.tick_params(labelsize=7.5); axI.margins(x=0.12)
+axI.set_ylabel("TOTAL piRNA expression (Σ RPM)", fontsize=8.5); axI.tick_params(labelsize=7.5); axI.margins(x=0.22)
 axI.spines[["top", "right"]].set_visible(False)
-axI.legend(fontsize=6.8, frameon=False, ncol=2, loc="upper center")
-axI.set_title("I   Developmental timepoint — genuinely-unique piRNA expression across spermatogenesis (fetal → pachytene); bars = Σ RPM by strand, line = % antisense (silencing)",
-              fontsize=9.4, fontweight="bold", loc="left")
+axI.legend(fontsize=7.2, frameon=False, ncol=1, loc="upper right")
+axI.set_title("I   Developmental timepoint — TOTAL genuinely-unique piRNA expression (fetal → pachytene), by category; line = % antisense-to-TE (silencing)",
+              fontsize=9.0, fontweight="bold", loc="left")
 
 fig.suptitle("The piRNA PANGENOME of 16 inbred mouse strains — a conserved core piRNA-ome and a large, wild-derived-dominated, TE-driven strain-private accessory repertoire\n"
              "(the piRNA counterpart of the 17-genome mouse reference pangenome, Helmy et al., Cell Genomics 2026)",
@@ -268,5 +272,5 @@ strand_spec.rename_axis("strains_carrying").reset_index().to_csv(f"{SD}/SourceDa
 te_spec.rename_axis("strains_carrying").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TEclass_spectrum.csv", index=False)       # Panel G
 fam_strand.rename_axis("family").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_TEfamily_strand.csv", index=False)               # Panel H
 anti_pct.rename_axis("strains_carrying").rename("pct_antisense").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_antisense_pct.csv", index=False)   # Panel F line
-tp_ks.rename("sum_rpm").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_timepoint_strand.csv", index=False)                        # Panel I
+tp_cat.rename_axis("timepoint").reset_index().to_csv(f"{SD}/SourceData_Fig_pirna_pangenome_atlas_timepoint_category.csv", index=False)               # Panel I (total by timepoint x category)
 print("wrote Fig_pirna_pangenome_atlas.{png,pdf,svg} + 10 source_data files")
