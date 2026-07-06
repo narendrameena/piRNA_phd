@@ -250,7 +250,7 @@ print("\n=== Figure 3: Pangenome SV content ===")
 fig, axes = plt.subplots(1, 3, figsize=(7, 2.4), constrained_layout=True)
 
 # Panel A: SV size histogram — dual y-axis (INS left, DEL right)
-# INS (41,585) overwhelms DEL (74) on shared axis; split y-axes to show both
+# INS (2,302) vs DEL (425) — split y-axes to show both clearly on their own scales
 ax = axes[0]
 ins  = sv_df[sv_df.sv_type == "INS"]["sv_size_bp"].values
 dels = sv_df[sv_df.sv_type == "DEL"]["sv_size_bp"].values
