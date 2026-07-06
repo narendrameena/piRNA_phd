@@ -12,7 +12,7 @@ S=["129S1_SvImJ","A_J","AKR_J","BALB_cJ","C3H_HeJ","C57BL_6NJ","CAST_EiJ","CBA_J
 res=[]; allnr=[]; allref=[]
 for X in S:
     fpm=pd.read_csv(f"{CP}/{X}.clusters_fpm.bed",sep="\t",header=None,names=["chrom","start","end","fp","fm","strand","tp"],dtype={"chrom":str})
-    fpm["expr"]=fpm.fp+fpm.fm
+    fpm["expr"]=fpm.fp   # col4=allFPM (misnamed fp), col5=uniqFPM (fm) -> all-primary FPM only, NOT all+uniq (was a double-count)
     nr=pd.read_csv(f"{T22}/nonref/{X}.nonref.bed",sep="\t",header=None,names=["chrom","start","end","id"],dtype={"chrom":str})
     nrset=set(zip(nr.chrom.astype(str),nr.start,nr.end))
     fpm["nonref"]=[(c,s,e) in nrset for c,s,e in zip(fpm.chrom.astype(str),fpm.start,fpm.end)]

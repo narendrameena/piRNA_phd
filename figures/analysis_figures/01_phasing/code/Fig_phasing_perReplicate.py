@@ -67,12 +67,12 @@ for ext in ("pdf","svg","png"): fig.savefig(f"{out}.{ext}", bbox_inches="tight")
 print("wrote", out+".{pdf,svg,png}  (", n, "samples )")
 
 # ---- source data, exact plotted order ----
-SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/source_data"
+SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/01_phasing/data/source_data"; __import__("os").makedirs(SD,exist_ok=True)
 sd=df[["sample","strain","tp","rep","frac_plus1","pct","zscore_plus1","count_plus1","n_pairs","total_aln"]].copy()
 sd.insert(1,"plot_row_top_to_bottom", range(1,len(sd)+1))
 sd.insert(4,"subspecies", np.where(sd["strain"].isin(WILD),"wild-derived","classical"))
 sd=sd.rename(columns={"tp":"timepoint","rep":"replicate","frac_plus1":"plus1_fraction","pct":"plus1_pct",
     "zscore_plus1":"plus1_zscore","count_plus1":"count_plus1","n_pairs":"n_adjacent_pairs",
-    "total_aln":"total_alignments_24_32nt"})
+    "total_aln":"total_alignments_25_32nt"})
 sd.to_csv(f"{SD}/SourceData_Fig_phasing_perReplicate.csv", index=False)
 print("wrote source data:", len(sd), "rows ->", f"{SD}/SourceData_Fig_phasing_perReplicate.csv")
