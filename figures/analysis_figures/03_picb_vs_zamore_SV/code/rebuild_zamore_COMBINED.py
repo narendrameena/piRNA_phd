@@ -123,8 +123,9 @@ for line in proc.stdout:
     n_sv_total += 1
     for i, strain in enumerate(VCF_SAMPLES):
         gt = gts[i].split(':')[0] if i < len(gts) else '.'
-        # GT = "1" or "2" etc. means alt allele; "0" = ref; "." = missing
-        if gt == '.' or gt == '0':
+        # count a strain only if its genotype IS the SV-sized allele (best_alt_idx) — at a MULTIALLELIC site a
+        # small SNP/indel allele (e.g. GT="1" while the SV is allele "2") must NOT be miscounted as carrying the SV
+        if gt != best_alt_idx:
             continue
         sv_records[strain].append((chrom, bstart, bend, best_type, sv_size))
 
@@ -174,8 +175,9 @@ lifted = {}
 lift_stats = {}
 for strain in STRAINS:
     out_lifted = f"{OUT}/_zamore_{strain}.bed"
-    subprocess.run(["singularity","exec","--bind","/mnt",SIF,"halLiftover",
-                    HAL,"GRCm39",zamore_bed_path,strain,out_lifted], capture_output=True)
+    if not (os.path.exists(out_lifted) and os.path.getsize(out_lifted) > 0):   # reuse cached halLiftover (deterministic) — skip the heavy re-run
+        subprocess.run(["singularity","exec","--bind","/mnt",SIF,"halLiftover",
+                        HAL,"GRCm39",zamore_bed_path,strain,out_lifted], capture_output=True)
     df_lift = pd.DataFrame(columns=['chr','start','end','name'])
     if os.path.exists(out_lifted) and os.path.getsize(out_lifted) > 0:
         df_lift = pd.read_csv(out_lifted, sep='\t', header=None,

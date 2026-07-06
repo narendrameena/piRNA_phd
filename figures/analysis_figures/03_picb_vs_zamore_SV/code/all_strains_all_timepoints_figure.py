@@ -57,8 +57,8 @@ TP_LABEL   = {"E16.5":"E16.5 (embryonic)", "P12.5":"P12.5 (postnatal)",
 STAGES     = ["Prepachytene","Pachytene","Hybrid"]
 
 # ── Load ──────────────────────────────────────────────────────────────────────
-expr_df = pd.read_csv(f"{OUT}/all_strains_expression_matrix.csv")
-sv_df   = pd.read_csv(f"{OUT}/all_strains_SV_matrix.csv")
+expr_df = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_expression_matrix.csv")
+sv_df   = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_SV_matrix.csv")
 sv_direct = sv_df[sv_df['window'] == 'direct'][['locus','strain','has_SV']].copy()
 expr_df = expr_df.merge(sv_direct, on=['locus','strain'], how='left')
 expr_df['has_SV']     = expr_df['has_SV'].fillna(False)
