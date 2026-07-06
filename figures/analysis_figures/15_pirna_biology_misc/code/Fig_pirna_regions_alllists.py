@@ -27,7 +27,7 @@ GENIC = [("CDS_or_exon", "CDS / coding exon", "#1A9850"), ("five_prime_UTR", "5�
 LISTS = [
     ("Fig_pirna_genic_features_uniq", "uniq_piRNA_list2_count_v3.3.csv", "UNIQUE piRNAs — gene-body feature (list2, v3.3 GFF)",
      "fraction of unique-piRNA signal within gene body",
-     [("CDS", "CDS (coding)", "#1A9850")] + GENIC[1:], False),
+     [("CDS", "CDS (coding)", "#1A9850"), ("five_prime_UTR", "5′UTR", "#91CF60"), ("three_prime_UTR", "3′UTR", "#FEE08B"), ("non_coding_exon", "non-coding exon", "#66BD63"), ("intron", "intron", "#998EC3")], True),
     ("Fig_pirna_genic_list3_uniq", "uniq_piRNA_list3_count_v3.3.csv", "UNIQUE piRNAs — gene-body feature (list3, CDS-less, v3.3 GFF)",
      "fraction of unique-piRNA signal within gene body", GENIC, True),
     ("Fig_pirna_genic_list3_all", "list3_count.csv", "ALL piRNAs — gene-body feature (list3, CDS-less)",
@@ -44,9 +44,10 @@ def render(out, fn, scope, ylab, cats, derive):
     piv = df.groupby(["strain", "tp", "cat"])["summed_V7"].sum().reset_index() \
             .pivot_table(index=["strain", "tp"], columns="cat", values="summed_V7", fill_value=0.0)
     if derive:                                  # exon_other = exon - UTRs (clamp >=0) -> mutually exclusive
-        for c in ("exon", "five_prime_UTR", "three_prime_UTR"):
+        for c in ("exon", "CDS", "five_prime_UTR", "three_prime_UTR"):
             if c not in piv.columns: piv[c] = 0.0
         piv["CDS_or_exon"] = (piv["exon"] - piv["five_prime_UTR"] - piv["three_prime_UTR"]).clip(lower=0)
+        piv["non_coding_exon"] = (piv["exon"] - piv["CDS"] - piv["five_prime_UTR"] - piv["three_prime_UTR"]).clip(lower=0)   # list2 (has CDS): exon minus coding+UTR = lncRNA/non-coding-exon (not redundant)
     for c, _, _ in cats:
         if c not in piv.columns: piv[c] = 0.0
     sub = piv[[c for c, _, _ in cats]]; frac = sub.div(sub.sum(axis=1), axis=0)
