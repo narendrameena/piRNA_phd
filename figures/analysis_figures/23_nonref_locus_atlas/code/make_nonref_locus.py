@@ -68,8 +68,7 @@ for j, tp in enumerate(TPS):
     axA.bar(x + (j - 1) * bw, np.maximum(h, 1e-3), width=bw, color=TPCOL[tp], edgecolor="white", linewidth=0.2, label=TPLAB[tp])   # solid = + strand base
     for xi in range(len(ORDER)):
         if h[xi] > 0:
-            sp = max(h[xi] * PF[ORDER[xi]].get(tp, 0.5), 0.1)
-            if h[xi] - sp > 1e-3: axA.bar(xi + (j - 1) * bw, h[xi] - sp, bottom=sp, width=bw, color=pc.pale(TPCOL[tp], 0.5), edgecolor="none", zorder=3)   # pale top = - strand portion
+            pc.panelA_strand(axA, xi + (j - 1) * bw, h[xi], bw, PF[ORDER[xi]].get(tp, 0.5), TPCOL[tp])   # log-correct height split (pale top = - strand); was a LINEAR split distorted on the log axis
             axA.text(xi + (j - 1) * bw, h[xi] * 1.25, (f"{h[xi]:.0f}" if h[xi] >= 1 else f"{h[xi]:.1f}"), ha="center", va="bottom", fontsize=4.2, rotation=90, color=TPCOL[tp], fontweight="bold")
 axA.bar([gx], [1e-3], width=bw, color="#ddd")
 axA.set_yscale("log"); axA.set_ylim(0.1, max(FPM.values.max(), 1) * 24); axA.set_ylabel("PICB cluster\nFPM (log)", fontsize=8)
