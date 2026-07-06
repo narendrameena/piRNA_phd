@@ -3,7 +3,8 @@
 16 strains x 3 timepoints. Source = thesis output analysis/sRNA_deseq/genric_regions/list2_count.csv (all piRNA-seq
 expression summed per sample x genic feature). list2 reports CDS / exon / 5'UTR / 3'UTR / intron, but these are NOT
 all mutually exclusive (exon = CDS u 5'UTR u 3'UTR u non-coding-exon). To keep the stacked bar a true partition we
-use the mutually-exclusive set {CDS, 5'UTR, 3'UTR, intron} and DROP the redundant 'exon' superset; fractions are
+derive non-coding-exon = exon - (CDS + 5'UTR + 3'UTR) (the lncRNA/non-coding-exon signal, the dominant pachytene
+source) and use the full mutually-exclusive partition {CDS, 5'UTR, 3'UTR, non-coding-exon, intron}; fractions are
 within the gene body. Replicates summed per strain x timepoint. Three timepoint panels, strains in canonical order
 (wild in red). This answers: within genes, do all piRNAs sit in coding vs UTR vs intronic sequence, and does that
 shift by strain/timepoint? Descriptive; interpretation queued for BioMNI."""
@@ -23,6 +24,7 @@ TPS = ["E16.5", "P12.5", "P20.5"]
 CLASSES = [("CDS", "CDS (coding)", "#1A9850"),
            ("five_prime_UTR", "5′UTR", "#91CF60"),
            ("three_prime_UTR", "3′UTR", "#FEE08B"),
+           ("non_coding_exon", "non-coding exon", "#66BD63"),
            ("intron", "intron", "#998EC3")]
 df = pd.read_csv(SRC)                                   # cols: V8 (sample), V9 (feature), summed_V7 (count)
 def parse(v):
@@ -33,6 +35,7 @@ def parse(v):
 df["strain"], df["tp"] = zip(*df.V8.map(parse))
 g = df.groupby(["strain", "tp", "V9"])["summed_V7"].sum().reset_index()
 piv = g.pivot_table(index=["strain", "tp"], columns="V9", values="summed_V7", fill_value=0.0)
+piv["non_coding_exon"] = (piv.get("exon", 0.0) - piv.get("CDS", 0.0) - piv.get("five_prime_UTR", 0.0) - piv.get("three_prime_UTR", 0.0)).clip(lower=0)   # exon MINUS coding+UTR = lncRNA/non-coding-exon (dominant pachytene source) — NOT redundant
 for cls, _, _ in CLASSES:
     if cls not in piv.columns: piv[cls] = 0.0
 sub = piv[[c for c, _, _ in CLASSES]]
