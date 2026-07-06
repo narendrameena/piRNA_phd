@@ -64,8 +64,8 @@ z_expr['has_SV']    = z_expr['has_SV'].fillna(False)
 z_expr['disrupted'] = z_expr['status'].isin(['not_expressed','not_lifted'])
 
 # ── Load PICB data ─────────────────────────────────────────────────────────────
-p_expr = pd.read_csv(f"{OUT}/all_strains_expression_matrix_picb.csv")
-p_sv   = pd.read_csv(f"{OUT}/all_strains_SV_matrix_picb.csv")
+p_expr = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_expression_matrix_picb.csv")
+p_sv   = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_SV_matrix_picb.csv")
 p_sv_d = p_sv[p_sv['window'] == 'direct'][['locus','stage','strain','has_SV']].copy()
 p_expr = p_expr.merge(p_sv_d, on=['locus','stage','strain'], how='left')
 p_expr['has_SV']    = p_expr['has_SV'].fillna(False)
