@@ -33,15 +33,15 @@ Trinity ~3,816 / 7,147 / 1,490); **~59–69 % of Trinity precursors overlap a PI
 Trinity **recovers ~10 % / 18 % / 9 % of PICB clusters**; fragmentation **2.6× → 5.7×** (worst at pachytene);
 PICB median length ~2,600–3,100 bp vs Trinity ~1,300–1,900 bp.
 
-**S4 · DECISIVE — piRNA read capture.** of **total piRNA** (25–32 nt reads, multimapper-weighted; `samtools view -L`
+**S4 · DECISIVE — piRNA read capture.** of **total piRNA** (24–32 nt reads, multimapper-weighted; `samtools view -L`
 + length filter), fraction mapping inside PICB clusters vs Trinity precursor **EXON blocks** (bed12tobed6 — NOT the
 intron-spanning genomic span, which inflates Trinity 5–7×; see `Fig_capture_methodology_test`). Subset: pachytene
 P20.5 ×3 (SPRET/CAST/C57BL_6NJ) + P12.5 ×2. → `picb_vs_trinity/read_capture_pirna.csv`.
-**Result (thesis 100/100 filter; 25–32 nt piRNA; all 16 strains, 46/48 — C3H_HeJ/NOD_ShiLtJ E16.5 totals pending a
+**Result (thesis 100/100 filter; 24–32 nt piRNA; all 16 strains, 46/48 — C3H_HeJ/NOD_ShiLtJ E16.5 totals pending a
 65 GB recompute):** **PICB ≥ Trinity, developmental:** **E16.5 PICB ~4× Trinity** (19.9 vs 4.8 %), **P12.5 ~2×**
 (8.9 vs 4.4 %), **P20.5 ~tied** (26.3 vs 26.1 %; at 100/100 Trinity catches up even more — CAST P20.5 Trinity 20.3 %
-slightly exceeds PICB). 5-sample piRNA-specific (25–32 nt): P20.5 11.2/11.0, 19.9/20.3, 26.0/25.6 %; P12.5 7.4/4.8,
-8.8/3.8 %. NB sets overlap → not additive. Caveat: 24 nt is 1U-impure (46 % vs core 80 %) → 25–32 is the cleaner window.
+slightly exceeds PICB). 5-sample piRNA-specific (24–32 nt): P20.5 11.2/11.0, 19.9/20.3, 26.0/25.6 %; P12.5 7.4/4.8,
+8.8/3.8 %. NB sets overlap → not additive. Caveat: the 24–32 window includes 24 nt, which is 1U-impure (46 % vs core 80 %); the theme's length test adopts the tighter **25–32** as cleaner (`Fig_pirna_length_window_test`).
 
 **S5 · figures.** `Fig_picb_vs_trinity_concordance` (2×2: counts, overlap, fragmentation+length, bp) and
 `Fig_picb_vs_trinity_readcapture` (read-mass capture).
@@ -105,7 +105,7 @@ $PY figures/analysis_figures/17_picb_vs_trinity/code/Fig_picb_vs_trinity_readcap
 *Compute (`analysis/claude_biomni_analysis/picb_vs_trinity/`):*
 - `…/picb_vs_trinity/compute_overlap.py` — reciprocal overlap / fragmentation / bp (Trinity EXON blocks), 16 strains × 3 tp
 - `…/picb_vs_trinity/read_capture.py` — all-sRNA read-mass capture (samtools `view -c -L`; exon blocks)
-- `…/picb_vs_trinity/read_capture_pirna.py` — **piRNA-specific** capture (25–32 nt; total piRNA denominator)
+- `…/picb_vs_trinity/read_capture_pirna.py` — **piRNA-specific** capture (24–32 nt; total piRNA denominator)
 
 *Upstream pipeline (produce the inputs):*
 - `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/workflow/rules/picb_cluster.smk` — PICB clusters
