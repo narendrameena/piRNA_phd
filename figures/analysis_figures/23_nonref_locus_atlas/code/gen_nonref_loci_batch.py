@@ -16,7 +16,7 @@ for _, r in sub.iterrows():
     base = f"{r.strain}_chr{r.chrom}_{teshort(r.te_family)}"
     if base in seen: base = f"{r.strain}_chr{r.chrom}_{int(r.start)//1000}kb_{teshort(r.te_family)}"
     seen.add(base); name = f"Fig_nonref_locus_{base}"
-    title = f"{r.strain.replace('_','/')} chr{r.chrom} — a {r.te_family} piRNA cluster genetically ABSENT from GRCm39 ({r.n_strains}/16 strains · odgi inject+pav)"
+    title = f"{r.strain.replace('_','/')} chr{r.chrom} — a {r.te_family} piRNA cluster genetically ABSENT from GRCm39; expressed in {r.n_strains}/16 strains"
     print(f">>> {name}  ({r.strain} chr{r.chrom}:{int(r.start):,} {r.uniqFPM:.1f} FPM)", flush=True)
     subprocess.run([PY, f"{ROOT}/figures/analysis_figures/23_nonref_locus_atlas/code/make_nonref_locus.py", r.strain, str(r.chrom), str(int(r.start)), str(int(r.end)), r.rep_cid, title, name])
 print("=== BATCH DONE ===", flush=True)

@@ -3,7 +3,7 @@
 fold-enrichment of having the PRODUCTION LOCUS inside a 1-of-16-private insertion, over the random-locus null
 (merged private-insertion bp / genome). Tests production, not sequence similarity. With the clean klass5
 strain-private set (mm0 loci), strain-private-locus piRNAs are the MOST insertion-enriched class — their
-production loci sit predominantly INSIDE strain-private TE insertions (64-92% for divergent strains, up to ~86x
+production loci sit predominantly INSIDE strain-private TE insertions (55-83% for divergent strains, up to ~86x
 over null) — whereas conserved-but-silent (divergence) piRNAs are not. [The earlier 3-class 'klass' route bundled
 in mm1-3 low-quality reads that have no clean mm0 locus and DILUTED this to ~19-48%; klass5 removes them.] A finer
 breadth split (Fig_te_driven_corrected16) resolves these insertion-driven loci into new-locus CREATION (minority)
@@ -39,7 +39,7 @@ ax.legend(fontsize=8.5,frameon=False,loc="upper left"); ax.spines[['top','right'
 ax.set_title("16-strain coordinate TE-driven test — strain-private-locus piRNAs are the MOST enriched at strain-private TE insertions",fontsize=10.3,fontweight="bold")
 _k5=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["klass5"]).klass5   # live strain-private count + % (was hardcoded 20,846 = 5.2%)
 _sp=int((_k5=="unique: strain-private locus").sum()); _sppct=100*_sp/len(_k5)
-fig.text(0.5,0.005,"Numbers on bars = fold-enrichment (% under each strain = merged private-insertion fraction of genome = the null). With the CLEAN klass5 strain-private set, strain-private-locus piRNAs (pangenome: locus absent in all 15 other strains) are the MOST insertion-enriched class — their production loci sit predominantly inside private insertions (64-92% for divergent strains; up to ~86x over null). [Correction: the earlier 3-class estimate (~24% in-insertion) was DILUTED by mm1-3 low-quality reads lacking a clean mm0 locus; klass5 removes them.] The class is still a minority of candidates (klass5 strain-private = "+f"{_sp:,} = {_sppct:.1f}%"+"). "
+fig.text(0.5,0.005,"Numbers on bars = fold-enrichment (% under each strain = merged private-insertion fraction of genome = the null). With the CLEAN klass5 strain-private set, strain-private-locus piRNAs (pangenome: locus absent in all 15 other strains) are the MOST insertion-enriched class — their production loci sit predominantly inside private insertions (55-83% for divergent strains; up to ~86x over null). [Correction: the earlier 3-class estimate (~24% in-insertion) was DILUTED by mm1-3 low-quality reads lacking a clean mm0 locus; klass5 removes them.] The class is still a minority of candidates (klass5 strain-private = "+f"{_sp:,} = {_sppct:.1f}%"+"). "
   "A finer breadth split (Fig_te_driven_corrected16) resolves these insertion-driven loci into new-locus CREATION vs PROPAGATION into conserved clusters. High classical-strain folds are inflated by their small insertion fraction (EXP ~1%; the % is the interpretable number). Coordinate-based (production locus); METHODS §8. [BioMNI 3/3 verified 2026-06-18 — TE-insertion-driven origin of strain-private piRNAs is established biology; caveat: 'private' depends on assembly completeness, so a lower bound]",ha="center",fontsize=5.3,color="#555")
 fig.tight_layout(rect=[0,0.02,1,1])
 # classical(blue)/wild(orange) companion: strain-private-locus piRNAs per strain (subspecies colour scheme)

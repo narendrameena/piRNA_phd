@@ -29,7 +29,7 @@ for xi,(_,r) in zip(x,m.iterrows()):
                     arrowprops=dict(arrowstyle="->",color="#882255",lw=0.9))
         ax.text(xi-bw/2,(r.pct_trin_span+r.pct_trin_exon)/2,f"−{r.pct_trin_span-r.pct_trin_exon:.1f}pp",ha="right",va="center",fontsize=5.6,color="#882255",rotation=90)
 ax.set_xticks(x); ax.set_xticklabels(m.lab,fontsize=8.5)
-ax.set_ylabel("% of total piRNA captured",fontsize=10); ax.set_ylim(0,max(m.pct_picb_exon.max(),m.pct_trin_span.max())*1.25)
+ax.set_ylabel("% of total mapped small-RNA",fontsize=10); ax.set_ylim(0,max(m.pct_picb_exon.max(),m.pct_trin_span.max())*1.25)
 ax.legend(fontsize=8.3,frameon=False,loc="upper right")
 ax.spines[["top","right"]].set_visible(False)
 ax.set_title("TEST — Trinity capture must use EXON blocks (not intron-spanning genomic span)",fontsize=12,fontweight="bold",loc="left")

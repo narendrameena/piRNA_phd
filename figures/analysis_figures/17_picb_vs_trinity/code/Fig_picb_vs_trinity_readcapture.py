@@ -14,7 +14,7 @@ d["lab"]=d.strain.str.replace("_","/")+"\n"+d.tp; CP="#117733"; CT="#CC6677"
 x=np.arange(len(d)); bw=0.38
 fig,ax=plt.subplots(figsize=(11,5.6),dpi=300)
 ax.bar(x-bw/2,d.pct_picb,bw,color=CP,edgecolor="white",linewidth=0.4,label="in PICB clusters",zorder=2)
-ax.bar(x+bw/2,d.pct_trin,bw,color=CT,edgecolor="white",linewidth=0.4,label="in Trinity precursors (RPM≥200 & RPKM≥200; exon blocks)",zorder=2)
+ax.bar(x+bw/2,d.pct_trin,bw,color=CT,edgecolor="white",linewidth=0.4,label="in Trinity precursors (RPM>100 & RPKM>100; exon blocks)",zorder=2)
 for xi,v in zip(x-bw/2,d.pct_picb): ax.text(xi,v+0.8,f"{v:.0f}%",ha="center",fontsize=8,color=CP,fontweight="bold")
 for xi,v in zip(x+bw/2,d.pct_trin): ax.text(xi,v+0.8,f"{v:.0f}%",ha="center",fontsize=8,color=CT,fontweight="bold")
 # ratio annotation
