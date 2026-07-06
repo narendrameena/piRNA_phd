@@ -62,7 +62,7 @@ for i, (k, col) in enumerate(zip(CLS, CCOL)):
 axA.axhline(50, ls="--", lw=0.8, color="#444"); axA.text(len(CLS) - 0.5, 50.4, "no strand bias (50%)", ha="right", va="bottom", fontsize=7, color="#444")
 axA.set_xticks(x); axA.set_xticklabels(CLAB, fontsize=7.5); axA.set_ylim(35, 70)
 axA.set_ylabel("% antisense to TE (silencing-competent)", fontsize=9); axA.spines[["top", "right"]].set_visible(False)
-axA.set_title("A  Unique piRNAs are more antisense-to-TE than common\n(16 strains pooled; dots = per-strain)", fontsize=9.4, fontweight="bold", loc="left")
+axA.set_title("A  Antisense-to-TE (silencing) fraction declines from common to strain-private piRNAs\n(16 strains pooled; dots = per-strain; strain-private are sense-biased, <50%)", fontsize=9.4, fontweight="bold", loc="left")
 # B: antisense % by top TE family, split by the 2 genuinely-unique subcategories
 SUB = [("unique: strain-private locus", "strain-private", "#7a3b9a"), ("unique: conserved-but-silent", "conserved-but-silent", "#0072B2")]
 gu = pc[pc.klass5.isin([k for k, _, _ in SUB])]

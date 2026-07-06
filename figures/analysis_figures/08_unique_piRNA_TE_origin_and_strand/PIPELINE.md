@@ -11,12 +11,14 @@ piRNAs) and their strand relative to the target (**antisense-to-TE = silencing**
 
 **S2 · TE origin.** **bedtools 2.31.1** intersect each strain-private piRNA locus with **RepeatMasker**
 (per-strain BED, col4 `name|class/family`); tally TE class/family. **Result #:** dominant TE classes
-**LTR/ERVK (IAP), LINE/L1, ERVL-MaLR, SINE**; TE-derived fraction ≈ **31/30/16 %** (C57/CAST/SPRET; lower
-bound — index = main chr+MT). → `Fig_TE_private_families[16]`.
+**LTR/ERVK (IAP), LINE/L1, ERVL-MaLR, SINE**; TE-derived fraction ≈ **89/82/60 %** (C57BL_6NJ/CAST/SPRET,
+16-strain klass5; the old 31/30/16 % was the pre-restoration pilot `Fig_TE_private_families`; lower
+bound — index = main chr+MT). → `Fig_TE_private_families16` (16-strain, canonical).
 
 **S3 · strand / silencing.** sense vs antisense **relative to the TE feature**
 (`antisense = (TE_strand=='-') != read.is_reverse`, **never** genomic ±). **Result #:** strain-private
-piRNAs **51–57 % antisense-to-TE** vs common piRNAs 46–49 % (enriched for silencing-competent antisense).
+piRNAs **~40 % antisense-to-TE (sense-biased, <50 %)** vs common piRNAs **52–56 %** — the antisense/silencing
+fraction RISES with conservation; strain-private (young TE insertions) are NOT enriched for silencing-competent antisense.
 → `Fig_sense_antisense`.
 
 **S4 · lncRNA (pachytene) route.** strain-private piRNAs from lncRNA loci; a **read-level confounding audit
