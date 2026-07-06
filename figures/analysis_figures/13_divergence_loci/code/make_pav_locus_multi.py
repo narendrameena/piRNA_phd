@@ -33,7 +33,7 @@ nb = 180
 sub = clusters_at(G39C, G39S, G39E)
 FPM = sub.groupby(["strain", "tp"])["all_primary_FPM"].max().unstack(fill_value=0.0).reindex(index=ORDER, columns=TPS).fillna(0.0)
 present = present_strains(sub, ORDER)                         # CANONICAL order, Panel-A order
-TOP = present[-1] if present else max(ORDER, key=lambda X: FPM.loc[X].max())
+TOP = max(present, key=lambda X: FPM.loc[X].max() if X in FPM.index else 0) if present else max(ORDER, key=lambda X: FPM.loc[X].max())
 PAV = {X: ("present" if FPM.loc[X].max() > 0 else genome_pav(G39C, G39S, G39E, X)) for X in ORDER}   # expression PROVES presence (FPM>0 => locus present; halLiftover g39->strain can false-negative)
 nabs = sum(1 for X in ORDER if PAV[X] == "absent"); nsil = sum(1 for X in ORDER if PAV[X] == "present" and FPM.loc[X].max() == 0)
 pattern_auto = f"PICB cluster in {len(present)}/16 strains  ·  locus genetically ABSENT in {nabs}  ·  present-but-silent (regulatory) in {nsil}"
@@ -59,7 +59,7 @@ def collect(X):
                 ntot=ntot, nplus=npl, nminus=nmi, n1u=n1u, nat=nat, nte=nte, domTE=dom_te_family(tes, ps, pe), fam_all=fam_all,
                 pct_at=100 * nat / max(1, nte), arch="dual-strand" if min(nmi, ntot - nmi) / max(1, ntot) > 0.2 else "uni-strand")
 COV = {X: collect(X) for X in present}; COV = {X: d for X, d in COV.items() if d and d["ntot"] > 0}
-present = [X for X in present if X in COV]; TOP = present[-1] if present else TOP
+present = [X for X in present if X in COV]; TOP = max(present, key=lambda X: FPM.loc[X].max() if X in FPM.index else 0) if present else TOP
 # ---- (3) figure ----
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none"})
 nP = max(1, len(present)); fig = plt.figure(figsize=(14, 9.8 + 1.7 * nP), dpi=300)
