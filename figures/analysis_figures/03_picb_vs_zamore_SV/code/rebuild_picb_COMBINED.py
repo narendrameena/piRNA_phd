@@ -262,22 +262,23 @@ print(f"  Total combined-run BEDs: {len(picb_merged)}")
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 3 — LiftOver PICB reference loci → each strain
 # ══════════════════════════════════════════════════════════════════════════════
-print("\n── Step 3: LiftOver PICB reference loci ──")
+print("\n── Step 3: halLiftover PICB reference loci GRCm39 -> strain (pangenome cactus; was UCSC chain liftOver, the SUPERSEDED method) ──")
+SIF = f"{BASE}/cactus_v2.9.3.sif"
+HAL = f"{BASE}/results/pangenome/output/mouse_17strain_pangenome.full.hal"
 lifted = {}
 lift_stats = {}
 for strain in STRAINS:
-    chain = f"{CHAIN_DIR}/GRCm39_{strain}_chromosomes_MT_unplaced.chain"
-    out_lifted   = f"{OUT}/_picb_{strain}.bed"
-    out_unmapped = f"{OUT}/_picb_{strain}_unmapped.bed"
-    subprocess.run([LIFTOVER, ref_bed, chain, out_lifted, out_unmapped],
-                   capture_output=True)
+    out_lifted = f"{OUT}/_picb_{strain}.bed"
+    if not (os.path.exists(out_lifted) and os.path.getsize(out_lifted) > 0):   # reuse cached halLiftover (deterministic) — skip the heavy re-run
+        subprocess.run(["singularity","exec","--bind","/mnt",SIF,"halLiftover",
+                        HAL,"GRCm39",ref_bed,strain,out_lifted], capture_output=True)
     df_lift = pd.DataFrame(columns=['chr','start','end','name'])
     if os.path.exists(out_lifted) and os.path.getsize(out_lifted) > 0:
         df_lift = pd.read_csv(out_lifted, sep='\t', header=None,
                               names=['chr','start','end','name'])
-        df_lift['chr'] = df_lift['chr'].str.replace(r'^[^#]+#\d+#','',regex=True)
+        df_lift['chr'] = df_lift['chr'].astype(str)   # halLiftover output already bare-numeric (no PanSN prefix)
     lift_stats[strain] = {'n_lifted':len(df_lift),'n_total':n_loci}
-    lifted[strain] = df_lift.set_index('name')[['chr','start','end']].to_dict('index')
+    lifted[strain] = df_lift.drop_duplicates('name').set_index('name')[['chr','start','end']].to_dict('index')   # halLiftover can split a locus into segments -> dedup by name (as in the zamore rebuild)
     pct = 100*len(df_lift)/n_loci
     print(f"  {strain}: {len(df_lift)}/{n_loci} ({pct:.0f}%)")
 
@@ -292,7 +293,7 @@ for strain in STRAINS:
     if os.path.exists(lf_path) and os.path.getsize(lf_path) > 0:
         df_lift = pd.read_csv(lf_path, sep='\t', header=None,
                               names=['chr','start','end','name'])
-        df_lift['chr'] = df_lift['chr'].str.replace(r'^[^#]+#\d+#','',regex=True)
+        df_lift['chr'] = df_lift['chr'].astype(str)   # halLiftover output already bare-numeric (no PanSN prefix)
 
     for tp_label in TIMEPOINTS:
         key = (strain, tp_label)
