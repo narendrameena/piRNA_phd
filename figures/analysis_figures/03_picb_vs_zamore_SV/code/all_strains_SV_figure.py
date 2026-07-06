@@ -58,8 +58,8 @@ MM_DOMESTICUS = ["C57BL_6NJ","DBA_2J","BALB_cJ","A_J","CBA_J","129S1_SvImJ",
                  "NOD_ShiLtJ","AKR_J","C3H_HeJ","NZO_HlLtJ","LP_J","FVB_NJ"]
 
 # ── Load data ─────────────────────────────────────────────────────────────────
-expr_df = pd.read_csv(f"{OUT}/all_strains_expression_matrix.csv")
-sv_df   = pd.read_csv(f"{OUT}/all_strains_SV_matrix.csv")
+expr_df = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_expression_matrix.csv")
+sv_df   = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_SV_matrix.csv")
 
 sv_direct = sv_df[sv_df['window'] == 'direct'][
     ['locus','strain','has_SV']].copy()

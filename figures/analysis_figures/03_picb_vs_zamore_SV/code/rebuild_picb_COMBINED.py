@@ -227,7 +227,7 @@ for line in proc.stdout:
     n_sv_total+=1
     for i, strain in enumerate(VCF_SAMPLES):
         gt=gts[i].split(':')[0] if i<len(gts) else '.'
-        if gt=='.' or gt=='0': continue
+        if gt != best_ai: continue   # count a strain only if it carries the SV-sized allele (best_ai) — multiallelic-safe
         sv_records[strain].append((chrom, bstart, bend, best_type, sv_size))
 proc.wait()
 print(f"  Total SV records in regions: {n_sv_total}")

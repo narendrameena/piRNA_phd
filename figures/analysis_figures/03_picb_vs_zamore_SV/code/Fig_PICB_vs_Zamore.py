@@ -56,8 +56,8 @@ STRAIN_SHORT = {
 }
 
 # ── Load Zamore data ──────────────────────────────────────────────────────────
-z_expr = pd.read_csv(f"{OUT}/all_strains_expression_matrix.csv")
-z_sv   = pd.read_csv(f"{OUT}/all_strains_SV_matrix.csv")
+z_expr = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_expression_matrix.csv")
+z_sv   = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_SV_matrix.csv")
 z_sv_d = z_sv[z_sv['window'] == 'direct'][['locus','strain','has_SV']].copy()
 z_expr = z_expr.merge(z_sv_d, on=['locus','strain'], how='left')
 z_expr['has_SV']    = z_expr['has_SV'].fillna(False)
