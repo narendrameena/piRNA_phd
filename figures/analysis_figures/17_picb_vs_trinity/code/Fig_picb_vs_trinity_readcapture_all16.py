@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """THEME 17 — piRNA read capture across ALL 16 strains x 3 timepoints, PER-REPLICATE (bar = mean, error = ±SD,
-dots = the replicates). Of total piRNA (25-32 nt, multimapper-weighted), % mapping inside PICB clusters vs Trinity
+dots = the replicates). Of total piRNA (24-32 nt, multimapper-weighted), % mapping inside PICB clusters vs Trinity
 precursor EXON blocks. Aggregates per-rep results from cap16_reps/{strain}-{tp}.{rep}.csv (cols strain,tpn,rep,
 total,in_picb,in_trin) + rep1 (cap16_reps/*.1.csv copied from the rep1 array). 3 panels (E16.5/P12.5/P20.5),
 per-strain (canonical order, wild shaded). DEVELOPMENTAL: PICB >> Trinity at E16.5 (~4x), > at P12.5 (~2x),
@@ -46,7 +46,7 @@ for lab,s in zip(axes[-1].get_xticklabels(),order): lab.set_color("#C0392B" if s
 axes[0].legend(handles=[Patch(facecolor=CP,label="in PICB clusters"),Patch(facecolor=CT,label="in Trinity precursors (exon blocks)"),
     plt.Line2D([],[],marker='o',color='w',markerfacecolor='#222',markersize=4,label='replicate')],fontsize=8.5,frameon=False,ncol=1,loc="upper left")
 if WPOS: axes[0].text(np.mean(WPOS),axes[0].get_ylim()[1]*0.97,"wild-derived",ha="center",va="top",fontsize=8.5,fontweight="bold",color="#C0392B")
-fig.suptitle("piRNA read capture across 16 strains — PICB vs Trinity (of total piRNA, 25–32 nt; multimapper-weighted; bar=mean, ±SD, dots=reps)",fontsize=12.5,fontweight="bold",y=0.995)
+fig.suptitle("piRNA read capture across 16 strains — PICB vs Trinity (of total piRNA, 24–32 nt; multimapper-weighted; bar=mean, ±SD, dots=reps)",fontsize=12.5,fontweight="bold",y=0.995)
 fig.text(0.5,0.005,"DEVELOPMENTAL: PICB captures ~4× more piRNA than Trinity at E16.5 and ~2× at P12.5, converging to ~tied at P20.5 — pachytene precursors are few + dominant, so de-novo Trinity catches up only there. "
   "dashed = panel mean · bar=mean of replicates, error=±SD, dots=reps · sets overlap (not additive) · Trinity = exon blocks.",ha="center",fontsize=7,color="#666")
 fig.tight_layout(rect=[0,0.012,1,0.985])
