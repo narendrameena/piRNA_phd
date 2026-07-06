@@ -59,7 +59,7 @@ strain-private 1,439. Not unique: SNP-variant 4,394 + low-quality 849. Strict-se
 
 **S6 · SNP-variant effect.** `Fig_snp_variant_effect.py`: SNP-refinement removes **4,394 strain alleles
 (29 % of the naive unique set; −24/−30/−35 % per stage)** — these only look strain-specific but are 1–3 mm
-alleles of same-stage piRNAs. 88 % are single-SNP; transition/transversion ≈ 1.37.
+alleles of same-stage piRNAs. 88 % are single-SNP; transition/transversion ≈ 1.96.
 
 **S7 · PCA.** `Fig_pca_stagepeak.py`: per-tp PCA of the within-tp unique-piRNA expression across 48 libraries
 (CPM by `libsize_window`, log2). **Wild-derived strains separate by their divergent unique repertoire**
