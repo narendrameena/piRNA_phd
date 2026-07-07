@@ -16,7 +16,7 @@ FEAT = [("WSB_EiJ|10683", "Fig_nonref_locus_WSB_chr4_L1"),
         ("SPRET_EiJ|14463", "Fig_nonref_locus_SPRET_chr6_SINEB4")]
 for cid, nm in FEAT:
     r = d.loc[cid]
-    title = f"{r.strain.replace('_','/')} chr{r.chrom} — a {r.te_family} piRNA cluster genetically ABSENT from GRCm39; expressed in {r.n_strains}/16 strains"
+    title = f"{r.strain.replace('_','/')} chr{r.chrom} — a {r.te_family if pd.notna(r.te_family) else 'non-TE'} piRNA cluster genetically ABSENT from GRCm39; expressed in {r.n_strains}/16 strains"
     print(f">>> {nm}  ({r.strain} chr{r.chrom}:{int(r.start):,})", flush=True)
     subprocess.run([PY, f"{T23}/code/make_nonref_locus.py", r.strain, str(r.chrom), str(int(r.start)), str(int(r.end)), cid, title, nm])
 # CONSERVED WSB chr7 (make_conserved_locus.py, theme 22) — a major conserved cluster mis-called by halLiftover

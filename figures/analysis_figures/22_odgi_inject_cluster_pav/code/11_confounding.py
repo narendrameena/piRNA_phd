@@ -14,7 +14,7 @@ ev=pd.read_csv(f"{D}/evolution_test.csv")
 # per-strain total clusters + total FPM
 tot=[]
 for X in S:
-    fpm=pd.read_csv(f"{CP}/{X}.clusters_fpm.bed",sep="\t",header=None,names=["c","s","e","fp","fm","st","tp"]); tot.append((X,len(fpm),(fpm.fp+fpm.fm).sum()))
+    fpm=pd.read_csv(f"{CP}/{X}.clusters_fpm.bed",sep="\t",header=None,names=["c","s","e","fp","fm","st","tp"]); tot.append((X,len(fpm),fpm.fp.sum()))   # fp=allFPM, fm=uniqFPM (NOT +/- strand; strand is st) — total_fpm = allFPM only (fp+fm double-counted, matching the step-08 fix)
 m=ev.merge(pd.DataFrame(tot,columns=["strain","n_clusters_total","total_fpm"]),on="strain")
 # fragment count per strain (graph fragmentation)
 frag=collections.Counter()

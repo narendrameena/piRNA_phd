@@ -58,7 +58,7 @@ for k in range(len(order),len(axes)): axes[k].axis("off")
 fig.suptitle("piRNA phasing across spermatogenesis in 16 mouse strains",fontsize=10,fontweight="bold",y=1.060)
 fig.text(0.5,1.022,"bars = mean +1-nt phasing fraction · error bar = ±SD · dots = replicates · ● = wild-derived strain (CAST/PWK/SPRET/WSB)",
          ha="center",fontsize=6,color="#444")
-fig.text(0.5,-0.018,"1 random coordinate/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random) · 25–32 nt · GenomicRanges::follow 3′→5′ adjacency · timepoints E16.5→P12.5→P20.5",
+fig.text(0.5,-0.018,"primary alignment/read (STAR multimapping BAM, primary selection) · 25–32 nt · GenomicRanges::follow 3′→5′ adjacency · timepoints E16.5→P12.5→P20.5",
          ha="center",fontsize=5.6,color="#666")
 fig.tight_layout(rect=[0,0,1,0.975],h_pad=1.25,w_pad=0.8)
 out=f"{BASE}/Fig_phasing_allstrains"

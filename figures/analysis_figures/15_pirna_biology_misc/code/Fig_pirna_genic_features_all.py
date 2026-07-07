@@ -70,7 +70,7 @@ leg = [Patch(facecolor=col, label=name) for _, name, col in CLASSES]
 fig.legend(handles=leg, loc="lower center", bbox_to_anchor=(0.5, -0.02), ncol=4, fontsize=10, frameon=False,
            title="gene-body feature class of all piRNAs (mutually exclusive; 'exon' superset excluded)", title_fontsize=9.5)
 fig.suptitle("Genic-FEATURE overlap of ALL piRNAs — 16 strains × 3 timepoints, in parallel\n"
-             "all piRNA-seq signal within genes split into CDS / 5′UTR / 3′UTR / intron (thesis genic-region method, list2); wild strains in red",
+             "all piRNA-seq signal within genes split into CDS / 5′UTR / 3′UTR / non-coding exon / intron (thesis genic-region method, list2); wild strains in red",
              fontsize=12, fontweight="bold", y=1.02, linespacing=1.5)
 fig.tight_layout(rect=[0, 0.04, 1, 0.98])
 for e in ("pdf", "svg", "png"):

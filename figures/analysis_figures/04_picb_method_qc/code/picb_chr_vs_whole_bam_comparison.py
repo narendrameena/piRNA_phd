@@ -119,7 +119,7 @@ hbox(ax_a, 0.65, 0.32, "#dce9f5",
 hbox(ax_a, 0.33, 0.29, "#fce4df",
      "Mode 2  (NAIVE – INCORRECT)",
      ["LIBRARY.SIZE = reads on that chromosome only  →  threshold varies per chr",
-      "rep1 chr2: LS ≈ 618K   MIN.UNIQUE.ALN ≈ 0.43  (~18x lower than correct)",
+      f"rep1 chr2: LS ≈ {naive_ls_rep1[CHRS.index('2')]/1e3:.0f}K   MIN.UNIQUE.ALN ≈ {thresh_naive_rep1[CHRS.index('2')]:.2f}  (~{min_aln(LS_REP1)/thresh_naive_rep1[CHRS.index('2')]:.0f}x lower than correct)",
       "Consequence: thousands of spurious clusters pass the threshold"],
      title_color=C_NAIVE)
 
@@ -200,7 +200,7 @@ ax_c.text(len(CHRS) - 0.3, 7.15, "MAX = 7", ha="right", va="bottom",
 
 # Arrow to chr2
 chr2_i = CHRS.index("2")
-ax_c.annotate("chr2:\n0.43", xy=(chr2_i, thresh_naive_rep1[chr2_i]),
+ax_c.annotate(f"chr2:\n{thresh_naive_rep1[chr2_i]:.2f}", xy=(chr2_i, thresh_naive_rep1[chr2_i]),
               xytext=(chr2_i + 3, thresh_naive_rep1[chr2_i] + 2.5),
               fontsize=5.5, color=C_NAIVE, fontweight="bold",
               arrowprops=dict(arrowstyle="->", color=C_NAIVE, lw=0.7),

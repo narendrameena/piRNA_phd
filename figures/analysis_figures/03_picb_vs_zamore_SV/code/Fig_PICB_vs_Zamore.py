@@ -65,6 +65,7 @@ z_expr['disrupted'] = z_expr['status'].isin(['not_expressed','not_lifted'])
 
 # ── Load PICB data ─────────────────────────────────────────────────────────────
 p_expr = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_expression_matrix_picb.csv")
+n_picb = p_expr['locus'].nunique()   # live PICB reference-cluster count (was hardcoded 28,058 = stale pre-combined-run)
 p_sv   = pd.read_csv(f"{OUT}/combined_rebuild/all_strains_SV_matrix_picb.csv")
 p_sv_d = p_sv[p_sv['window'] == 'direct'][['locus','stage','strain','has_SV']].copy()
 p_expr = p_expr.merge(p_sv_d, on=['locus','stage','strain'], how='left')
@@ -111,7 +112,7 @@ grp_data = [
     (p_expr[p_expr['has_SV']],   p_expr[~p_expr['has_SV']]),
     (z_expr[z_expr['has_SV']],   z_expr[~z_expr['has_SV']]),
 ]
-grp_labels = ["PICB\n(28,058 loci)", "Zamore\n(214 loci)"]
+grp_labels = [f"PICB\n({n_picb:,} loci)", "Zamore\n(214 loci)"]
 
 # 2 pairs: within each pair SV left, no-SV right
 # formula: pair k bar j  →  k*(2*(BW+INN)+GRP_GAP) + j*(BW+INN)
@@ -305,9 +306,9 @@ ax_d.legend(fontsize=6.5, frameon=False, loc='upper left',
             labelspacing=0.3, handlelength=1.2)
 
 fig.suptitle(
-    "C57BL_6NJ PICB clusters (n=28,058) vs conserved Zamore loci (n=214): "
+    f"C57BL_6NJ PICB clusters (n={n_picb:,}) vs conserved Zamore loci (n=214): "
     "SV impact on piRNA locus integrity across 16 inbred mouse strains\n"
-    "Pangenome VCF SVs >=300 bp · PICB 2-of-3 consensus · liftOver chain files",
+    "Pangenome VCF SVs >=300 bp · PICB combined-replicate run · halLiftover (pangenome)",
     fontsize=8.5, fontweight='bold', y=1.012)
 
 import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"; _os.makedirs(_SD,exist_ok=True)
