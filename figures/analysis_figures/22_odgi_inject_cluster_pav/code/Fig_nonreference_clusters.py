@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """THEME 22 figure 2 — NON-REFERENCE piRNA clusters, CONFOUNDER-CHECKED. (A) per-strain counts (1,393; 93% TE);
 (B) multimapping-CORRECTED expression: all-primary FPM is inflated (non-ref TE-rich, 25% multimap) but on UNIQUE reads
-non-ref ~ reference -> genuinely expressed, not 'higher'; (C) RIGOROUS evolution test on the DIRECT VCF TE-insertion
+non-ref stays MODESTLY HIGHER than reference -> genuinely expressed, not a multimapping artifact; (C) RIGOROUS evolution test on the DIRECT VCF TE-insertion
 burden: non-ref cluster count tracks genome-wide non-ref TE insertions (Spearman), robust to multimapping (unique-read
 share rho=0.51) and total-output (partial r=0.50); (D) young LTR/ERVK + LINE-1, BioMNI-verified arms race + confounders."""
 import warnings; warnings.filterwarnings("ignore")
-import numpy as np, pandas as pd, json
+import numpy as np, pandas as pd, json, sys, os as _os
 from scipy.stats import spearmanr, mannwhitneyu
+sys.path.insert(0,_os.path.dirname(_os.path.abspath(__file__))); from _nonref_util import merged_cluster_expr
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.fonttype":"none"})
@@ -30,19 +31,16 @@ axA.set_title("A  Strain-specific clusters the reference lacks\n(0.4% of all clu
 # B: multimapping-corrected expression (per-cluster medians, all vs unique)
 al_nr=[];al_rf=[];uq_nr=[];uq_rf=[];mm_nr=[];mm_rf=[]
 for X in S:
-    f=pd.read_csv(f"{CP}/{X}.clusters_fpm.bed",sep="\t",header=None,names=["c","s","e","allF","uniqF","st","tp"],dtype={"c":str})
-    nr=pd.read_csv(f"{D}/nonref/{X}.nonref.bed",sep="\t",header=None,names=["c","s","e","id"],dtype={"c":str}); nrset=set(zip(nr.c.astype(str),nr.s,nr.e))
-    f["nr"]=[(c,s,e) in nrset for c,s,e in zip(f.c.astype(str),f.s,f.e)]
-    cl=f.groupby(["c","s","e","nr"],as_index=False).agg(allF=("allF","sum"),uniqF=("uniqF","sum")); cl["mm"]=1-cl.uniqF/cl.allF.replace(0,np.nan)
+    cl=merged_cluster_expr(CP,D,X).rename(columns={"nonref":"nr"}); cl["mm"]=1-cl.uniqF/cl.allF.replace(0,np.nan)   # per MERGED cluster (fixes exact (chrom,start,end) match vs merged nonref.bed -> was dropping ~12% of non-ref clusters)
     al_nr+=list(cl[cl.nr].allF);al_rf+=list(cl[~cl.nr].allF);uq_nr+=list(cl[cl.nr].uniqF);uq_rf+=list(cl[~cl.nr].uniqF);mm_nr+=list(cl[cl.nr].mm.dropna());mm_rf+=list(cl[~cl.nr].mm.dropna())
 med=[np.median(al_rf),np.median(al_nr),np.median(uq_rf),np.median(uq_nr)]
 x=[0,0.9,2.3,3.2]; cols=["#cccccc","#1B7837","#cccccc","#1B7837"]
 axB.bar(x,med,width=0.8,color=cols,edgecolor="white")
 for xi,v in zip(x,med): axB.text(xi,v+0.3,f"{v:.1f}",ha="center",fontsize=8,fontweight="bold")
 axB.set_xticks([0.45,2.75]); axB.set_xticklabels(["all-primary FPM\n(multimapping incl.)","UNIQUE-read FPM\n(multimapping removed)"],fontsize=8.3)
-axB.set_ylabel("median cluster expression (FPM)",fontsize=9.2); axB.spines[["top","right"]].set_visible(False); axB.set_ylim(0,15)
+axB.set_ylabel("median cluster expression (FPM)",fontsize=9.2); axB.spines[["top","right"]].set_visible(False); axB.set_ylim(0,21)
 axB.legend(handles=[Patch(fc="#cccccc",label="reference"),Patch(fc="#1B7837",label="non-reference")],fontsize=7.4,frameon=False,loc="upper right")
-axB.text(0.5,0.62,f"non-ref are 25% multimapping (vs 0.2% ref): all-primary\nlooks higher, but on UNIQUE reads non-ref ≈ reference\n(genuinely expressed, NOT inflated 'higher')",transform=axB.transAxes,ha="center",fontsize=7.0,color="#B2182B",fontweight="bold")
+axB.text(0.98,0.96,f"non-ref: 25% multimapping (vs 0.2% ref)\nall-primary overstates the gap ({med[1]/med[0]:.1f}×),\nbut on UNIQUE reads non-ref stays modestly\nHIGHER ({med[3]/med[2]:.1f}×) — genuinely expressed",transform=axB.transAxes,ha="right",va="top",fontsize=6.6,color="#B2182B",fontweight="bold")
 axB.set_title("B  Genuinely expressed — once multimapping is removed",fontsize=9.4,fontweight="bold",loc="left")
 # C: evolution on DIRECT VCF TE-insertion burden
 xc=ev.te_burden/1000; yc=ev.n_nonref; cc=["#C0392B" if w else "#4393C3" for w in ev.wild]

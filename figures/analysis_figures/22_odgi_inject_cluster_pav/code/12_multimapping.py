@@ -4,18 +4,16 @@ FPM could be inflated. clusters_fpm.bed carries BOTH allFPM (col4, multimap-incl
 Test: (a) are non-ref clusters MORE multimapping than reference (multimap fraction = 1-uniq/all)? (b) does the
 'non-ref well-expressed' finding survive on UNIQUE reads? (c) does the divergence correlation survive on unique reads?
 NB this also CORRECTS step 8/figure, which mistakenly summed allFPM+uniqFPM."""
-import pandas as pd, numpy as np, json
+import pandas as pd, numpy as np, json, sys, os as _os
 from scipy.stats import mannwhitneyu, spearmanr
+sys.path.insert(0,_os.path.dirname(_os.path.abspath(__file__))); from _nonref_util import merged_cluster_expr
 B="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"
 CP=f"{B}/analysis/claude_biomni_analysis/unique_pirna/cluster_pav"; D=f"{B}/figures/analysis_figures/22_odgi_inject_cluster_pav/data"
 S=["129S1_SvImJ","A_J","AKR_J","BALB_cJ","C3H_HeJ","C57BL_6NJ","CAST_EiJ","CBA_J","DBA_2J","FVB_NJ","LP_J","NOD_ShiLtJ","NZO_HlLtJ","PWK_PhJ","SPRET_EiJ","WSB_EiJ"]
 WILD={"SPRET_EiJ","CAST_EiJ","PWK_PhJ","WSB_EiJ"}; div=json.load(open("/tmp/divergence.json"))
 rows=[]; mm_nr=[]; mm_ref=[]; uq_nr=[]; uq_ref=[]; al_nr=[]; al_ref=[]
 for X in S:
-    f=pd.read_csv(f"{CP}/{X}.clusters_fpm.bed",sep="\t",header=None,names=["c","s","e","allF","uniqF","strand","tp"],dtype={"c":str})
-    nr=pd.read_csv(f"{D}/nonref/{X}.nonref.bed",sep="\t",header=None,names=["c","s","e","id"],dtype={"c":str}); nrset=set(zip(nr.c.astype(str),nr.s,nr.e))
-    f["nr"]=[(c,s,e) in nrset for c,s,e in zip(f.c.astype(str),f.s,f.e)]
-    cl=f.groupby(["c","s","e","nr"],as_index=False).agg(allF=("allF","sum"),uniqF=("uniqF","sum"))
+    cl=merged_cluster_expr(CP,D,X).rename(columns={"nonref":"nr"})   # per MERGED cluster (fixes the exact (chrom,start,end) match vs merged nonref.bed); allF/uniqF summed over tp+strand
     cl["mm"]=1-cl.uniqF/cl.allF.replace(0,np.nan)
     a,b=cl[cl.nr],cl[~cl.nr]
     mm_nr+=list(a.mm.dropna()); mm_ref+=list(b.mm.dropna()); uq_nr+=list(a.uniqF); uq_ref+=list(b.uniqF); al_nr+=list(a.allF); al_ref+=list(b.allF)
