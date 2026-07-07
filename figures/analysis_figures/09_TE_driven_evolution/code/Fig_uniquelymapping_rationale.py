@@ -110,11 +110,11 @@ for i,(lab,grp,col,leg) in enumerate(groups):
     b=axC.bar(xc+(i-1.5)*bw,vals,bw,color=col,edgecolor="white",lw=0.4,label=leg)
     for xi,v in zip(xc+(i-1.5)*bw,vals):
         if np.isfinite(v): axC.text(xi,v+0.3,f"{v:.1f}×",ha="center",va="bottom",fontsize=6.6,fontweight="bold",color=col if col!=NOPRIV else "#555")
-axC.axhline(1,color="#555",ls=":",lw=1); axC.text(len(STRAINS)-0.5,1.25,"chance (1×)",ha="right",fontsize=7,color="#555")
+axC.axhline(1,color="#555",ls=":",lw=1,label="chance (1×)")   # labeled -> appears in the legend (was a floating text that collided with WSB's bar labels)
 axC.set_xticks(xc); axC.set_xticklabels([s.replace("_","/") for s in STRAINS],fontsize=9)
 axC.set_ylabel("fold-enrichment at private insertions\n(obs ÷ multiplicity-matched null)",fontsize=9)
-_mx=np.nanmax([F[X][(g[0],g[1])] for X in STRAINS for g in groups]); axC.set_ylim(0,_mx*1.42)
-axC.legend(fontsize=6.5,frameon=False,loc="upper center",ncol=2,columnspacing=1.1,handlelength=1.3,handletextpad=0.4); axC.spines[["top","right"]].set_visible(False)
+_mx=np.nanmax([F[X][(g[0],g[1])] for X in STRAINS for g in groups]); axC.set_ylim(0,_mx*1.60)
+axC.legend(fontsize=6.4,frameon=False,loc="upper center",ncol=2,columnspacing=1.1,handlelength=1.3,handletextpad=0.4); axC.spines[["top","right"]].set_visible(False)
 axC.set_title("C  Clean signal is UNIQUELY in NH==1; NH>1 strain-private\ncollapses to the common-class 'maps-everywhere' artifact",fontsize=9.6,fontweight="bold",loc="left")
 
 fig.suptitle("Why the TE-insertion test uses uniquely-mapping (NH==1) piRNAs — the discarded NH>1 fraction is un-localizable, not lost biology",fontsize=12,fontweight="bold",y=0.985)
