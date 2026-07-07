@@ -16,9 +16,10 @@ from matplotlib.patches import Patch
 plt.rcParams.update({"font.family":"Liberation Sans","pdf.fonttype":42,"svg.fonttype":"none"})
 ROOT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U=f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; PG=f"{U}/pangenome_te"
 BT="/mnt/home3/miska/nm667/miniconda3/envs/ccTE/bin/bedtools"
-STRAINS=["CAST_EiJ","SPRET_EiJ"]   # TE-rich wild strains — where multi-mapping matters most
+STRAINS=["CAST_EiJ","SPRET_EiJ","PWK_PhJ","WSB_EiJ"]   # the 4 wild-derived strains — where TE multi-mapping matters most
 CLASSES={"unique: strain-private locus":"strain-private","expressed elsewhere (exact)":"common (control)"}
 PRIV="#7a3b9a"; ANC="#c9b3d6"; CLEAN="#1b7837"; AMB="#d9a441"; NOPRIV="#bbbbbb"
+WCOL={"CAST_EiJ":"#c51b8a","SPRET_EiJ":"#7a0177","PWK_PhJ":"#2c7fb8","WSB_EiJ":"#e6820a"}
 
 def per_candidate(X, klass):
     """return dict id -> (n_total_loci, n_private_loci) for candidates of `klass` in strain X."""
@@ -50,22 +51,26 @@ for X in STRAINS:
     DATA[X]={"p":null_p(X)}
     for kl,lab in CLASSES.items(): DATA[X][lab]=per_candidate(X,kl)
 
-fig,(axA,axB,axC)=plt.subplots(1,3,figsize=(15.5,5.0),dpi=300,gridspec_kw=dict(width_ratios=[1.15,1.0,1.25],wspace=0.34))
+fig,(axA,axB,axC)=plt.subplots(1,3,figsize=(17,5.9),dpi=300,gridspec_kw=dict(width_ratios=[1.1,1.05,1.3],wspace=0.30))
 
-# ---- A: per-candidate private vs ancestral loci (NH>1 strain-private), fraction-private distribution ----
-for i,X in enumerate(STRAINS):
-    sp=DATA[X]["strain-private"]; multi={q:v for q,v in sp.items() if v[0]>1}
-    frac=np.array([kp/kt for kt,kp in multi.values()])
-    axA.hist(frac,bins=np.linspace(0,1,21),alpha=0.62,color=[PRIV,"#3690c0"][i],
-             label=f"{X.replace('_','/')} (n={len(frac):,}, med {np.median(frac):.2f})",density=True)
-axA.axvline(1.0,color=CLEAN,lw=1.4,ls="--"); axA.text(0.99,axA.get_ylim()[1]*0.9,"all copies private\n= localizable",ha="right",va="top",fontsize=7,color=CLEAN)
-axA.set_xlabel("fraction of a piRNA's mapped loci that are\nINSIDE a strain-private insertion",fontsize=9)
-axA.set_ylabel("density of NH>1 strain-private piRNAs",fontsize=9); axA.legend(fontsize=7.5,frameon=False,loc="upper center")
-axA.set_title("A  Multi-mapping strain-private piRNAs map to a\nMIX of private + ancestral copies (~50/50)",fontsize=9.6,fontweight="bold",loc="left")
+# ---- A: fraction of a candidate's loci that are private (NH>1 strain-private) — violin per strain ----
+fracs=[]
+for X in STRAINS:
+    sp=DATA[X]["strain-private"]; multi=[(kt,kp) for kt,kp in sp.values() if kt>1]
+    fracs.append(np.array([kp/kt for kt,kp in multi]))
+parts=axA.violinplot(fracs,positions=np.arange(len(STRAINS)),widths=0.82,showmedians=True,showextrema=False)
+for i,pcb in enumerate(parts['bodies']): pcb.set_facecolor(WCOL[STRAINS[i]]); pcb.set_alpha(0.62); pcb.set_edgecolor("#444"); pcb.set_linewidth(0.6)
+parts['cmedians'].set_color("#222"); parts['cmedians'].set_linewidth(1.5)
+for i,fr in enumerate(fracs): axA.text(i,np.median(fr)+0.035,f"med {np.median(fr):.2f}",ha="center",fontsize=6.8,fontweight="bold",color="#222")
+axA.axhline(1.0,color=CLEAN,lw=1.3,ls="--"); axA.text(len(STRAINS)-0.5,1.03,"all copies private = localizable",ha="right",va="bottom",fontsize=6.9,color=CLEAN)
+axA.axhline(0.0,color="#999",lw=0.7,ls=":")
+axA.set_xticks(np.arange(len(STRAINS))); axA.set_xticklabels([f"{s.replace('_','/')}\nn={len(fr):,}" for s,fr in zip(STRAINS,fracs)],fontsize=7.4)
+axA.set_ylim(-0.10,1.16); axA.set_ylabel("fraction of a piRNA's mapped loci\nINSIDE a strain-private insertion",fontsize=8.6)
+axA.set_title("A  Multi-mapping strain-private piRNAs map to a\nMIX of private + ancestral copies (median ~0.5)",fontsize=9.4,fontweight="bold",loc="left")
 axA.spines[["top","right"]].set_visible(False)
 
 # ---- B: localizability categories among NH>1 strain-private ----
-cats=["all-private\n(localizable)","private + ancestral\n(ambiguous)","no private locus\n(elsewhere)"]; cc=[CLEAN,AMB,NOPRIV]
+cats=["all-private (localizable)","private + ancestral (ambiguous)","no private locus (elsewhere)"]; cc=[CLEAN,AMB,NOPRIV]
 xb=np.arange(len(STRAINS)); bw=0.6; bottom=np.zeros(len(STRAINS)); vals={c:[] for c in cats}
 for X in STRAINS:
     sp=DATA[X]["strain-private"]; multi=[(kt,kp) for kt,kp in sp.values() if kt>1]; n=len(multi)
@@ -78,7 +83,7 @@ for c,col in zip(cats,cc):
     bottom+=np.array(vals[c])
 axB.set_xticks(xb); axB.set_xticklabels([s.replace("_","/") for s in STRAINS],fontsize=9)
 axB.set_ylabel("% of NH>1 strain-private piRNAs",fontsize=9); axB.set_ylim(0,100)
-axB.legend(fontsize=7.4,frameon=False,loc="upper center",bbox_to_anchor=(0.5,-0.12),ncol=1)
+bpatch=[Patch(facecolor=col,label=c) for c,col in zip(cats,cc)]   # rendered as a figure-level legend below (avoids caption overlap)
 axB.set_title("B  Only ~1/6 are cleanly localizable;\nmost map to >=1 ancestral copy",fontsize=9.6,fontweight="bold",loc="left")
 axB.spines[["top","right"]].set_visible(False)
 
@@ -108,15 +113,17 @@ for i,(lab,grp,col,leg) in enumerate(groups):
 axC.axhline(1,color="#555",ls=":",lw=1); axC.text(len(STRAINS)-0.5,1.25,"chance (1×)",ha="right",fontsize=7,color="#555")
 axC.set_xticks(xc); axC.set_xticklabels([s.replace("_","/") for s in STRAINS],fontsize=9)
 axC.set_ylabel("fold-enrichment at private insertions\n(obs ÷ multiplicity-matched null)",fontsize=9)
-axC.legend(fontsize=6.9,frameon=False,loc="upper right"); axC.spines[["top","right"]].set_visible(False)
+_mx=np.nanmax([F[X][(g[0],g[1])] for X in STRAINS for g in groups]); axC.set_ylim(0,_mx*1.42)
+axC.legend(fontsize=6.5,frameon=False,loc="upper center",ncol=2,columnspacing=1.1,handlelength=1.3,handletextpad=0.4); axC.spines[["top","right"]].set_visible(False)
 axC.set_title("C  Clean signal is UNIQUELY in NH==1; NH>1 strain-private\ncollapses to the common-class 'maps-everywhere' artifact",fontsize=9.6,fontweight="bold",loc="left")
 
-fig.suptitle("Why the TE-insertion test uses uniquely-mapping (NH==1) piRNAs — the discarded NH>1 fraction is un-localizable, not lost biology",fontsize=12,fontweight="bold",y=1.005)
-fig.text(0.5,-0.03,"A strain-private piRNA is born from a strain-private TE INSERTION, but the TE family has many near-identical ANCESTRAL copies, so a multi-mapping (NH>1) read hits the private insertion AND its ancestral copies "
-  "(A: median ~50% of loci private; B: 80-87% map to >=1 ancestral copy -> production locus AMBIGUOUS). Restricting to NH==1 does NOT discard localizable TE biology — the one locus a unique read maps to is unambiguous. "
-  "C: the clean, un-inflatable enrichment (strain-private NH==1) has no counterpart in the common control (NH==1 ~1×); NH>1 strain-private, once its k mapping chances are matched in the null, is indistinguishable from the common-class multi-mapping artifact.",
-  ha="center",fontsize=6.0,color="#555",wrap=True)
-fig.tight_layout(rect=[0,0.02,1,0.97])
+fig.suptitle("Why the TE-insertion test uses uniquely-mapping (NH==1) piRNAs — the discarded NH>1 fraction is un-localizable, not lost biology",fontsize=12,fontweight="bold",y=0.985)
+fig.subplots_adjust(left=0.045,right=0.985,top=0.84,bottom=0.26,wspace=0.28)
+fig.legend(handles=bpatch,loc="center",bbox_to_anchor=(0.5,0.145),ncol=3,fontsize=7.4,frameon=False,columnspacing=2.0,handlelength=1.4,handletextpad=0.5,title="Panel B — localizability of NH>1 strain-private piRNAs",title_fontsize=7.2)
+fig.text(0.5,0.045,"A strain-private piRNA is born from a strain-private TE INSERTION, but the family's many near-identical ANCESTRAL copies mean a multi-mapping (NH>1) read hits the private insertion AND ancestral copies "
+  "(A: median ~0.5 of loci private; B: most map to ≥1 ancestral copy → production locus AMBIGUOUS). NH==1 keeps only the unambiguous single-locus piRNAs — no localizable TE biology is lost; C: strain-private NH==1 enrichment has no "
+  "common-control counterpart (~1×), while matched-null NH>1 strain-private ≈ the common-class 'maps-everywhere' artifact.",
+  ha="center",va="center",fontsize=6.3,color="#555",wrap=True)
 _SD=f"{ROOT}/figures/analysis_figures/09_TE_driven_evolution/data/source_data"; os.makedirs(_SD,exist_ok=True)
 rows=[]
 for X in STRAINS:
