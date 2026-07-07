@@ -123,11 +123,19 @@ for line in proc.stdout:
     n_sv_total += 1
     for i, strain in enumerate(VCF_SAMPLES):
         gt = gts[i].split(':')[0] if i < len(gts) else '.'
-        # count a strain only if its genotype IS the SV-sized allele (best_alt_idx) — at a MULTIALLELIC site a
-        # small SNP/indel allele (e.g. GT="1" while the SV is allele "2") must NOT be miscounted as carrying the SV
-        if gt != best_alt_idx:
+        # credit each strain by ITS OWN allele: at a MULTIALLELIC site a strain may carry a different allele than
+        # the largest one (e.g. GT="1"=6700 bp INS while best allele "2"=6910 bp) — BOTH are SVs. The old
+        # `gt != best_alt_idx: continue` dropped every non-largest SV allele -> systematic under-count. We still
+        # skip a small SNP/indel allele (|diff| < SV_MIN) at a site whose largest allele is an SV.
+        if not gt.isdigit() or gt == '0':      # '.' missing / malformed, or '0' reference
             continue
-        sv_records[strain].append((chrom, bstart, bend, best_type, sv_size))
+        ai = int(gt) - 1
+        if ai >= len(alts):
+            continue
+        d = len(alts[ai]) - len(ref)           # THIS strain's own allele size
+        if abs(d) < SV_MIN:
+            continue
+        sv_records[strain].append((chrom, bstart, bend, 'INS' if d > 0 else 'DEL', abs(d)))
 
 proc.wait()
 print(f"  Total SV records in regions: {n_sv_total}")

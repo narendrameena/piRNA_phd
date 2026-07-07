@@ -51,7 +51,7 @@ ax.set_title("piRNA phasing across spermatogenesis — all 16 mouse strains",fon
 leg=ax.legend(fontsize=6.3,frameon=False,loc="center left",bbox_to_anchor=(1.01,0.5),
               ncol=1,handlelength=2.0,title="strain (thesis order)\n● = wild-derived")
 leg.get_title().set_fontsize(6.6)
-fig.text(0.5,-0.02,"1 random coordinate/read (STAR --outSAMmultNmax 1 --outMultimapperOrder Random) · 25–32 nt · GenomicRanges::follow 3′→5′ adjacency",
+fig.text(0.5,-0.02,"primary alignment/read (STAR multimapping BAM, primary selection) · 25–32 nt · GenomicRanges::follow 3′→5′ adjacency",
          ha="center",fontsize=5.8,color="#666")
 fig.tight_layout(rect=[0,0,0.80,1])
 out=f"{BASE}/Fig_phasing_allstrains_lines"

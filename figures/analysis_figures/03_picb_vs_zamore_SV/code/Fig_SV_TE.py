@@ -94,7 +94,7 @@ STRAIN_SHORT = {
 }
 
 # ── Load or recompute TE annotation ──────────────────────────────────────────
-ann_path = f"{OUT}/sv_te_annotation.csv"
+ann_path = f"{OUT}/combined_rebuild/sv_te_annotation.csv"   # fresh cache in combined_rebuild (the {OUT} root copy was 2026-05-21, pre-bugfix over-count)
 if os.path.exists(ann_path):
     df_pairs = pd.read_csv(ann_path)
     print(f"Loaded {len(df_pairs)} annotated SV-locus pairs")
@@ -102,7 +102,7 @@ else:
     print("Computing SV-locus pairs and TE annotation...")
     all_pairs = []
     for strain in STRAINS:
-        sv_path = f"{OUT}/_sv_{strain}.bed"
+        sv_path = f"{OUT}/combined_rebuild/_sv_{strain}.bed"   # corrected per-strain SV BEDs (was {OUT}/_sv_*, the stale pre-bugfix location)
         if not os.path.exists(sv_path): continue
         r = subprocess.run(['bedtools','intersect','-a',sv_path,'-b',ZAMORE_BED,'-wo'],
                            capture_output=True, text=True)

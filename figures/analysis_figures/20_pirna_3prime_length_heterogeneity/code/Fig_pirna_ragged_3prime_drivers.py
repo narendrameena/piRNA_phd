@@ -54,7 +54,7 @@ axC.bar([0,1],vals,color=["#9ecae1","#08519c"],width=0.6,edgecolor="white")
 for i,v in enumerate(vals): axC.text(i,v+1.5,f"{v:.0f}%",ha="center",va="bottom",fontsize=12,fontweight="bold")
 axC.set_xticks([0,1]); axC.set_xticklabels(["primary\n(non-ping-pong)","secondary\n(ping-pong)"],fontsize=8.6)
 axC.set_ylabel("% ragged-3'  (E16.5, 27 nt)",fontsize=9.5); axC.set_ylim(0,85); axC.spines[["top","right"]].set_visible(False)
-axC.text(0.5,0.95,"10-nt 5'-overlap signature  z = 7.2  (p=3e-22)\nMILI (PIWIL2)  <->  MIWI2 (PIWIL4)",transform=axC.transAxes,ha="center",va="top",fontsize=7.5,color="#444",style="italic")
+axC.text(0.5,0.95,"10-nt 5'-overlap signature  z = 7.2  (p ≈ 4e-13, normal tail)\nMILI (PIWIL2)  <->  MIWI2 (PIWIL4)",transform=axC.transAxes,ha="center",va="top",fontsize=7.5,color="#444",style="italic")
 axC.set_title("C  Secondary (ping-pong) piRNAs are far more ragged\nat E16.5 - slicer-set 5', trimmed (ragged) 3'",fontsize=9.3,fontweight="bold",loc="left")
 
 # ---- D: TE vs genic flip (recompute) ----

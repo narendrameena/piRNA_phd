@@ -227,8 +227,14 @@ for line in proc.stdout:
     n_sv_total+=1
     for i, strain in enumerate(VCF_SAMPLES):
         gt=gts[i].split(':')[0] if i<len(gts) else '.'
-        if gt != best_ai: continue   # count a strain only if it carries the SV-sized allele (best_ai) — multiallelic-safe
-        sv_records[strain].append((chrom, bstart, bend, best_type, sv_size))
+        # credit each strain by ITS OWN allele (multiallelic sites: a strain may carry a different but still
+        # SV-sized allele than the largest) — the old `gt != best_ai` under-counted every non-largest SV allele
+        if not gt.isdigit() or gt=='0': continue
+        ai=int(gt)-1
+        if ai>=len(alts): continue
+        d=len(alts[ai])-len(ref)
+        if abs(d)<SV_MIN: continue
+        sv_records[strain].append((chrom, bstart, bend, 'INS' if d>0 else 'DEL', abs(d)))
 proc.wait()
 print(f"  Total SV records in regions: {n_sv_total}")
 
