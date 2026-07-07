@@ -3,9 +3,10 @@
 strains = present in 15-16/16 strains yet absent from the C57BL/6J reference). (A) collapse the strain-entries to
 DISTINCT loci via the co-location graph; (B) what they are — dominant TE family, TE age (RM %div), unique-read
 expression; vs the rest of the non-reference set. The 'why absent from GRCm39' (deletion vs gap vs technical) is step 18."""
-import pandas as pd, numpy as np, collections, os, subprocess
+import pandas as pd, numpy as np, collections, os, subprocess, sys
 B="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"
 CP=f"{B}/analysis/claude_biomni_analysis/unique_pirna/cluster_pav"; D=f"{B}/figures/analysis_figures/22_odgi_inject_cluster_pav/data"
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__))); from _nonref_util import merged_cluster_expr
 STR=["129S1_SvImJ","A_J","AKR_J","BALB_cJ","C3H_HeJ","C57BL_6NJ","CAST_EiJ","CBA_J","DBA_2J","FVB_NJ","LP_J","NOD_ShiLtJ","NZO_HlLtJ","PWK_PhJ","SPRET_EiJ","WSB_EiJ"]
 TH=14
 co=pd.read_csv(f"{D}/colocation.csv")
@@ -57,9 +58,8 @@ for X in STR:
             f=ln.split('\t'); byid[f[3]].append((float(f[7]),f[8],int(f[6])-int(f[5])))  # div, fam, len
         for cid,hits in byid.items():
             hits.sort(key=lambda h:-h[2]); te_fam[cid]=hits[0][1]; te_div[cid]=min(h[0] for h in hits)
-    fpm=pd.read_csv(f"{CP}/{X}.clusters_fpm.bed",sep="\t",header=None,names=["c","s","e","allF","uniqF","st","tp"],dtype={"c":str})
-    g=fpm.groupby(["c","s","e"],as_index=False).uniqF.sum()
-    gmap={(str(c),s,e):u for c,s,e,u in zip(g.c,g.s,g.e,g.uniqF)}
+    mc=merged_cluster_expr(CP,D,X)   # per MERGED cluster -> coords match the merged nonref coords in `sub` (was unmerged fpm coords -> 24/117 missed -> uniqFPM=0)
+    gmap={(str(c),int(s),int(e)):u for c,s,e,u in zip(mc.chrom,mc.start,mc.end,mc.uniqF)}
     for _,r in sub.iterrows(): uq[r.cid]=gmap.get((str(r.chrom),r.start,r.end),0.0)
 nu["te_family"]=nu.cid.map(te_fam); nu["te_div"]=nu.cid.map(te_div); nu["uniqFPM"]=nu.cid.map(uq)
 print(f"\nTE-overlapping: {nu.te_family.notna().sum()}/{len(nu)} ({100*nu.te_family.notna().mean():.0f}%)")
