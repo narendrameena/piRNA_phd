@@ -50,7 +50,7 @@ TEsub=TE[(TE.c==chrom)&(TE.s<E)&(TE.e>S)]
 plt.rcParams.update({"font.family":"Liberation Sans"})
 fig=plt.figure(figsize=(10,5.2),dpi=300); gs=fig.add_gridspec(2,4,height_ratios=[0.4,2.2],hspace=0.35,wspace=0.3)
 axT=fig.add_subplot(gs[0,:3]); axC=fig.add_subplot(gs[1,:3]); ax1=fig.add_subplot(gs[1,3])
-axT.set_xlim(S,E); axT.set_ylim(0,1); axT.axis("off"); axT.text(S,0.7,f"TE content: {tefrac*100:.0f}% (low — genic / lncRNA, not TE-driven)",fontsize=7,color="#555")
+axT.set_xlim(S,E); axT.set_ylim(0,1); axT.axis("off"); axT.text(S,0.7,f"TE content: {tefrac*100:.0f}% (by sequence) — bidirectional, genic/lncRNA-derived (not TE-antisense-driven)",fontsize=7,color="#555")
 for _,x in TEsub.iterrows(): axT.add_patch(Rectangle((max(x.s,S),0.2),min(x.e,E)-max(x.s,S),0.4,fc="#cccccc",ec="none"))
 xx=np.linspace(S,E,nb)
 axC.fill_between(xx,0,fwd,step="mid",color="#0072B2",alpha=0.8,label="plus-strand piRNAs")
@@ -62,9 +62,12 @@ axC.text(0.5,0.04,f"BIDIRECTIONAL (strand balance {bal:.2f}) — both strands tr
 vals=[fc.get(n,0) for n in ["A","C","G","T"]]; ax1.bar(["A","C","G","U"],vals,color=["#bbb","#bbb","#bbb","#0072B2"]); ax1.set_ylim(0,max(vals+[1])*1.25)
 for i,v in enumerate(vals): ax1.text(i,v+1,f"{v:.0f}",ha="center",fontsize=6)
 ax1.set_title("5′ nt (1U)",fontsize=7.4,fontweight="bold"); ax1.set_ylabel("%",fontsize=7); ax1.tick_params(labelsize=7); ax1.spines[['top','right']].set_visible(False)
-fig.suptitle(f"Conserved pachytene piRNA cluster (CORE class): bidirectional, genic/lncRNA-derived, low-TE — SPRET/EiJ {chrom.split('#')[-1]}:{S:,}-{E:,}",fontsize=9.2,fontweight="bold",y=0.99)
-fig.text(0.5,0.01,"Unlike the strain-private TE clusters (single-strand antisense, TE-rich, 1 strain), pachytene clusters are bidirectional, genic/lncRNA-derived, "
-  "TE-poor, and conserved across all 16 strains (the ~9% core). Both share the 1U piRNA hallmark.",ha="center",fontsize=6.3,color="#555")
+fig.suptitle(f"Conserved pachytene piRNA cluster (CORE class): bidirectional, genic/lncRNA-derived — SPRET/EiJ {chrom.split('#')[-1]}:{S:,}-{E:,}",fontsize=9.2,fontweight="bold",y=0.99)
+fig.text(0.5,0.01,"Unlike the strain-private TE clusters (single-strand antisense, 1 strain), pachytene clusters are bidirectional, genic/lncRNA-derived "
+  "(production mode, not TE-antisense), and conserved across all 16 strains (the ~9% core). Both share the 1U piRNA hallmark.",ha="center",fontsize=6.3,color="#555")
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+pd.DataFrame({"position":xx,"plus_coverage":fwd,"minus_coverage":rv}).to_csv(f"{_SD}/SourceData_Fig_pachytene_cluster_coverage.csv",index=False)   # panel C: bidirectional piRNA coverage (200 bins)
+pd.DataFrame([{"chrom":chrom.split('#')[-1],"start":int(S),"end":int(E),"plus_reads":int(f),"minus_reads":int(rev),"balance":round(bal,3),"TE_frac":round(tefrac,3),**{f"oneU_{n}_pct":round(fc.get(n,0),1) for n in ["A","C","G","T"]}}]).to_csv(f"{_SD}/SourceData_Fig_pachytene_cluster_summary.csv",index=False)   # cluster stats + 5' nt (1U) composition
 for ext in ("pdf","svg","png"): fig.savefig(f"{U}/pangenome_te/Fig_pachytene_cluster.{ext}",bbox_inches="tight")
 json={"chrom":chrom,"start":int(S),"end":int(E),"plus":int(f),"minus":int(rev),"balance":round(bal,3),"te_frac":round(tefrac,3),"1U":round(fc.get("T",0),1)}
 import json as J; J.dump(json,open(f"{U}/pangenome_te/pachytene_cluster.json","w"))

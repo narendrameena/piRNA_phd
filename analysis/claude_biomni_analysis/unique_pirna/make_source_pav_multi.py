@@ -196,7 +196,7 @@ for i, X in enumerate(present):
         pc.rtext(axB, tx0, _y - 0.17, _segs, fs=4.1, sep=" · ", va="top")   # per-tp stats UNDER the bar (left-aligned at bar start), with a clear gap below the bar → no overlap, no right-edge cut-off
 axB.set_xlim(0, 1); axB.set_ylim(off_top - 3.0, 2.1); axB.axis("off")
 pbadge(axB, "B", "Per-timepoint sRNA coverage at the source locus in each EXPRESSING strain — height = expression, colour = timepoint (deep ↑+ / pale ↓−)   ·   TE + gene tracks below each strain   ·   example → zoom C", fs=7.3, y=1.07)
-axB.text(0.012, 1.02, "‘primary reads’ = each sRNA read (24–32 nt) counted once at its STAR primary locus (multimappers kept, not double-counted) · architecture (genomic strand) ≠ sense/antisense (relative to TE)", transform=axB.transAxes, fontsize=5.2, color="#8a8a8a", style="italic", ha="left", va="center")
+axB.text(0.012, 1.02, "‘primary reads’ = each sRNA read (25–32 nt) counted once at its STAR primary locus (multimappers kept, not double-counted) · architecture (genomic strand) ≠ sense/antisense (relative to TE)", transform=axB.transAxes, fontsize=5.2, color="#8a8a8a", style="italic", ha="left", va="center")
 famset = list(dict.fromkeys((f.split("|")[-1] if "|" in f else f) for X in present for (_, _, _, f) in COV[X]["tes"]))[:6]
 _tpkey = [Patch(facecolor=pc.PLUS_COL[t], label=TPLAB[t]) for t in TPS]
 _stkey = [Patch(facecolor="#6a3d9a", label="solid = + strand"), Patch(facecolor=pc.pale("#6a3d9a", 0.55), label="pale = − strand"), Patch(facecolor="#efefef", label="non-TE piRNA"), Patch(facecolor="#C0392B", label="antisense-to-TE = silencing (red outline); bars = TE family"), Patch(facecolor="#cfcfcf", label="sense-to-TE"), Patch(facecolor="#e9edf3", edgecolor=pc.C_GENE, label="gene model (GFF)")]
@@ -233,6 +233,6 @@ for (xbr, xcc) in [((z0 - psT) / NT_, z0), ((z1 - psT) / NT_, z1)]:
     fig.add_artist(ConnectionPatch(xyA=(xbr, off_top - 1.30), coordsA=axB.transData, xyB=(xcc, ytop + 0.6), coordsB=axC.transData, color="#E8A33D", lw=0.9, ls=(0, (3, 2))))
 fig.suptitle(f"{TELAB} → strain-private piRNA SOURCE LOCUS (individual piRNAs, NOT a PICB cluster) across the 16-strain pangenome   ·   {CARRIER.replace('_','/')} chr{CHc}:{S:,}-{E:,}", fontsize=11.0, fontweight="bold", y=0.986, color="#1a1a1a")
 pc.rtext(axA, 0.5, 0.953, [(f"expressed in {len(present)}/16 strains", pc.C_DUAL, True), ("·", "#bbb", False), (f"genetically absent in {nabs}", (pc.C_SILENCE if nabs else pc.C_META), bool(nabs)), ("·", "#bbb", False), (f"present-but-silent (regulatory) in {nsil}", "#5a6b7a", False)], fs=7.6, transform=fig.transFigure, center=True)
-import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/12_creation_source_loci/data/source_data"; _os.makedirs(_SD,exist_ok=True); FPM.to_csv(f"{_SD}/SourceData_{OUT}.csv")
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/12_creation_source_loci/data/source_data"; _os.makedirs(_SD,exist_ok=True); FPM.to_csv(f"{_SD}/SourceData_{OUT}.csv")   # per-strain x tp FPM behind panel A
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png ({len(present)} expressing strains)")

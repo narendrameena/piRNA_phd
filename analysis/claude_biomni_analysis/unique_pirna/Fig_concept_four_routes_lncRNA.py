@@ -5,7 +5,8 @@ from a CONSERVED lncRNA precursor by sequence divergence (the lncRNA gene is pre
 are both genuinely unique but BOTH arise from conserved lncRNAs (expression / sequence divergence) — lncRNAs show
 essentially no TE-style locus-gain route. Every example is CONFOUNDING-AUDITED: representative locus overlaps the
 lncRNA only (no protein_coding, no TE); target genes have protein_coding overlap = 0. Counts = SPRET Step-4 ∩
-clean-lncRNA (uniquely-mapping, 1U). Reps + audit computed here from the data."""
+clean-lncRNA (uniquely-mapping, 25-32nt) — computed LIVE here from the cand_self BAM + genome-wide clean-lncRNA
+space (lncRNA MINUS protein_coding), so they never go stale. Reps + audit also computed here from the data."""
 import warnings; warnings.filterwarnings("ignore")
 import numpy as np, pysam, pandas as pd, re
 from collections import defaultdict
@@ -15,15 +16,53 @@ ROOT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U=f"{ROOT}/analysis
 X="SPRET_EiJ"; comp={"A":"T","T":"A","C":"G","G":"C","N":"N"}; NT={"A":"#33a02c","C":"#1f78b4","G":"#ff7f00","T":"#e31a1c","N":"#999"}
 REAL=f"{ROOT}/results/STAR_srna_strain_wise/{X}/{X}-20.5dpp.1/Aligned.sortedByCoord.out.bam"; CS=f"{U}/step4/{X}.cand_self.Aligned.sortedByCoord.out.bam"
 GFF=f"{ROOT}/resources/annotation/{X}_v3.5.gff3"; RM=f"{ROOT}/resources/repeatMasker/{X}_repeatmasker.bed"
-d=pd.read_csv(f"{U}/step4/{X}.step4_classified.csv.gz"); kof=dict(zip(d.id,d.klass)); seqof=dict(zip(d.id,d.sequence))
-# route -> (klass, verdict, colour, count[clean-lncRNA], chrom, gstart, gend, sym, title, note)
-SPEC=[(1,"expressed elsewhere (exact)","NOT unique","#9e9e9e",645,"chr18",33494059,33502846,"C330008A17",
+d=pd.read_csv(f"{U}/step4/{X}.step4_classified.csv.gz"); seqof=dict(zip(d.id,d.sequence))   # id<->sequence bridge (BAM keyed by candidate id)
+_fc=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["sequence","strain","klass5"]); _fc=_fc[_fc.strain==X]
+_s2k=dict(zip(_fc.sequence,_fc.klass5)); kof={i:_s2k.get(s) for i,s in zip(d.id,d.sequence)}   # id -> klass5 (≥2-read)
+# ---- clean-lncRNA count per route, computed LIVE (was hardcoded 869/13202/3508/688 → went stale after the klass5 restoration) ----
+import bisect as _bis; _MAIN={str(i) for i in range(1,20)}|{"X"}
+def _stripc(c): return c.split("#")[-1].replace("chr","")
+_lnc=defaultdict(list); _pcg=defaultdict(list)                       # genome-wide clean-lncRNA space = lncRNA gene MINUS protein_coding
+for _ln in open(GFF):
+    if _ln[0]=="#": continue
+    _f=_ln.split("\t")
+    if len(_f)<9 or _f[2] not in ("gene","ncRNA_gene"): continue
+    _c=_stripc(_f[0])
+    if _c not in _MAIN: continue
+    if "biotype=lncRNA" in _f[8]: _lnc[_c].append((int(_f[3]),int(_f[4])))
+    elif "biotype=protein_coding" in _f[8]: _pcg[_c].append((int(_f[3]),int(_f[4])))
+def _mrg(dd):
+    o={}
+    for _cc,_iv in dd.items():
+        _iv.sort(); _m=[]
+        for _s,_e in _iv:
+            if _m and _s<=_m[-1][1]: _m[-1]=[_m[-1][0],max(_m[-1][1],_e)]
+            else: _m.append([_s,_e])
+        o[_cc]=_m
+    return o
+_lm=_mrg(_lnc); _pm=_mrg(_pcg); _pss={c:[s for s,e in _pm[c]] for c in _pm}; _pee={c:[e for s,e in _pm[c]] for c in _pm}
+def _in_pc(c,s,e):
+    if c not in _pss: return False
+    _i=_bis.bisect_right(_pss[c],e)-1; return _i>=0 and _pee[c][_i]>s
+_ss={c:[s for s,e in m] for c,m in _lm.items()}; _ee={c:[e for s,e in m] for c,m in _lm.items()}
+def _inlnc(c,s,e):
+    if c not in _ss: return False
+    _i=_bis.bisect_right(_ss[c],e)-1; return _i>=0 and _ee[c][_i]>s and not _in_pc(c,s,e)
+_csb=pysam.AlignmentFile(CS,"rb"); _cln=defaultdict(set)             # SPRET Step-4 candidates (uniquely-mapping, 25-32nt) whose self-locus sits in clean-lncRNA
+for _r in _csb:
+    if _r.is_unmapped or (_r.has_tag("NH") and _r.get_tag("NH")!=1) or not 25<=_r.reference_end-_r.reference_start<=32: continue
+    _k=kof.get(_r.query_name)
+    if _k and _inlnc(_stripc(_r.reference_name),_r.reference_start,_r.reference_end): _cln[_k].add(_r.query_name)
+_csb.close(); cleancnt={k:len(v) for k,v in _cln.items()}
+print("clean-lncRNA counts (live):",{k[:16]:cleancnt.get(k,0) for k in ["expressed elsewhere (exact)","SNP-variant (1-3mm)","unique: conserved-but-silent","unique: strain-private locus"]})
+# route -> (klass, verdict, colour, count[clean-lncRNA, LIVE via cleancnt], chrom, gstart, gend, sym, title, note)
+SPEC=[(1,"expressed elsewhere (exact)","NOT unique","#9e9e9e",cleancnt.get("expressed elsewhere (exact)",0),"chr18",33494059,33502846,"C330008A17",
        "Exact sequence in ALL strains","Identical lncRNA-derived piRNA made by every strain."),
-      (2,"SNP-variant of expressed (1-3mm)","NOT unique","#E69F00",10718,"chr17",23815048,23828598,"Gm49794",
+      (2,"SNP-variant (1-3mm)","NOT unique","#E69F00",cleancnt.get("SNP-variant (1-3mm)",0),"chr17",23815048,23828598,"Gm49794",
        "SNP-variant of a conserved lncRNA piRNA","≤3-SNP allele of a conserved lncRNA piRNA the others express."),
-      (3,"unique: conserved-but-silent","UNIQUE (expression)","#0072B2",12367,"chr7",60978491,61013294,"Gm10619",
+      (3,"unique: conserved-but-silent","UNIQUE (expression)","#0072B2",cleancnt.get("unique: conserved-but-silent",0),"chr7",60978491,61013294,"Gm10619",
        "Conserved lncRNA, expressed only in SPRET","lncRNA in all strains, piRNAs made only in SPRET — expression divergence."),
-      (4,"unique: strain-private locus","UNIQUE (sequence)","#7a3b9a",5905,"chr17",23790189,23809974,"Gm10505",
+      (4,"unique: strain-private locus","UNIQUE (sequence)","#7a3b9a",cleancnt.get("unique: strain-private locus",0),"chr17",23790189,23809974,"Gm10505",
        "Strain-private SEQUENCE from a CONSERVED lncRNA","lncRNA conserved in all 16 strains; the piRNA SEQUENCE diverged — NOT a locus gain.")]
 # ---- parse genes (all biotypes) + TE for the audit ----
 chset={s[5] for s in SPEC}; genes=defaultdict(list); te=defaultdict(list)
@@ -68,6 +107,10 @@ for rt,kl,verd,col,cnt,c,gs,ge,sym,title,note in SPEC:
     cv,qn,p0,p1,st=b; gpc=pc_over(c,gs,ge); lpc=pc_over(c,p0,p1); lte=te_over(c,p0,p1)
     REP[rt]=(seqof[qn],c,p0,p1,st,cv)
     print(f"R{rt} {sym} {c}:{p0}-{p1} {st} cov={cv:.0f} | gene-span pc-overlap={len(gpc)} | locus pc={len(lpc)} TE={len(lte)} -> {'CLEAN' if not(gpc or lpc or lte) else 'WARN'}")
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/08_unique_piRNA_TE_origin_and_strand/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+pd.DataFrame([(rt,kl,verd,sym,cnt,REP[rt][1],REP[rt][2],REP[rt][3],REP[rt][4],REP[rt][0],round(REP[rt][5],1)) for rt,kl,verd,col,cnt,c,gs,ge,sym,title,note in SPEC],
+  columns=["route","klass5","verdict","lncRNA_gene","clean_lncRNA_count","chrom","locus_start","locus_end","strand","piRNA_sequence","max_coverage_25-32nt"]
+  ).to_csv(f"{_SD}/SourceData_Fig_concept_four_routes_lncRNA.csv",index=False)   # the 4 audited representative loci that anchor the concept panels
 # ---- cross-strain intuition (lncRNA: route 4 line is CONTINUOUS = conserved, no gap) ----
 def xstrain(ax,ridx,seq):
     ax.set_xlim(0,1); ax.set_ylim(0,1); ax.axis("off")
@@ -104,7 +147,7 @@ for i,(rt,kl,verd,col,cnt,c,gs0,ge0,sym,title,note) in enumerate(SPEC):
     a,b,arr=cov(cc,st,en); xx=np.arange(a,b)
     axs.fill_between(xx,0,arr,step="mid",color=col,alpha=0.55,lw=0); axs.axvspan(st,en,color="#e0a800",alpha=0.4)
     axs.set_xlim(a,b); axs.set_ylim(0,max(arr.max(),1)*1.18)
-    axs.set_title(f"zoom-out · SPRET/EiJ {cc}:{st:,} in lncRNA {sym} — real P20.5 piRNA coverage (24–32 nt)",fontsize=6.6,fontweight="bold",loc="left")
+    axs.set_title(f"zoom-out · SPRET/EiJ {cc}:{st:,} in lncRNA {sym} — real P20.5 piRNA coverage (25–32 nt)",fontsize=6.6,fontweight="bold",loc="left")
     axs.tick_params(labelsize=5.3); axs.ticklabel_format(axis="x",style="plain"); axs.spines[['top','right']].set_visible(False); axs.set_ylabel("cov",fontsize=6)
     axn.axis("off")
     for k,bse in enumerate(seq):

@@ -22,9 +22,9 @@ for X in ORDER:
         resid[s].extend(piv.values[single][:, oth].max(1).tolist())
 def pooled(thr): t = pd.concat(combo[thr], axis=1).sum(1).drop("none", errors="ignore"); return (t / t.sum() * 100)  # denominator = EXPRESSED loci (>=1 tp above thr), exclude "none"
 t5 = pooled(5); order = ["E16", "P12", "P20", "E16+P12", "P12+P20", "E16+P20", "E16+P12+P20"]
-pd.DataFrame({f"FPM>={thr}": pooled(thr) for thr in [1, 5, 20]}).reindex(order).to_csv(f"{SD}/Fig_timepoint_combos16_sourcedata.csv")
+pd.DataFrame({f"FPM>={thr}": pooled(thr) for thr in [1, 5, 20]}).reindex(order).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/Fig_timepoint_combos16_sourcedata.csv")
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none", "axes.linewidth": 0.8})
-fig, ax = plt.subplots(1, 3, figsize=(13.5, 4.4), dpi=300)
+fig, ax = plt.subplots(1, 3, figsize=(13.5, 5.0), dpi=300)
 # a: combo distribution
 cols = [TPC.get(o, "#888") if o in TPC else "#9e9e9e" for o in order]
 ax[0].bar(range(len(order)), [t5.get(o, 0) for o in order], color=cols, edgecolor="white")
@@ -36,7 +36,8 @@ ax[0].set_title(f"a   piRNA clusters are STAGE-SPECIFIC\n{single:.0f}% single-ti
 sf = [pooled(thr)[["E16", "P12", "P20"]].sum() for thr in [1, 5, 20]]; mf = [pooled(thr)[["E16+P12", "P12+P20", "E16+P20", "E16+P12+P20"]].sum() for thr in [1, 5, 20]]
 xb = np.arange(3)
 ax[1].bar(xb - 0.2, sf, 0.4, color="#4a4a4a", label="single-timepoint"); ax[1].bar(xb + 0.2, mf, 0.4, color="#bbb", label="multi-timepoint")
-ax[1].set_xticks(xb); ax[1].set_xticklabels(["FPM≥1", "FPM≥5", "FPM≥20"], fontsize=8); ax[1].set_ylabel("% of expressed clusters", fontsize=8.5); ax[1].legend(fontsize=7.5, frameon=False)
+ax[1].set_xticks(xb); ax[1].set_xticklabels(["FPM≥1", "FPM≥5", "FPM≥20"], fontsize=8); ax[1].set_ylabel("% of expressed clusters", fontsize=8.5)
+ax[1].set_ylim(0, 108); ax[1].legend(fontsize=7.5, frameon=False, loc="upper right", bbox_to_anchor=(1.0, 1.0))
 ax[1].spines[["top", "right"]].set_visible(False); ax[1].tick_params(labelsize=7.5)
 ax[1].set_title("b   ACCURACY: single-tp dominance is\nthreshold-robust (not a cutoff artifact)", fontsize=9, fontweight="bold", loc="left")
 # c: off-tp residual FPM for single-tp clusters (truly off?)
@@ -46,8 +47,8 @@ for i, s in enumerate(SH): ax[2].text(i, fr0[i] + 0.8, f"{fr0[i]:.0f}%", ha="cen
 ax[2].set_xticks(range(3)); ax[2].set_xticklabels([f"{s}-only" for s in SH], fontsize=8); ax[2].set_ylim(0, 100); ax[2].set_ylabel("% with off-timepoint FPM < 1\n(truly OFF, not below-detection)", fontsize=8)
 ax[2].spines[["top", "right"]].set_visible(False); ax[2].tick_params(labelsize=7.5)
 ax[2].set_title("c   ACCURACY: single-tp clusters are\nTRULY off at other stages (residual ≈0)", fontsize=9, fontweight="bold", loc="left")
-fig.suptitle("piRNA clusters are deployed in SEQUENTIAL, stage-specific developmental waves (E16.5 prepachytene → P12.5 → P20.5 pachytene) — ~95% single-timepoint, switched sharply on/off per stage", fontsize=9.4, fontweight="bold", y=1.02)
-fig.tight_layout()
+fig.suptitle("piRNA clusters are deployed in SEQUENTIAL, stage-specific developmental waves (E16.5 prepachytene → P12.5 → P20.5 pachytene) — ~95% single-timepoint, switched sharply on/off per stage", fontsize=9.4, fontweight="bold", y=0.99)
+fig.tight_layout(rect=[0, 0, 1, 0.91])
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/Fig_timepoint_combos16.{e}", bbox_inches="tight")
 print("combo (FPM>=5):", {o: round(t5.get(o, 0), 1) for o in order})
 print("single-tp %:", round(single, 1), "| off-tp residual<1 %:", {s: round(f, 1) for s, f in zip(SH, fr0)})

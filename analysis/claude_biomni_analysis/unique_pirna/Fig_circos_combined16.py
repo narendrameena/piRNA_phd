@@ -92,5 +92,9 @@ fig.legend(handles=leg,loc="lower center",bbox_to_anchor=(0.5,0.05),ncol=2,fonts
 fig.suptitle("TE ARMS-RACE × PING-PONG circos — TE-expression threat vs piRNA-on-TE response, response coloured by 10A ping-pong signature, 16 strains × 3 timepoints\n"
              "outer = TE-family RNA expression (green, threat); inner = piRNA-on-TE (height = log reads, colour = 10A = ping-pong activity); bright inner meeting tall green = active ping-pong silencing of that TE family",
              fontsize=11,fontweight="bold",y=0.99,linespacing=1.5)
+import os as _os, pandas as _pd; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],fam,round(v,3)) for (X,tp),_bd in TE.items() for bi,_fd in _bd.items() for fam,v in _fd.items()],columns=["strain","timepoint","chrom","bin_start","TE_family","sRNA_expression"]).to_csv(f"{_SD}/SourceData_Fig_circos_combined16_TE.csv",index=False)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],fam,round(v,3)) for (X,tp),_bd in PI.items() for bi,_fd in _bd.items() for fam,v in _fd.items()],columns=["strain","timepoint","chrom","bin_start","TE_family","piRNA_on_TE"]).to_csv(f"{_SD}/SourceData_Fig_circos_combined16_piRNA.csv",index=False)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],round(v,4)) for (X,tp),_dd in A10.items() for bi,v in _dd.items()],columns=["strain","timepoint","chrom","bin_start","tenA_frac"]).to_csv(f"{_SD}/SourceData_Fig_circos_combined16_10A.csv",index=False)
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_circos_combined16.{e}",bbox_inches="tight")
 print("wrote Fig_circos_combined16.{png,pdf,svg}")

@@ -35,7 +35,13 @@ def cov_bins(X,tp):                                  # per bin -> [plus-strand, 
     fp=sorted(glob.glob(f"{BWDIR}/{X}/{X}-{tp}.*_plusStrand.bw"))
     fm=sorted(glob.glob(f"{BWDIR}/{X}/{X}-{tp}.*_minusStrand.bw"))
     if not fp or not fm: return {}
-    bwp=pyBigWig.open(fp[0]); bwm=pyBigWig.open(fm[0]); chl=bwp.chroms(); d={}
+    bwps=[pyBigWig.open(f) for f in fp]; bwms=[pyBigWig.open(f) for f in fm]; chl=bwps[0].chroms(); d={}   # ALL reps (was fp[0]/fm[0] = rep1 only -> dropped reps 2&3, flipping the dominant-strand call in ~1.6% of bins)
+    def _mean(bws,sc,s,e):
+        vals=[]
+        for bw in bws:
+            try: vals.append(bw.stats(sc,s,e,type="mean")[0] or 0.0)
+            except: vals.append(0.0)
+        return float(np.mean(vals)) if vals else 0.0
     for c in CHROMS:
         sc=f"{X}#1#chr{c}"
         if sc not in chl: continue
@@ -43,12 +49,10 @@ def cov_bins(X,tp):                                  # per bin -> [plus-strand, 
         for b in range(int(np.ceil(clen[c]/BIN))):
             s=b*BIN; e=min((b+1)*BIN,clen[c],L)
             if s>=L: break
-            try: vp=bwp.stats(sc,s,e,type="mean")[0] or 0.0
-            except: vp=0.0
-            try: vm=bwm.stats(sc,s,e,type="mean")[0] or 0.0
-            except: vm=0.0
+            vp=_mean(bwps,sc,s,e); vm=_mean(bwms,sc,s,e)   # mean coverage across replicates
             if vp>0 or vm>0: d[binmap[(c,b)]]=[vp,vm]
-    bwp.close(); bwm.close(); return d
+    for bw in bwps+bwms: bw.close()
+    return d
 COV={(X,tp):cov_bins(X,tp) for X in CANON for _,tp in TPS}
 allv=[v[0]+v[1] for d in COV.values() for v in d.values()]
 VMAX=np.percentile(allv,99) if allv else 1.0; LV=math.log10(VMAX+1)
@@ -81,5 +85,7 @@ fig.suptitle("piRNA-read COVERAGE circos (sRNA bigwig) — GENOMIC-STRAND-colour
              fontsize=12.5,fontweight="bold",y=0.99,linespacing=1.5)
 _rt=R_OUT-gap_g
 zoom_6nj(ax, rings=[("E16.5",_rt-0.5*sub_h),("P12.5",_rt-1.5*sub_h),("P20.5",_rt-2.5*sub_h)], theta_c=theta("1",0)-0.006)
+import os as _os, pandas as _pd; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],round(v[0],4),round(v[1],4)) for (X,tp),_dd in COV.items() for bi,v in _dd.items()],columns=["strain","timepoint","chrom","bin_start","plus_coverage","minus_coverage"]).to_csv(f"{_SD}/SourceData_Fig_circos_coverage16.csv",index=False)
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_circos_coverage16.{e}",bbox_inches="tight")
 print("wrote Fig_circos_coverage16.{png,pdf,svg}")

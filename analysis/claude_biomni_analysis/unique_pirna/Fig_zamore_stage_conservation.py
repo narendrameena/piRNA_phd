@@ -26,6 +26,8 @@ ax.axhline(16,ls=":",lw=0.6,color="#888"); ax.text(0.6,16,"core (16)",fontsize=6
 ax.set_title("Pachytene piRNA clusters are more cross-strain conserved\nthan pre-pachytene (Zamore stages × 16-strain PAV)",fontsize=9,fontweight="bold")
 ax.spines[['top','right']].set_visible(False)
 fig.tight_layout()
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/10_cluster_pangenome_PAV/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+z.to_csv(f"{_SD}/SourceData_Fig_zamore_stage_conservation.csv",index=False)   # boxplot+jitter data: per-locus Zamore stage + coverage-weighted mean #strains carrying
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/Fig_zamore_stage_conservation.{e}",bbox_inches="tight")
 print("wrote Fig_zamore_stage_conservation.{png,pdf,svg}")
 print(z.groupby("stage").mean_nstrains.agg(["size","mean","median"]).round(2).to_string())

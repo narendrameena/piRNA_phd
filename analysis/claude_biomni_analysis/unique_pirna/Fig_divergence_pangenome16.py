@@ -23,7 +23,7 @@ gn = sup[sup.present].groupby(["g39_chrom", "g39_start"]).size().rename("genome_
 cand = cand.merge(gn, on=["g39_chrom", "g39_start"], how="left").fillna({"genome_n": 0})
 cand["genome_n"] = cand.genome_n.astype(int)
 div = cand[cand.genome_n >= 10].copy()                       # divergence-driven = genome-conserved + strain-restricted
-div.to_csv(f"{SD}/Fig_divergence_pangenome16_sourcedata.csv", index=False)
+div.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/10_cluster_pangenome_PAV/data/source_data/Fig_divergence_pangenome16_sourcedata.csv", index=False)
 qc = pd.read_csv(f"{SD}/Fig_te_driven_pangenome16_QC_sourcedata.csv")   # per-strain depth + total clusters
 percar = div.carrier.value_counts().reindex(ORDER).fillna(0).astype(int)
 m = qc.set_index("strain"); m["div_loci"] = percar

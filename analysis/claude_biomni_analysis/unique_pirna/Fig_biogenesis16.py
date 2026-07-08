@@ -27,7 +27,7 @@ for f in glob.glob(f"{U}/phasing_allstrains_1random/*.phasing_summary.csv"):
     rows.append(dict(strain=strain,tp=TPMAP.get(tp),frac=float(d.frac_plus1.mean())*100))
 ph=pd.DataFrame(rows).groupby(["strain","tp"]).frac.mean().reset_index()
 ppP=ppz.pivot(index="strain",columns="tp",values="z").reindex(CANON); phP=ph.pivot(index="strain",columns="tp",values="frac").reindex(CANON)
-ppP.to_csv(f"{PG}/SourceData_biogenesis16_pingpong.csv"); phP.to_csv(f"{PG}/SourceData_biogenesis16_phasing.csv")
+ppP.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data/SourceData_biogenesis16_pingpong.csv"); phP.to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/15_pirna_biology_misc/data/source_data/SourceData_biogenesis16_phasing.csv")
 print("ping-pong z10 mean by tp:",{t:round(ppP[t].mean(),2) for t in TPO if t in ppP})
 print("phasing %  mean by tp:",{t:round(phP[t].mean(),1) for t in TPO if t in phP})
 plt.rcParams.update({"font.family":"Liberation Sans"})
