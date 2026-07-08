@@ -37,7 +37,7 @@ silencing bar) / C (base-resolution 1U); plus pangenome TE-driven test + locus g
 | bcftools / Python | 1.21 / 3.11.15 | parse pangenome SV insertions | singleton ≥40 bp |
 | cactus / halLiftover | v2.9.3 | lift insertions/loci across strains | `halLiftover` |
 | bedtools | 2.31.1 | insertion ∩ cluster (1 frame) | `intersect` |
-| pysam | (Python 3.11.15) | read-level 1U / antisense-to-TE | 24–32 nt; 5′ base; TE-relative |
+| pysam | (Python 3.11.15) | read-level 1U / antisense-to-TE | 25–32 nt; 5′ base; TE-relative |
 | Python | 3.11.15 | figures | matplotlib |
 
 ## INPUTS  pangenome SV VCF; PICB clusters; RepeatMasker → `data/TE_driven_COORDINATE_{CAST_EiJ,SPRET_EiJ}.csv`.

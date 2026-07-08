@@ -36,7 +36,7 @@ FPM, antisense-to-TE fraction (TE-relative strand).
 | cactus / halLiftover | v2.9.3 | pangenome projection + genome PAV | strain↔GRCm39 |
 | bedtools | 2.31.1 | TE ∩ cluster | `intersect` |
 | RepeatMasker BED | per-strain | TE family/strand | col4 `name|class/family`, strand |
-| pysam | (Python 3.11.15) | 1U / antisense / FPM | 24–32 nt; TE-relative strand |
+| pysam | (Python 3.11.15) | 1U / antisense / FPM | 25–32 nt; TE-relative strand |
 | Python | 3.11.15 | figures | matplotlib, Liberation Sans |
 
 ## INPUTS  `picb_pangenome_clusters.tsv` (→`_shared_data/`), per-strain BAMs, RepeatMasker, HAL; `catalogue_loci.tsv` (20 loci).

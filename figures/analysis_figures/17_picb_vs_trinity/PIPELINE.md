@@ -43,6 +43,15 @@ P20.5 ×3 (SPRET/CAST/C57BL_6NJ) + P12.5 ×2. → `picb_vs_trinity/read_capture_
 slightly exceeds PICB). 5-sample piRNA-specific (24–32 nt): P20.5 11.2/11.0, 19.9/20.3, 26.0/25.6 %; P12.5 7.4/4.8,
 8.8/3.8 %. NB sets overlap → not additive. Caveat: the 24–32 window includes 24 nt, which is 1U-impure (46 % vs core 80 %); the theme's length test adopts the tighter **25–32** as cleaner (`Fig_pirna_length_window_test`).
 
+> **piRNA length-window CONVENTION (project-wide).** This project deliberately uses two windows:
+> **(i) 24–32 nt — broad DETECTION**: the candidate/classification set (`final_classified_clean_2read`, klass5),
+> the DA count matrices (`build_count_matrix16`), and the read-capture metric (`read_capture_pirna`, `run_capture_array`).
+> **(ii) 25–32 nt — ADOPTED PURE piRNA window**: used for all 1U-signature-dependent rendering — coverage / 1U /
+> antisense-to-TE (`pav_clusters`, catalogue themes 09–13) and the phasing signature (`Fig_phasing_allstrains`).
+> Rationale (`Fig_pirna_length_window_test`): 24 nt is 1U-impure (46 % 1U vs ~80 % for 25–31 nt), so it is kept for
+> broad detection but excluded from purity-sensitive metrics. Every figure/caption should state the window its code
+> actually used; a "24–32" label on a pav_clusters coverage/1U panel is a mislabel (that rendering is 25–32).
+
 **S5 · figures.** `Fig_picb_vs_trinity_concordance` (2×2: counts, overlap, fragmentation+length, bp) and
 `Fig_picb_vs_trinity_readcapture` (read-mass capture).
 
