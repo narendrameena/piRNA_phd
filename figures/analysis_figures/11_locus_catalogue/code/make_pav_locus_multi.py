@@ -165,7 +165,7 @@ for i, X in enumerate(present):
 # (right-margin 'all piRNA → TE' bar is explained in the Panel-B bottom legend; no inline column caption, to avoid overlapping the first strain's header)
 axB.set_xlim(0, 1); axB.set_ylim(off_top - 3.0, 2.1); axB.axis("off")   # must match the pre-loop ylim so the last strain's gene lane + name are not clipped
 pbadge(axB, "B", "Per-timepoint sRNA coverage inside each PICB cluster — height = expression, colour = timepoint (deep ↑+ / pale ↓−)   ·   TE + gene tracks below each strain   ·   example → zoom C", fs=7.3, y=1.07)
-axB.text(0.012, 1.02, "‘primary reads’ = each sRNA read (24–32 nt) counted once at its STAR primary locus (multimappers kept, not double-counted) · architecture (genomic strand) ≠ sense/antisense (relative to TE)", transform=axB.transAxes, fontsize=5.2, color="#8a8a8a", style="italic", ha="left", va="center")
+axB.text(0.012, 1.02, "‘primary reads’ = each sRNA read (25–32 nt) counted once at its STAR primary locus (multimappers kept, not double-counted) · architecture (genomic strand) ≠ sense/antisense (relative to TE)", transform=axB.transAxes, fontsize=5.2, color="#8a8a8a", style="italic", ha="left", va="center")
 famset = list(dict.fromkeys((f.split("|")[-1] if "|" in f else f) for X in present for (_, _, _, f) in COV[X]["tes"]))[:6]
 _tpkey = [Patch(facecolor=pc.PLUS_COL[t], label=TPLAB[t]) for t in TPS]
 _stkey = [Patch(facecolor="#6a3d9a", label="TOP bar: solid = + strand"), Patch(facecolor=pale("#6a3d9a", 0.55), label="TOP bar: pale = − strand"), Patch(facecolor="#cfcfcf", label="BOTTOM bar: sense-to-TE (grey)"), Patch(facecolor="#efefef", label="non-TE piRNA"), Patch(facecolor="#e9edf3", edgecolor=pc.C_GENE, label="gene model (GFF)")]

@@ -24,7 +24,7 @@ the divergence visible). **Result #:** **12** figures.
 | STAR / PICB | 2.7.11b / R 4.2.3 | reads + clusters | piRNA params; combined |
 | cactus / halLiftover | v2.9.3 | genome PAV (locus present) vs pangenome FPM (expressed) | strain↔GRCm39 |
 | bedtools | 2.31.1 | TE ∩ cluster | `intersect` |
-| pysam | (Python 3.11.15) | per-strain coverage / 1U / antisense | 24–32 nt; TE-relative |
+| pysam | (Python 3.11.15) | per-strain coverage / 1U / antisense | 25–32 nt; TE-relative |
 | Python | 3.11.15 | divergence selection + figures | present-genome ∩ silent-expression; matplotlib |
 
 ## INPUTS  `pangenome_te/divergence_loci_final.tsv` (12); `picb_pangenome_clusters.tsv`; BAMs; RepeatMasker; HAL.

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""TEST FIGURE — justification of the piRNA length window (24-32 nt) for the read-capture metric.
+"""TEST FIGURE — the piRNA length-window CONVENTION. Candidate detection + classification + the read-capture metric
+use the broad 24-32 nt window; this test shows 25-32 nt is the 1U-PURE ADOPTED window (24 nt is 1U-impure, 46% 1U vs
+~80% core), so the signature-dependent rendering (coverage / 1U / antisense, via pav_clusters + phasing) uses 25-32.
 Count-weighted read-length distribution of the trimmed sRNA library (collapse/*.raw.fasta.gz; cutadapt 20-36 nt),
 6 strains (3 wild + 3 classical) x 3 timepoints, rep1.
 A: per-length % by stage (mode 27->30 nt; 21 nt miRNA negligible). B: % of library captured by candidate windows.

@@ -26,7 +26,7 @@ EXPR_MIN = 50. **Result #:** **27** source loci → **29** figures (incl. CAST E
 | STAR / PICB | 2.7.11b / R 4.2.3 | reads + clusters | piRNA params; combined |
 | cactus / halLiftover | v2.9.3 | pangenome projection + genome PAV | strain↔GRCm39 |
 | bedtools | 2.31.1 | gap-merge + insertion ∩ cluster | `merge`(gap 8 kb)/`intersect` |
-| pysam | (Python 3.11.15) | carrier read coverage / 1U / antisense | 24–32 nt; TE-relative |
+| pysam | (Python 3.11.15) | carrier read coverage / 1U / antisense | 25–32 nt; TE-relative |
 | Python | 3.11.15 | window snap + figures | gap+8 kb, ±3 kb, 45 kb cap; matplotlib |
 
 ## INPUTS  `pangenome_te/source_loci_master_creation_private.tsv` (carrier,chrom,start,end,te,strand,FPM,class,gbreadth); `picb_pangenome_clusters.tsv`; BAMs; RepeatMasker; HAL.
