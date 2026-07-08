@@ -33,7 +33,7 @@ nb = 180
 sub = clusters_at(G39C, G39S, G39E)
 FPM = sub.groupby(["strain", "tp"])["all_primary_FPM"].max().unstack(fill_value=0.0).reindex(index=ORDER, columns=TPS).fillna(0.0)
 present = present_strains(sub, ORDER)                         # CANONICAL order, Panel-A order
-TOP = present[-1] if present else max(ORDER, key=lambda X: FPM.loc[X].max())
+TOP = max(present, key=lambda X: FPM.loc[X].max() if X in FPM.index else 0) if present else max(ORDER, key=lambda X: FPM.loc[X].max())
 PAV = {X: ("present" if FPM.loc[X].max() > 0 else genome_pav(G39C, G39S, G39E, X)) for X in ORDER}   # expression PROVES presence (FPM>0 => locus present; halLiftover g39->strain can false-negative)
 nabs = sum(1 for X in ORDER if PAV[X] == "absent"); nsil = sum(1 for X in ORDER if PAV[X] == "present" and FPM.loc[X].max() == 0)
 pattern_auto = f"PICB cluster in {len(present)}/16 strains  ·  locus genetically ABSENT in {nabs}  ·  present-but-silent (regulatory) in {nsil}"
@@ -59,7 +59,7 @@ def collect(X):
                 ntot=ntot, nplus=npl, nminus=nmi, n1u=n1u, nat=nat, nte=nte, domTE=dom_te_family(tes, ps, pe), fam_all=fam_all,
                 pct_at=100 * nat / max(1, nte), arch="dual-strand" if min(nmi, ntot - nmi) / max(1, ntot) > 0.2 else "uni-strand")
 COV = {X: collect(X) for X in present}; COV = {X: d for X, d in COV.items() if d and d["ntot"] > 0}
-present = [X for X in present if X in COV]; TOP = present[-1] if present else TOP
+present = [X for X in present if X in COV]; TOP = max(present, key=lambda X: FPM.loc[X].max() if X in FPM.index else 0) if present else TOP
 # ---- (3) figure ----
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none"})
 nP = max(1, len(present)); fig = plt.figure(figsize=(14, 9.8 + 1.7 * nP), dpi=300)
@@ -165,7 +165,7 @@ for i, X in enumerate(present):
 # (right-margin 'all piRNA → TE' bar is explained in the Panel-B bottom legend; no inline column caption, to avoid overlapping the first strain's header)
 axB.set_xlim(0, 1); axB.set_ylim(off_top - 3.0, 2.1); axB.axis("off")   # must match the pre-loop ylim so the last strain's gene lane + name are not clipped
 pbadge(axB, "B", "Per-timepoint sRNA coverage inside each PICB cluster — height = expression, colour = timepoint (deep ↑+ / pale ↓−)   ·   TE + gene tracks below each strain   ·   example → zoom C", fs=7.3, y=1.07)
-axB.text(0.012, 1.02, "‘primary reads’ = each sRNA read (24–32 nt) counted once at its STAR primary locus (multimappers kept, not double-counted) · architecture (genomic strand) ≠ sense/antisense (relative to TE)", transform=axB.transAxes, fontsize=5.2, color="#8a8a8a", style="italic", ha="left", va="center")
+axB.text(0.012, 1.02, "‘primary reads’ = each sRNA read (25–32 nt) counted once at its STAR primary locus (multimappers kept, not double-counted) · architecture (genomic strand) ≠ sense/antisense (relative to TE)", transform=axB.transAxes, fontsize=5.2, color="#8a8a8a", style="italic", ha="left", va="center")
 famset = list(dict.fromkeys((f.split("|")[-1] if "|" in f else f) for X in present for (_, _, _, f) in COV[X]["tes"]))[:6]
 _tpkey = [Patch(facecolor=pc.PLUS_COL[t], label=TPLAB[t]) for t in TPS]
 _stkey = [Patch(facecolor="#6a3d9a", label="TOP bar: solid = + strand"), Patch(facecolor=pale("#6a3d9a", 0.55), label="TOP bar: pale = − strand"), Patch(facecolor="#cfcfcf", label="BOTTOM bar: sense-to-TE (grey)"), Patch(facecolor="#efefef", label="non-TE piRNA"), Patch(facecolor="#e9edf3", edgecolor=pc.C_GENE, label="gene model (GFF)")]
@@ -205,6 +205,6 @@ fig.suptitle(f"{GENE}   ·   PICB piRNA cluster across the 16-strain pangenome",
 pc.rtext(axA, 0.5, 0.953, [(f"present in {len(present)}/16 strains", pc.C_DUAL, True), ("·", "#bbb", False),
                            (f"genetically absent in {nabs}", (pc.C_SILENCE if nabs else pc.C_META), bool(nabs)), ("·", "#bbb", False),
                            (f"present-but-silent (regulatory) in {nsil}", "#5a6b7a", False)], fs=7.6, transform=fig.transFigure, center=True)
-import os as _os; _SD=("/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/13_divergence_loci/data/source_data" if str(OUT).startswith("Fig_divergence") else "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/data/source_data"); _os.makedirs(_SD,exist_ok=True); FPM.to_csv(f"{_SD}/SourceData_{OUT}.csv")
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/11_locus_catalogue/data/source_data"; _os.makedirs(_SD,exist_ok=True); FPM.to_csv(f"{_SD}/SourceData_{OUT}.csv")   # per-strain x tp FPM behind panel A
 for e in ("pdf", "svg", "png"): fig.savefig(f"{PG}/{OUT}.{e}", bbox_inches="tight")
 print(f"   wrote {OUT}.png ({len(present)} present strains)")

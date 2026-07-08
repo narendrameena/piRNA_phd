@@ -10,8 +10,10 @@ from matplotlib.patches import Rectangle
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
 comp={"A":"T","T":"A","C":"G","G":"C","N":"N"}
 def rc(s): return "".join(comp.get(c,"N") for c in reversed(s))
-d=pd.read_csv(f"{U}/step4/SPRET_EiJ.step4_classified.csv.gz")
-sv=set(d.loc[d.klass=="SNP-variant of expressed (1-3mm)","id"])
+d=pd.read_csv(f"{U}/step4/SPRET_EiJ.step4_classified.csv.gz")   # id<->sequence bridge (BAMs are keyed by candidate id)
+_fc=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["sequence","strain","klass5"])
+_snp=set(_fc.loc[(_fc.strain=="SPRET_EiJ")&(_fc.klass5=="SNP-variant (1-3mm)"),"sequence"])   # klass5-defined SNP-variant set (≥2-read)
+sv=set(d.loc[d.sequence.isin(_snp),"id"])
 # SPRET own-genome loci for sv candidates (first pass)
 self_loc={}
 selfb=pysam.AlignmentFile(f"{U}/step4/SPRET_EiJ.cand_self.Aligned.sortedByCoord.out.bam","rb")
@@ -47,7 +49,7 @@ def track(seq,other,y,gstart,gstrand,lab,locuslab):
     # genomic coordinate ticks (every 5 bp) — real positions
     for k in range(0,L,5):
         pos = gstart+k if gstrand=="+" else gstart+(L-k)   # display genomic coordinate at this base
-        ax.text(k*bw+bw*0.46,y-0.12,f"{gstart+k:,}",ha="center",va="top",fontsize=5.0,color="#888",rotation=90)
+        ax.text(k*bw+bw*0.46,y-0.12,f"{pos:,}",ha="center",va="top",fontsize=5.0,color="#888",rotation=90)
     ax.text(0,y+0.95,locuslab,fontsize=7,color="#555")
 track(spret,cons,2.0,ss,"-" if srev else "+","SPRET/EiJ piRNA (strain-specific by sequence)",f"SPRET genome {schr}:{ss:,}-{se:,}")
 track(cons,spret,0.5,cs,"-" if crev else "+","conserved piRNA — also expressed in CAST/EiJ & C57BL/6NJ",f"CAST genome {cchr}:{cs:,}-{ce:,}")
@@ -59,6 +61,8 @@ ax.text(L*bw+0.4,1.6,f"{len(snps)} SNPs (✗)\n→ NOT unique",fontsize=8,color=
 ax.text(L*bw*0.5,3.15,"The SPRET piRNA (2 SNPs) is a near-copy of a CONSERVED piRNA expressed in CAST/EiJ — NOT a novel piRNA",ha="center",fontsize=9.3,fontweight="bold")
 fig.text(0.5,0.02,"Coordinate-anchored: SPRET piRNA at its real SPRET-genome position (top); the matching conserved piRNA at its CAST-genome position (bottom). "
   "NB the CAST copy is at a different coordinate (a paralogous family copy, not the syntenic allele) — but the sequence (±2 SNPs) IS expressed in CAST, so the genome-anchored test (≤3 mm) calls it NOT unique.",ha="center",fontsize=5.8,color="#555")
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+pd.DataFrame([{"SPRET_locus":f"{schr}:{ss}-{se}","SPRET_strand":"-" if srev else "+","CAST_locus":f"{cchr}:{cs}-{ce}","CAST_strand":"-" if crev else "+","SPRET_seq":"".join(spret),"conserved_CAST_seq":"".join(cons),"n_SNPs":len(snps),"SNP_positions":";".join(map(str,sorted(snps)))}]).to_csv(f"{_SD}/SourceData_Fig_snp_variant_coord.csv",index=False)   # the single coordinate-anchored SNP-variant example
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/pangenome_te/Fig_snp_variant_coord.{e}",bbox_inches="tight")
 from PIL import Image; print("size:",Image.open(f"{U}/pangenome_te/Fig_snp_variant_coord.png").size)
 print("wrote Fig_snp_variant_coord.{png,pdf,svg}")

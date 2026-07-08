@@ -90,7 +90,7 @@ _h = nb // 2; _q = {"upper left": antiC[:_h].sum(), "upper right": antiC[_h:].su
 axC.legend(fontsize=6.2, frameon=False, loc=min(_q, key=_q.get))   # legend in the EMPTIEST corner — dynamic per the Panel B coverage (antisense=top, sense=bottom; left/right halves), so it never overlaps the bars
 axC.spines[['top','right']].set_visible(False)
 axC.set_ylim(-max(senseC.max(),1)*1.18, max(antiC.max(),1)*1.42)   # top headroom so the ping-pong-pair callout clears the peak
-pc.pbadge(axC,"B",f"Strand-resolved piRNA coverage (24–32 nt) — antisense-to-TE = silencing (red) · sense = grey · TE {TELAB}",fs=7.5,y=1.17)   # raised clear of the ping-pong callout (at axes-frac y≈1.01)
+pc.pbadge(axC,"B",f"Strand-resolved piRNA coverage (25–32 nt) — antisense-to-TE = silencing (red) · sense = grey · TE {TELAB}",fs=7.5,y=1.17)   # raised clear of the ping-pong callout (at axes-frac y≈1.01)
 # 1U
 vals=[fc.get(n,0) for n in ["A","C","G","T"]]; ax1.bar(["A","C","G","U"],vals,color=["#cfcfcf","#cfcfcf","#cfcfcf",pc.C_1U]); ax1.set_ylim(0,max(vals+[1])*1.28)
 for i,v in enumerate(vals): ax1.text(i,v+1,f"{v:.0f}",ha="center",fontsize=6,fontweight="bold")

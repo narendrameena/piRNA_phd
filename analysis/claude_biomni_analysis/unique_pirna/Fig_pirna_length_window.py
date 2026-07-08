@@ -44,5 +44,5 @@ ax.set_title(f"piRNA length distribution -> data-driven window {lo}-{hi} nt (FWH
 ax.set_xticks(xs); ax.tick_params(labelsize=6.5)
 fig.tight_layout()
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/Fig_pirna_length_window.{e}",bbox_inches="tight")
-pct.round(3).to_csv(f"{U}/SourceData_pirna_length_distribution.csv")
+pct.round(3).to_csv(f"/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data/SourceData_pirna_length_distribution.csv")
 print("\nwrote Fig_pirna_length_window + SourceData_pirna_length_distribution.csv")

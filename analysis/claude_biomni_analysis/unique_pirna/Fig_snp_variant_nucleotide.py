@@ -9,8 +9,10 @@ from matplotlib.patches import Rectangle
 U="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
 comp={"A":"T","T":"A","C":"G","G":"C","N":"N"}
 def rc(s): return "".join(comp.get(c,"N") for c in reversed(s))
-d=pd.read_csv(f"{U}/step4/SPRET_EiJ.step4_classified.csv.gz")
-sv=set(d.loc[d.klass=="SNP-variant of expressed (1-3mm)","id"])
+d=pd.read_csv(f"{U}/step4/SPRET_EiJ.step4_classified.csv.gz")   # id<->sequence bridge (BAMs are keyed by candidate id)
+_fc=pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",usecols=["sequence","strain","klass5"])
+_snp=set(_fc.loc[(_fc.strain=="SPRET_EiJ")&(_fc.klass5=="SNP-variant (1-3mm)"),"sequence"])   # klass5-defined SNP-variant set (≥2-read)
+sv=set(d.loc[d.sequence.isin(_snp),"id"])
 bam=pysam.AlignmentFile(f"{U}/step4/SPRET_EiJ.cand_to_CAST_EiJ.Aligned.sortedByCoord.out.bam","rb")
 pick=None
 for a in bam.fetch(until_eof=True):
@@ -61,5 +63,7 @@ ax.text(len(spret)*bw+0.4,1.27,f"{len(snps)} mismatches (✗)\n≤3 = data-drive
 fig.text(0.5,0.02,"The SPRET piRNA looked strain-specific only because its sequence carries a few SNPs; the SAME piRNA (conserved sequence) is expressed in the other strains. "
   "The STAR genome-anchored test catches this (≤3-mm match to an expressed sequence) and correctly calls it NOT unique.",ha="center",fontsize=6.4,color="#555")
 fig.tight_layout()
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+pd.DataFrame([{"SPRET_seq":spret,"conserved_seq":cons,"n_SNPs":len(snps),"SNP_positions":";".join(map(str,snps)),"conserved_locus":f"{refname}:{refstart}-{refend}","strand":"-" if isrev else "+"}]).to_csv(f"{_SD}/SourceData_Fig_snp_variant_nucleotide.csv",index=False)   # the single SNP-variant example (Route 2)
 for e in ("pdf","svg","png"): fig.savefig(f"{U}/pangenome_te/Fig_snp_variant_nucleotide.{e}",bbox_inches="tight")
 print("wrote Fig_snp_variant_nucleotide.{png,pdf,svg}")

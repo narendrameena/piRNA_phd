@@ -95,5 +95,7 @@ fig.suptitle("piRNA cluster STRAND-ARCHITECTURE circos — dual-strand vs uni-st
              fontsize=12.5,fontweight="bold",y=0.99,linespacing=1.5)
 _rt=R_OUT-gap_g
 zoom_6nj(ax, rings=[("E16.5",_rt-0.5*sub_h),("P12.5",_rt-1.5*sub_h),("P20.5",_rt-2.5*sub_h)], theta_c=theta("1",0)-0.006)
+import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/14_circos_pangenome_TE/data/source_data"; _os.makedirs(_SD,exist_ok=True)
+_pd.DataFrame([(X,tp,bins[bi][0],bins[bi][1],round(v[0],3),round(v[1],3),("dual" if (v[0]>0 and v[1]>0 and min(v)>=0.3*max(v)) else "uni")) for (X,tp),_dd in CL.items() for bi,v in _dd.items()],columns=["strain","timepoint","chrom","bin_start","plus_FPM","minus_FPM","architecture"]).to_csv(f"{_SD}/SourceData_Fig_circos_pingpong16.csv",index=False)   # cluster strand-architecture rings (per strain x tp x 2Mb bin)
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_circos_pingpong16.{e}",bbox_inches="tight")
 print("wrote Fig_circos_pingpong16.{png,pdf,svg}")
