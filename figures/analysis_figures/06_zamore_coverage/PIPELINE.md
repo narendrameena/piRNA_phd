@@ -13,7 +13,7 @@ PICB cluster architecture — a recovery/QC check that the pipeline sees the can
 **S0–S1 · reads → genome.** cutadapt 5.0 (C57BL/6 public adapters) → STAR 2.7.11b (unmasked GRCm38 (= mm10), piRNA
 params).
 
-**S2 · Zamore loci.** published pachytene annotation on **mm10 (= GRCm38)** — PICB clusters and annotation share this build, **NO liftover** — grouped by stage.
+**S2 · Zamore loci.** published pachytene annotation on **mm10 (= GRCm38)** — PICB clusters and annotation share this build, so **NO liftover in this sub-analysis** (the separate GRCm39/pangenome Zamore track instead lifts this same mm10 annotation to mm39 via `results/liftOverChainFiles/mm10ToMm39.over.chain.gz` → `results/zamore/all_zamore_overlift.tab`; UCSC chain liftOver is used **only** for that mm10→mm39 step — all cross-strain projection elsewhere is the pangenome/cactus HAL) — grouped by stage.
 **Result #:** **214** stage-annotated + **1** unstaged = **215** genes — **Pachytene 99 / Prepachytene 83 / Hybrid 32**.
 
 **S3 · coverage.** **bedtools-style interval intersect (2.31.1)** — coverage = fraction of each Zamore locus outer span overlapped by called PICB cluster intervals (mm10 (= GRCm38) annotation ∩ PICB clusters), per Zamore gene; detection rate per stage; per-stage CDFs; pachytene heatmap. **Result #:** detection rates for
