@@ -340,7 +340,7 @@ ax_d.legend(fontsize=6.5, frameon=False, loc='upper left',
 
 fig.suptitle(
     "Cumulative TE-derived structural variants drive piRNA cluster locus rearrangement\n"
-    "214 Zamore loci · 16 strains · PICB 2-of-3 · pangenome VCF SVs ≥300 bp · "
+    "214 Zamore loci · 16 strains · PICB combined-replicate run · pangenome VCF SVs ≥300 bp · "
     "C57BL_6NJ RepeatMasker annotation",
     fontsize=8.5, fontweight='bold', y=1.012)
 

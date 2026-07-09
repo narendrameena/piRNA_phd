@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """piRNA PANGENOME ATLAS of 16 inbred mouse strains — a Figure-1-style overview INSPIRED BY Helmy et al.
-(Cell Genomics 2026; the 17-genome mouse reference pangenome). It is the piRNA counterpart of that
+(Cell Genomics 2025; the 17-genome mouse reference pangenome). It is the piRNA counterpart of that
 genomic pangenome: where the paper maps NON-REFERENCE SEQUENCE across the genome, we map STRAIN-PRIVATE
 piRNA loci — the accessory piRNA repertoire.
 (A) Genome-wide strain-private piRNA landscape: per-2Mb-bin density along all chromosomes for the four
@@ -42,7 +42,9 @@ k = pd.read_csv(f"{U}/unique16/final_classified_clean_2read.csv.gz",
 PRIV = "unique: strain-private locus"; CBS = "unique: conserved-but-silent"
 priv_by_strain = {X: set(k.loc[(k.strain==X)&(k.klass5.isin([PRIV,CBS])),"sequence"]) for X in CANON}   # genuinely-unique loci that project to GRCm39 (strain-private new loci are mostly OFF-reference, like the paper's non-reference sequence)
 uniq = k[k.klass5.isin([PRIV,CBS])]
-yield_tab = (uniq.groupby(["strain","klass5"]).size().unstack(fill_value=0).reindex(index=CANON, columns=[CBS,PRIV]).fillna(0))
+# count DISTINCT piRNA sequences per (strain, klass5) — the table has one row per (sequence, strain, timepoint),
+# so a piRNA detected at 2-3 timepoints must not be counted 2-3x; dedupe to match panels A (set(sequence)) and C.
+yield_tab = (uniq.drop_duplicates(["strain","klass5","sequence"]).groupby(["strain","klass5"]).size().unstack(fill_value=0).reindex(index=CANON, columns=[CBS,PRIV]).fillna(0))
 # locus frequency = # strains carrying the homologous locus (from homolog_strains), de-duplicated per (klass, sequence)
 _fs = uniq.drop_duplicates(["klass5","sequence"]).copy()
 _fs["nstrains"] = _fs.homolog_strains.fillna("").apply(lambda s: len([x for x in str(s).split(",") if x]) if s else 1).clip(1,16)
@@ -269,7 +271,7 @@ axI.set_title("I   Developmental timepoint — TOTAL genuinely-unique piRNA expr
               fontsize=9.0, fontweight="bold", loc="left")
 
 fig.suptitle("The piRNA PANGENOME of 16 inbred mouse strains — a conserved core piRNA-ome and a large, wild-derived-dominated, TE-driven strain-private accessory repertoire\n"
-             "(the piRNA counterpart of the 17-genome mouse reference pangenome, Helmy et al., Cell Genomics 2026)",
+             "(the piRNA counterpart of the 17-genome mouse reference pangenome, Helmy et al., Cell Genomics 2025)",
              fontsize=11.5, fontweight="bold", y=0.975, linespacing=1.5)
 for e in ("pdf","svg","png"): fig.savefig(f"{TH}/figures/Fig_pirna_pangenome_atlas.{e}", bbox_inches="tight")
 # ---- source data ----

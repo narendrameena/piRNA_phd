@@ -8,9 +8,10 @@ Biology: length is set by the bound PIWI footprint (pre-pachytene MILI ~26-27 nt
 The E16.5 pre-pachytene pool ALSO includes the fetal nuclear PIWI MIWI2 (~28 nt; de-novo TE methylation; MILI/MIWI2
 ping-pong, see drivers panel C). NOTE: MILI vs MIWI2 are NOT separable by read length (overlapping footprints + 3'
 raggedness), so the windows here are READ-LENGTH classes, not protein assignments -- 28 nt is acknowledged, not analysed.
-Data: unique_pirna/unique16/final_classified_clean_2read.csv.gz (>=2-read, 25-32 nt, within-tp classified piRNAs).
-Window (per-tp, data-verified): E16.5 -> 27; P12.5 -> 27 & 30; P20.5 -> 30 (make_stage_peak_unique.py). 24 nt excluded
-by the 1U-peak test (piRNA range 25-32 nt)."""
+Data: unique_pirna/unique16/final_classified_clean_2read.csv.gz (>=2-read, 24-32 nt, within-tp classified piRNAs;
+404,769 rows, 24-nt reads present and counted as -3nt isoforms).
+Window (per-tp, data-verified): E16.5 -> 27; P12.5 -> 27 & 30; P20.5 -> 30 (make_stage_peak_unique.py). 24-nt reads
+present and counted as -3nt isoforms (length range 24-32 nt)."""
 import warnings; warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt

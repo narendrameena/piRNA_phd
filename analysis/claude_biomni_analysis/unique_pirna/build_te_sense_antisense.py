@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Per-strain, per-timepoint, per-family, per-2Mb-bin SENSE-to-TE vs ANTISENSE-to-TE small-RNA on TEs, using the
 VERIFIED read-vs-TE-strand logic (antisense = ((TE_strand=='-') != read.is_reverse); sense = complement) — NOT
-genomic +/- strand. PRIMARY sRNA reads only (24-32 nt; no multimapping spillover). TE annotation = RepeatMasker
+genomic +/- strand. PRIMARY sRNA reads only (25-32 nt; no multimapping spillover). TE annotation = RepeatMasker
 own genome. This is the small-RNA basis for the circos: SENSE-to-TE = TE expression; ANTISENSE-to-TE = piRNA-on-TE.
 Output cluster_pav/te_sense_antisense/{strain}.tsv (strain, chrom, bin, family, tp, sense, antisense).
 Usage: build_te_sense_antisense.py <strain>   (or SLURM array index)."""

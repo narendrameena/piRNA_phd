@@ -15,11 +15,12 @@ replicates before PICB changes **which** clusters are found (reproducibility QC)
 
 **S2 · PICB cluster calling.** **PICB (R 4.2.3 / Bioconductor)**, genome-wide `LIBRARY.SIZE`; `clusters`
 sheet. Two modes: per-replicate (rep 1/2/3) and **combined** (reps pooled before PICB).
-**Result #:** **48** combined runs (16 strains × 3 tp); median **12 713** clusters (range 2 174–25 958);
+**Result #:** **48** combined runs (16 strains × 3 tp); median **12713.5** clusters (range 2 174–25 958);
 combined ≈ mean of the 3 replicates.
 
-**S3 · reproducibility overlap.** **bedtools 2.31.1** — same-strand interval overlap of replicate vs combined
-cluster BEDs; support composition (in 3/2/1/0 reps). **Result #:** a single replicate already recovers
+**S3 · reproducibility overlap.** **pure numpy/pandas** (`extract_picb_rep_combined_overlap.py` — `np.searchsorted`
+interval overlap, NOT bedtools) — same-strand interval overlap of replicate vs combined
+cluster sets; support composition (in 3/2/1/0 reps). **Result #:** a single replicate already recovers
 **92.1 %** (median) of combined clusters; **<1 %** of combined clusters are unique to combined.
 
 **S4 · figures.** **matplotlib (Python 3.11.15)** — grouped bars (**error bar = ±SD across 3 replicates**),
@@ -31,7 +32,7 @@ single-rep-vs-combined, and the support-composition / recovery overlap. → **3*
 | cutadapt | 5.0 | trim adapter | `TGGAATTCTCGGGTGCCAAGG`, 20–36 nt |
 | STAR | 2.7.11b | unmasked alignment | piRNA params (0 mismatch, 800 multimap, EndToEnd) |
 | PICB | R 4.2.3 | cluster calling | `clusters` sheet; combined = reps pooled |
-| bedtools | 2.31.1 | rep↔combined overlap | same-strand interval intersect |
+| numpy/pandas | Python 3.11.15 | rep↔combined overlap | same-strand `np.searchsorted` interval overlap (`extract_picb_rep_combined_overlap.py`) |
 | Python | 3.11.15 | figures | matplotlib, error bars = ±SD |
 
 ## INPUTS
@@ -44,7 +45,7 @@ single-rep-vs-combined, and the support-composition / recovery overlap. → **3*
 `Fig_picb_rep_combined_overlap` (support composition + recovery).
 
 ## DOUBLE-VERIFICATION
-- Numbers recomputed from `SourceData_PICB_cluster_counts.csv`: 48 combined, median 12 713 (2 174–25 958);
+- Numbers recomputed from `SourceData_PICB_cluster_counts.csv`: 48 combined, median 12713.5 (2 174–25 958);
   per-rep example C57BL/6NJ E16.5 = 19933/18810/18786, combined 18855 (combined ≈ rep mean → ±SD error bars valid).
 - The "combining replicates doesn't change which clusters are found" conclusion is read directly from the
   >99 % overlap — a **method-QC** result, not a biological claim. Cross-ref theme 04 (PICB library-size QC).
@@ -61,7 +62,7 @@ Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`expo
 bash workflow/scripts/run_picb_analysis_chunked.sh
 # PICB on replicate-pooled BAM (combined run; calls picb_combine_script.R):
 bash analysis/claude_biomni_analysis/picb_combined_array/run_combined.sh
-# S3 replicate<->combined overlap is computed inside the figure scripts (interval overlap).
+# S3 replicate<->combined overlap is computed by analysis/claude_biomni_analysis/extract_picb_rep_combined_overlap.py (pure numpy/pandas — np.searchsorted interval overlap), NOT bedtools and NOT inside the figure scripts.
 ```
 
 **Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**

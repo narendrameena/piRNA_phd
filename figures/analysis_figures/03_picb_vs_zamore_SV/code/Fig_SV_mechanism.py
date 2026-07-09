@@ -242,7 +242,7 @@ ax_c.legend(fontsize=6.5, frameon=False, loc='upper left',
 
 fig.suptitle(
     "Pangenome structural variants predict piRNA cluster disruption through genomic rearrangement\n"
-    "214 Zamore loci · 16 inbred mouse strains · PICB 2-of-3 consensus · pangenome VCF SVs ≥300 bp",
+    "214 Zamore loci · 16 inbred mouse strains · PICB combined-replicate run · pangenome VCF SVs ≥300 bp",
     fontsize=9, fontweight='bold', y=1.015)
 
 import os as _os; _SD="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/03_picb_vs_zamore_SV/data/source_data"; _os.makedirs(_SD,exist_ok=True)

@@ -248,7 +248,7 @@ ax_d.legend(fontsize=7.5, frameon=False, loc='upper right')
 
 fig.suptitle(
     "Pangenome SVs and piRNA cluster expression — all 16 strains, all timepoints\n"
-    "214 Zamore loci · chain-file SVs ≥300 bp · PICB 2-of-3 consensus",
+    "214 Zamore loci · pangenome VCF SVs ≥300 bp · PICB combined-replicate run",
     fontsize=9.5, y=1.01)
 
 try:   # source data (plotted derived tables → theme dir)

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Scale-16 — per-timepoint piRNA count matrix across ALL 16 sRNA strains (16 strains x 3 reps = up to
-48 samples). 24-32 nt unique sequences; filterByExpr min.total.count(=15) early pre-filter for
-tractability. Robust to missing samples (uses whatever collapse files exist). Usage: <timepoint>"""
+48 samples). 24-32 nt unique sequences (broad detection window — deliberately WIDER than the pure
+pav_clusters pools' 25-32 nt; a two-window design, not a bug); filterByExpr min.total.count(=15) early
+pre-filter for tractability. Robust to missing samples (uses whatever collapse files exist). Usage: <timepoint>"""
 import gzip, os, sys
 import numpy as np, pandas as pd
 RD ="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/results/collapse"
