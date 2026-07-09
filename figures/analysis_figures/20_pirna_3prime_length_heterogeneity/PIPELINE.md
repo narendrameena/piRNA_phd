@@ -17,11 +17,11 @@ classes, and find the biology behind it.
 - **E16.5:** MILI(PIWIL2) + MIWI2(PIWIL4); the **ping-pong** cycle (MILI–MILI + MILI→MIWI2) is active (10-nt 5′-overlap).
 
 ## Data
-- `unique_pirna/unique16/final_classified_clean_2read.csv.gz` — ≥2-read, 25–32 nt, within-tp classified piRNAs
-  (399,812 rows). **Exact-sequence set** (classes: conserved-but-silent / strain-private / expressed-elsewhere-exact
+- `unique_pirna/unique16/final_classified_clean_2read.csv.gz` — ≥2-read, 24–32 nt, within-tp classified piRNAs
+  (404,769 rows; 24-nt reads present and counted as −3 nt isoforms). **Exact-sequence set** (classes: conserved-but-silent / strain-private / expressed-elsewhere-exact
   — **no SNP-variant class**); SNP variants are already excluded by construction.
 - Per-tp window (data-driven, `make_stage_peak_unique.py`): **E16.5 → 27 nt; P12.5 → 27 & 30 nt; P20.5 → 30 nt**.
-  24 nt excluded by the 1U-peak test → piRNA range **25–32 nt**.
+  24-nt reads are present and counted as −3 nt isoforms (e.g. of 27-nt piRNAs) → length range **24–32 nt**.
 - `cand_self16/{strain}.cand_self16.bam` — per-strain self-genome coords (5′ position, NH); `cluster_pav/{strain}.clusters_fpm.bed`
   — pachytene clusters (FPM ± strand, timepoint); `sense_antisense/SourceData_sense_antisense16_percand.csv.gz` — TE family + orientation;
   `edger16/{tp}.{seqs,counts}` — 48-library read abundance.
@@ -40,7 +40,7 @@ ragged 3′ trim) — not coincidental cross-locus / SNP matches. Class-exclusio
    108 reads at P20.5) — not low-count noise. (Fig 2A)
 3. **Universal across 16 strains** — 34±6 % → 68±7 %; developmental rise in **8/8** strains; wild ≈ classical. (Fig 2B)
 4. **Secondary (ping-pong) piRNAs are raggeder** — E16.5 10-nt overlap **z = 7.2**; ping-pong piRNAs **66 % vs 39 %**
-   (Fisher p=3e-22). Slicer-set 5′ end, trimmed (ragged) 3′. (Fig 2C)
+   (Fisher p=5.3e-22; ping-pong subset n=319, ~1.05 % of E16.5 27-nt piRNAs). Slicer-set 5′ end, trimmed (ragged) 3′. (Fig 2C)
 5. **TE↔genic origin flips** — TE-derived raggeder pre-pachytene (43 vs 37 %), genic/cluster raggeder in pachytene
    (70 vs 60 %) — across the MILI→MIWI transition. (Fig 2D)
 6. **Pachytene-cluster-derived** — **90 %** of pachytene piRNAs are cluster-derived; cluster 67 % vs non-cluster 57 %

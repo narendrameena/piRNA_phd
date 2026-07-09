@@ -24,12 +24,12 @@ d=pd.read_csv(f"{T}/data/exact_stagepeak_classified.csv.gz")
 g=d.groupby("strain").agg(N_exact_unique=("klass_exact",lambda s:s.isin(GU).sum()),n_snpvar=("was_snp_variant","sum")).reset_index()
 g["frac_snpvar"]=g.n_snpvar/g.N_exact_unique; g["wild"]=g.strain.isin(WILD); g["div_rank"]=g.strain.map(DIVRANK).fillna(1).astype(int)
 # ---- library size from the strain STAR mapping log ----
-log=pd.read_csv(f"{ROOT}/resources/log_stat/strain_srna_mapping_log_stat.tab",sep=";")
+log=pd.read_csv(f"{ROOT}/results/log_stat/strain_srna_mapping_log_stat.tab",sep=";")   # canonical 16-strain log (resources/ copy is a truncated 14-strain subset missing LP_J/NZO_HlLtJ)
 log["strain"]=log.iloc[:,0].str.split("/").str[-2]
 g=g.merge(log.groupby("strain")["Number of input reads"].sum().rename("lib_reads"),on="strain",how="left")
 g["snpvar_per_Mread"]=g.n_snpvar/g.lib_reads*1e6
 g.to_csv(f"{T}/data/source_data/SourceData_Fig_why_wild_divergence_not_depth.csv",index=False)
-wd=g[g.wild].dropna(subset=["lib_reads"]); cl=g[~g.wild].dropna(subset=["lib_reads"])   # LP_J/NZO_HlLtJ absent from the mapping log -> drop so depth/count ratios use the SAME strain set (n_classical=10)
+wd=g[g.wild].dropna(subset=["lib_reads"]); cl=g[~g.wild].dropna(subset=["lib_reads"])   # dropna is defensive; the canonical 16-strain log covers all strains (n_classical=12)
 r82=wd.snpvar_per_Mread.mean()/cl.snpvar_per_Mread.mean(); depthx=wd.lib_reads.mean()/cl.lib_reads.mean()
 countx=wd.n_snpvar.mean()/cl.n_snpvar.mean(); detx=wd.N_exact_unique.mean()/cl.N_exact_unique.mean(); propx=wd.frac_snpvar.mean()/cl.frac_snpvar.mean()
 rho_dr,p_dr=spearmanr(g.div_rank,g.n_snpvar); gg=g.dropna(subset=["lib_reads"]); rho_b,_=spearmanr(gg.lib_reads,gg.n_snpvar)

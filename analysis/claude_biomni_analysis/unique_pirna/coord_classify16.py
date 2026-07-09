@@ -2,10 +2,11 @@
 """16-strain coordinate TE-driven classify (per strain X): does each candidate's production locus in X's own
 genome fall within an X-private insertion locus? cand_self16 BAM (PanSN) intersect ins16/{X}.ins_loci.bed
 (minimap2 of X-private insertions back to X, PanSN). Per-class locus-in-private-insertion vs TWO nulls: the
-single-locus null EXP = merged private-insertion bp / genome, AND a MULTIPLICITY-MATCHED null 1-(1-p)^NH. We KEEP
-ALL candidates (TE-derived piRNAs are multi-copy -> restricting to NH==1 discards the young/active-TE drivers,
-which are the MOST insertion-associated) and instead correct the null for each candidate's k mapping chances;
-pct_uniqmap/n_uniqmap report the NH==1 subset as a conservative sensitivity check. Class from final_classified_clean_2read klass5 (id = X|tp|seq)."""
+single-locus null EXP = merged private-insertion bp / genome, AND a MULTIPLICITY-MATCHED null 1-(1-p)^NH. HEADLINE =
+the NH==1 uniquely-mapping subset (pct_uniqmap/n_uniqmap; fold_uniqmap = pct_uniqmap/EXP), the clean, un-inflatable
+signal whose single production locus is unambiguously localizable. NH>1 multimappers are un-localizable (no single
+production locus) and are kept ONLY in the matched-null and naive columns (fold_matched on the 1-(1-p)^NH null,
+fold on the naive single-locus null over ALL candidates). Class from final_classified_clean_2read klass5 (id = X|tp|seq)."""
 import os,subprocess,sys,tempfile
 import pandas as pd, pysam, numpy as np
 ROOT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"; U=f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; PG=f"{U}/pangenome_te"

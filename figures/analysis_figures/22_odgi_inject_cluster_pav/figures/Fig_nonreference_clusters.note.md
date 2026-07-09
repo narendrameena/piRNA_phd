@@ -6,8 +6,8 @@
 **Panels**
 - **A** per-strain counts (42–132; wild-derived toward the high end); **93% overlap a TE**.
 - **B** *multimapping-corrected* expression. Non-ref clusters are **25% multimapping** (vs 0.2% reference — TE-driven);
-  on all-primary FPM they look higher (12.4 vs 6.9) but on **UNIQUE reads non-ref ≈ reference (6.6 vs 6.4)** =
-  genuinely expressed, NOT inflated "higher". (Fixes an earlier all-primary overclaim; cols are allFPM/uniqFPM.)
+  on all-primary FPM they look higher (12.4 vs 6.9) and on **UNIQUE reads non-ref clusters have modestly HIGHER unique-read expression than reference (median 8.9 vs 7.5 FPM, Mann-Whitney p≈5e-9)** —
+  the modest elevation survives multimapping correction, so it is genuine (not inflated). FPM is over the 20–36 nt cutadapt library — the SAME window for non-ref and reference, so the ref-vs-non-ref comparison is valid. (cols are allFPM/uniqFPM.)
 - **C** evolution: non-ref cluster count tracks the **DIRECT** genome-wide non-ref TE-insertion burden (VCF) —
   **Spearman ρ=0.61, p=0.012**; robust to multimapping (unique-read share ρ=0.51, p=0.044) and total output
   (partial r=0.50). SPRET 76k insertions ≫ C57BL_6NJ 2.3k (clean positive control).

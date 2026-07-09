@@ -3,8 +3,8 @@
 ## Goal
 Redo the piRNA-cluster PAV the reference-free way with `odgi inject`, and **keep both** alongside the existing
 HAL-liftover cluster-PAV (theme 21 / `cluster_pav`). Liftover projects clusters onto GRCm39 (reference-biased); inject
-places each strain's clusters on its **own graph path** (reference-free), so the two are independent methods for the
-same question — *which strains have a piRNA cluster at this locus?* See `REVIEW_NOTES.md` for the design + tool checks.
+places each strain's clusters on its **own graph path** (reference-free), so the two are complementary views of the
+same question — *which strains have a piRNA cluster at this locus?* — though they are **not statistically independent** (both derive from the same minigraph-cactus build). See `REVIEW_NOTES.md` for the design + tool checks.
 
 ## Method (code/)
 1. `01_build_inject_bed.py` — map **364,924** native piCB clusters onto the fragmented strain paths
@@ -15,7 +15,7 @@ same question — *which strains have a piRNA cluster at this locus?* See `REVIE
 3. `03_untangle_clusters.slurm` — `odgi untangle` to project clusters to GRCm39: **crashed** (an `sdsl` step-index
    assertion on the injected graph). Aborted.
 4. `04_pav_cluster.slurm` — **`odgi pav -p`** (inject cluster-paths grouped by strain) at the theme-21 master loci →
-   graph cluster-PAV = fraction of each locus's nodes covered by each strain's CLUSTER-paths. Fast (~10 min), no crash.
+   graph cluster-PAV = fraction of each locus's nodes covered by each strain's CLUSTER-paths (presence threshold **0.1** node-coverage — note the SEQUENCE-PAV used elsewhere uses **0.5**). Fast (~10 min), no crash.
 5. `05_compare_cluster_pav.py` — graph-inject cluster-PAV vs HAL-liftover cluster-PAV.
 
 ## Result
@@ -24,8 +24,7 @@ same question — *which strains have a piRNA cluster at this locus?* See `REVIE
 - The graph is slightly **more conservative**: **graph-only = 0** (never adds spurious clusters), lift-only ~200–300
   /strain (from the 0.4% fragment-boundary drops + the coverage threshold). Agreement is **99–100% for every strain**,
   including the divergent wild strains (SPRET/CAST/PWK).
-- **Interpretation:** two *independent* methods (reference-free graph placement vs reference projection) **cross-validate**
-  the cluster conservation classification → it is method-robust. (Contrast theme 21: graph SEQUENCE-PAV vs liftover
+- **Interpretation:** graph placement (reference-free) and liftover projection (reference) — both cluster-**presence** calls — **agree**, but are **not statistically independent**: both derive from the SAME minigraph-cactus build (graph-only disagreement = 0, a strict subset of liftover), so this is concordance, not independent cross-validation. (Contrast theme 21: graph SEQUENCE-PAV vs liftover
   CLUSTER-PAV measure *different* things → they disagree = silencing; here both measure cluster presence → they concur.)
 
 ## Non-reference clusters — caught + characterised + confounder-checked (steps 6–13)
@@ -36,8 +35,10 @@ per-cluster IDs) to GRCm39 (`06_identify_nonreference.slurm`); a cluster that yi
   elements) = the piRNA–TE arms-race signature.
 - `08`/`12_multimapping.py` — expression. `clusters_fpm.bed` cols = [chrom,start,end,**allFPM,uniqFPM**,strand,tp]
   (per `build_arch_switch.py`). Non-ref clusters are **25% multimapping** (vs 0.2% reference — TE-driven); on all-primary
-  FPM they look more expressed (12.4 vs 6.9), but on **UNIQUE reads they are comparable to reference (6.6 vs 6.4)** →
-  genuinely expressed, NOT 'higher' (the all-primary signal was multimapping-inflated; corrected).
+  FPM they look more expressed (12.4 vs 6.9), and on **UNIQUE reads non-ref clusters have modestly HIGHER unique-read
+  expression than reference (median 8.9 vs 7.5 FPM, Mann-Whitney p≈5e-9)** → genuinely expressed; the modest elevation
+  survives multimapping correction. FPM is over the 20–36 nt cutadapt library — the SAME window for non-ref and reference,
+  so the ref-vs-non-ref comparison is valid.
 - `09`/`10_te_burden.py`/`11_confounding.py` — RIGOROUS cross-strain evolution test + confounders. Per-strain non-ref
   TE-insertion burden from the deconstructed VCF (`10`; SPRET 76k ≫ C57BL_6NJ 2.3k = clean positive control). **Non-ref
   cluster count tracks the DIRECT TE-insertion burden: Spearman ρ=0.61, p=0.012**; unique-read non-ref piRNA share ρ=0.51,

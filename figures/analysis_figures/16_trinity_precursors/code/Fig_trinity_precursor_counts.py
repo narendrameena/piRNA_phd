@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """THEME 16 — Trinity-based piRNA precursors across 16 strains (thesis Ch.6, Fig 6.3 analog).
 A precursor = a Trinity de-novo contig >=500 bp with sRNA coverage 100 RPM AND 100 RPKM (thesis Ch.6, verbatim:
-"stringent filters of 100 RPM (piRNA) and 100 RPKM ... to the transcripts"). This equals the saved all_*.csv.gz
-(rpm>100 & rpkm>100). NB: the committed piRNA_filter_precursors.sh instead uses length>100 & rpm>100 (filters length,
-not rpkm) — a code bug vs the thesis rule. One grouped bar per strain (canonical order) x 3 developmental windows;
+"stringent filters of 100 RPM (piRNA) and 100 RPKM ... to the transcripts"). The input all_*.csv.gz is ALREADY
+pre-filtered upstream to this thesis rule (rpm>100 & rpkm>100 & length>=500) — every saved row satisfies it — so the
+in-figure re-filter d[(rpm>100)&(rpkm>100)] removes NOTHING: it is a DEFENSIVE NO-OP, not a bug-fix/rescue. (The committed
+piRNA_filter_precursors.sh applies a DIFFERENT rule (length>100 & rpm>100) and did NOT build this file; the exact
+concatenation/generator of all_*.csv.gz is NOT committed — assembled interactively.) PROVENANCE: the input FASTA/CSV is
+dated Nov-2023 and covers the C57BL_6NJ strain set, NOT the newer C57BL_6 T2T Trinity runs. One grouped bar per strain (canonical order) x 3 developmental windows;
 bar = mean over the 3 replicates, error = ±SD, dots = replicates; wild-derived strains shaded + red labels.
 Developmental pattern: P12.5 peaks, P20.5 fewest (few-but-dominant pachytene precursors — cf. thesis Fig 6.6 /
 Li 2013: pachytene piRNA ~95% of piRNA at pachytene). CAVEAT (thesis Fig 6.4/6.5): Trinity FRAGMENTS precursors
@@ -20,7 +23,7 @@ ROOT = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"
 SD = ROOT + "/analysis/claude_biomni_analysis/source_data"
 d = pd.read_csv(ROOT + "/results/trinity/filter_precursors/all_trinity_filtred_precursors.csv.gz",
                 header=None, names=["ref", "count", "length", "rpm", "rpkm", "sample"])
-d = d[(d["rpm"] > 100) & (d["rpkm"] > 100)].copy()    # thesis Ch.6 coverage rule: 100 RPM & 100 RPKM (== the saved all_ file)
+d = d[(d["rpm"] > 100) & (d["rpkm"] > 100)].copy()    # defensive NO-OP: all_ file already pre-filtered upstream to rpm>100 & rpkm>100 & length>=500 (removes 0 rows)
 s = d["sample"].str.split("/").str[-1].str.replace(".500.csv", "", regex=False)
 def _strain(x):
     for tk in ("16.5dpc", "12.5dpp", "20.5dpp"):

@@ -56,7 +56,7 @@ true not_lifted = **0.6 %**.
 **S7 · structural variants.** Tool **bcftools 1.21 `view -H -R`** on the 17-strain pangenome VCF
 (tabix-indexed; GRCm39 frame); SV = INS/DEL **≥300 bp**, region **±50 kb** of each locus; intersect
 **bedtools `window`/`intersect`**. → **Result #:** SV matrix **10 272** rows (214×16×3 windows);
-CAST/EiJ direct-overlap SV loci = **78** (680 total direct locus×strain SV pairs; corrected — the earlier 119/1,366 credited only the single largest ALT, dropping strains carrying a different but still ≥300 bp allele at multiallelic sites).
+CAST/EiJ direct-overlap SV loci = **78** (680 total direct locus×strain SV pairs; corrected DOWN from the earlier over-count of 119/1,366 — the old rule attributed each multiallelic site's single largest ALT to every non-reference strain, wrongly crediting strains whose OWN genotype allele was the reference or a <300 bp (sub-SV) allele; the corrected per-strain-own-allele rule counts a strain only where the allele it actually carries is itself an INS/DEL ≥300 bp, read directly from the pangenome VCF genotypes).
 
 **S8 · TE + genomic-region annotation.** TE: locus projected C57BL_6NJ via **halLiftover** ∩
 **RepeatMasker** (C57BL_6NJ BED, col4 `name|class/family`). Region: locus ∩ **Ensembl GRCm39.115 gff3**

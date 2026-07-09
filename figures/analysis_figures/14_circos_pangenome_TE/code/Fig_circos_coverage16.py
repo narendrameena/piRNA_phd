@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Circos #2 — piRNA-read COVERAGE (sRNA 'bigwig' hit density) across all 16 strains x 3 timepoints, ONE circle.
 Companion to the PICB-cluster circos: instead of called clusters, this shows the raw small-RNA read density
-(where piRNAs actually map, how densely) from results/bigwig_tracks_parallel/{X}-{tp}.bw (own-genome PanSN,
+(where piRNAs actually map, how densely) from stranded bigwigs results/bamCoverageSrna/pacBio/{X}/{X}-{tp}.*_{plus,minus}Strand.bw (own-genome PanSN,
 placed on GRCm39 chromosomes by chrN+position — colinear at 2-Mb resolution). Each strain = 3 nested timepoint
 sub-rings (E16.5->P12.5->P20.5, inward); each 2-Mb bin coloured by log mean coverage (magma heatmap). Strain
 names (red = wild) at the top spoke; chromosome ideogram outer."""

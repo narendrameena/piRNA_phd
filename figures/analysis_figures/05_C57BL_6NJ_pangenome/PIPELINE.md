@@ -14,8 +14,8 @@ at P12.5 and P20.5. **Result #:** P12.5 merged = **9 728** clusters; P20.5 merge
 **S3 · developmental classification.** **Python 3.11.15 / bedtools 2.31.1** — classify each cluster by
 timepoint expression. **Result #:** **3** dev classes (P12.5_only / shared_postnatal / pachytene).
 
-**S4 · TE + SV content.** intersect clusters with **RepeatMasker** (C57BL/6NJ BED) and pangenome SVs.
-**Result #:** **2 727** TE-sized SVs at clusters (GRCm39); per-class TE fraction in `C57BL_6NJ_TE_annotation.csv`.
+**S4 · TE + SV content.** intersect clusters with **RepeatMasker** (C57BL/6NJ BED) for per-class TE fraction; separately, enumerate C57BL_6NJ non-reference SVs from the pangenome VCF (the builder REFUSES the cluster intersect — VCF is GRCm39 frame, clusters are native REL-2205 frame — so SVs are reported GENOME-WIDE).
+**Result #:** **2,727** genome-wide C57BL_6NJ **non-reference** SVs ≥300 bp (INS 2,302 / DEL 425) — **NOT** restricted to clusters (VCF vs cluster coordinate frames differ); per-class TE fraction in `C57BL_6NJ_TE_annotation.csv`. NB: the intermediate `C57BL_6NJ_private_sv_*` file is **non-reference** (C57BL_6NJ carries the ALT allele vs GRCm39), **not strain-private** (no all-others-reference constraint).
 
 **S5 · Zamore conservation.** Zamore loci (**mm10→mm39 UCSC liftOver**) ∩ C57BL/6NJ clusters.
 

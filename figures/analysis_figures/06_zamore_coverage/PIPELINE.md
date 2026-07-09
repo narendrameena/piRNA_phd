@@ -1,6 +1,6 @@
 # 06 — Zamore pachytene-locus coverage (C57BL/6 P12.5 / P20.5)
 
-**What these figures are.** Direct sRNA-seq **coverage** of the Zamore conserved pachytene piRNA loci +
+**What these figures are.** **Coverage** of the Zamore conserved pachytene piRNA loci (fraction of each locus overlapped by called PICB cluster intervals) +
 PICB cluster architecture — a recovery/QC check that the pipeline sees the canonical pachytene piRNA genes.
 
 > **Note:** C57BL/6 (not 6NJ) = **external public data**; per memory `project_black6_qc` the P12.5/P20.5
@@ -10,14 +10,13 @@ PICB cluster architecture — a recovery/QC check that the pipeline sees the can
 
 ## STEP-BY-STEP (tool · version · parameters · result)
 
-**S0–S1 · reads → genome.** cutadapt 5.0 (C57BL/6 public adapters) → STAR 2.7.11b (unmasked GRCm39, piRNA
+**S0–S1 · reads → genome.** cutadapt 5.0 (C57BL/6 public adapters) → STAR 2.7.11b (unmasked GRCm38 (= mm10), piRNA
 params).
 
-**S2 · Zamore loci.** published pachytene annotation, **mm10 → mm39 UCSC liftOver**, grouped by stage.
-**Result #:** **214** Zamore genes — **Pachytene 99 / Prepachytene 83 / Hybrid 32**.
+**S2 · Zamore loci.** published pachytene annotation on **mm10 (= GRCm38)** — PICB clusters and annotation share this build, **NO liftover** — grouped by stage.
+**Result #:** **214** stage-annotated + **1** unstaged = **215** genes — **Pachytene 99 / Prepachytene 83 / Hybrid 32**.
 
-**S3 · coverage.** **bedtools 2.31.1 / samtools 1.21** — sRNA BAM coverage per Zamore gene + over PICB
-clusters; detection rate per stage; per-stage CDFs; pachytene heatmap. **Result #:** detection rates for
+**S3 · coverage.** **bedtools-style interval intersect (2.31.1)** — coverage = fraction of each Zamore locus outer span overlapped by called PICB cluster intervals (mm10 (= GRCm38) annotation ∩ PICB clusters), per Zamore gene; detection rate per stage; per-stage CDFs; pachytene heatmap. **Result #:** detection rates for
 **4** stage groups; top **15** pachytene loci by FPM (`Fig3_top_pachytene_loci_FPM.csv`).
 
 **S4 · figures.** matplotlib (Python 3.11.15). → **3** figures.
@@ -26,17 +25,16 @@ clusters; detection rate per stage; per-stage CDFs; pachytene heatmap. **Result 
 | Tool | Version | What/why | Key params |
 |---|---|---|---|
 | cutadapt | 5.0 | trim C57BL/6 public sRNA | TruSeq adapters (see `project_black6_qc`) |
-| STAR | 2.7.11b | align to GRCm39 | piRNA params |
-| UCSC liftOver | 2023 | Zamore mm10→mm39 | `mm10ToMm39.over.chain.gz` |
-| bedtools / samtools | 2.31.1 / 1.21 | per-gene coverage | `coverage`/`intersect` |
+| STAR | 2.7.11b | align to GRCm38 | piRNA params |
+| bedtools | 2.31.1 | per-gene interval overlap (locus span ∩ PICB clusters) | `intersect` |
 | Python | 3.11.15 | figures | matplotlib |
 
-## INPUTS  C57BL/6 sRNA BAMs; Zamore loci (mm39) → `data/Fig{1,2,3}_*.csv`, `P12_5_P20_5_zamore_coverage_per_gene.csv`.
+## INPUTS  C57BL/6 sRNA BAMs; Zamore loci (mm10 = GRCm38, no liftover) → `data/Fig{1,2,3}_*.csv`, `P12_5_P20_5_zamore_coverage_per_gene.csv` (NB: this coverage CSV has **no committed producer script** — generated in an interactive session; the figure scripts only READ it).
 ## OUTPUTS (`figures/`)  Fig1 PICB_cluster_architecture · Fig2 Zamore_gene_coverage · Fig3 coverage_detail.
 
 ## DOUBLE-VERIFICATION
 - Stage counts recomputed (Pachytene 99 / Prepachytene 83 / Hybrid 32) — identical to themes 03 & 15.
-- mm10→mm39 liftover enforced; coverage from BAMs (not inferred).
+- mm10 (= GRCm38) throughout — PICB clusters and annotation share this build, NO liftover; coverage = interval overlap of the Zamore locus outer span vs PICB cluster intervals (not samtools read depth).
 - **Caveat:** external C57BL/6 data with duplicate-file "replicates" — recovery QC only, excluded from thesis.
 
 ---
@@ -47,9 +45,8 @@ Run from repo root `/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA` (`expo
 
 **Compute steps — (re)generate the data the figures read:**
 ```bash
-# cutadapt -> STAR (GRCm39 unmasked, piRNA params); Zamore loci mm10->mm39:
-liftOver zamore_mm10.bed mm10ToMm39.over.chain.gz zamore_mm39.bed unmapped -minMatch=0.95
-# per-gene + per-cluster coverage (bedtools/samtools) is done inside the figure scripts below.
+# cutadapt -> STAR (GRCm38 = mm10, unmasked, piRNA params). Zamore annotation stays mm10 (= GRCm38) — NO liftover.
+# per-gene coverage (bedtools-style interval overlap: Zamore locus outer span ∩ PICB cluster intervals) is done inside the figure scripts below.
 ```
 
 **Figure step — render (`$PY` for .py, `Rscript` for .R, `bash` for .sh; `strain_order.py`/`pav_clusters.py` are imported helpers, not run):**
