@@ -13,10 +13,14 @@ Inputs (all committed):
        PROVENANCE CAVEAT (reproducibility, not correctness): the DETERMINANTS are committed
        (classify_step416.py / classify_step416_pertp.py: candidate -> each other strain's genome via STAR
        mm<=3, then exact/1-3mm match to that strain's expressed pool), but the exact table-build that emits
-       this file's extra columns (variant_strain/Y_allele/mm) is NOT committed, and the step4_16 alignments
-       used non-default STAR params -> this ONE input is not byte-reproducible from the committed tree (the
-       classification LOGIC is committed; the table build is not). make_klass5 uses ONLY its `cand_id` column;
-       given that set, klass5 reproduces at 100% (verified 2026-06-19). Known caveat in the determinant:
+       this file's extra columns (variant_strain/Y_allele/mm) is NOT committed. build_snp_variant_refinement.py
+       reconstructs it faithfully from the committed determinants (it matches step4_classified16 exactly) yet
+       reproduces only ~50% of the DELIVERED file's cand_ids (verified 2026-07, pooled 49.6% across 5 strains:
+       129S1 67%, CAST 50%, FVB 51%, AKR 35%, C3H 39%; the committed within-tp chain does no better, 63.5% on
+       129S1). The committed inputs (Jun 11) PREDATE the delivered file (Jun 13), so the residual is a LOGIC
+       difference in the original uncommitted producer, not input drift -> this ONE input (hence the SNP-variant
+       class, 54% of klass5) is only ~HALF reproducible from the committed tree. make_klass5
+       uses ONLY its `cand_id` column; given that set, klass5 reproduces at 100% (verified 2026-06-19). Known caveat in the determinant:
        classify_step416.py:27-31 compares the FORWARD-strand reference sequence to the pool, so a
        minus-strand-only expressed homolog can be missed (would under-call SNP-variant / over-call CBS).
   cand_self16/{X}.cand_self16.bam (16)        <- cand_self16.sh  (candidate -> OWN genome, --outFilterMismatchNmax 0,
