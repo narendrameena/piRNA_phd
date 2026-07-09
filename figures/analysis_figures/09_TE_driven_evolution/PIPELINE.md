@@ -13,8 +13,11 @@ insertion**. Flagship: the CAST/EiJ ERVK provirus on chr5. Upstream reads/cluste
 
 **S1 · reads + clusters.** cutadapt 5.0 → STAR 2.7.11b (unmasked) → PICB (R 4.2.3) — themes 07/11.
 
-**S2 · strain-private TE insertions.** **Python 3.11.15** parse the 16-strain pangenome SV VCF
-(`parse_insertions16.py`; singleton carrier, ≥40 bp) → lift to strain coords.
+**S2 · strain-private insertion ALLELES.** **Python 3.11.15** parse the 16-strain pangenome SV VCF
+(`parse_insertions16.py`; ALLELE carried by exactly 1 of 16 strains, ≥40 bp) → map back to strain coords
+(minimap2, **mapq≥20 confident loci only**). NB singleton ALLELE ≠ strain-unique EVENT: genome-wide ~53% sit
+at recurrently-polymorphic sites, though the wild strains are mostly genuinely-isolated (SPRET ~30%). The
+mapq≥20 filter keeps the confidently-localizable ~40–45% (drops multi-mapping young TEs — the NH==1 principle).
 
 **S3 · coordinate TE-driven test.** **bedtools 2.31.1** intersect each insertion with the carrier's PICB
 clusters **in one coordinate frame** (`te_driven_coord_test.py`); a candidate must satisfy: cluster ≈

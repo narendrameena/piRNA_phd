@@ -166,7 +166,7 @@ axE.set_title("E   A strain-private TE-driven piRNA locus (SPRET/EiJ)", fontsize
 axE.set_xlabel("chr13 position (kb)", fontsize=8.5); axE.set_ylabel("piRNA coverage (25-32 nt)", fontsize=8); axE.tick_params(labelsize=6.6)
 axE.ticklabel_format(axis="x", useOffset=False, style="plain"); axE.locator_params(axis="x", nbins=5)
 axE.spines[["top", "right"]].set_visible(False)
-axE.text(0.5, -0.33, "A young ERVK (RLTR22_Mur) insertion private to SPRET/EiJ spawns an antisense (silencing) pachytene piRNA — the TE-insertion-gain origin of the strain-private accessory repertoire (cf. panel D). The locus is absent in all 12 classical strains.",
+axE.text(0.5, -0.33, "A young ERVK (RLTR22_Mur) insertion private to SPRET/EiJ spawns an antisense (silencing) pachytene piRNA — the TE-insertion-gain origin of the strain-private accessory repertoire (cf. panel D). The locus is absent in all 12 classical strains. (Coverage: one representative replicate, 20.5 dpp rep 1.)",
          transform=axE.transAxes, ha="center", fontsize=6.3, color="#666", style="italic", wrap=True)
 
 # ---- Panel B: genuinely-unique yield per strain ----
