@@ -6,7 +6,9 @@
   - TE annotation                  : resources/repeatMasker/{X}_*.out  (own genome)
   - genome presence/absence (PAV)  : cluster_pav/locus_genome_pav.tsv  (pangenome; built once)
 Reads are fetched ONLY inside a strain's PICB cluster coordinates, per timepoint; a strain/timepoint with no
-PICB cluster is reported as OFF (the developmental/strain 'why' signal)."""
+PICB cluster is reported as OFF (the developmental/strain 'why' signal).
+NOTE: a read is assigned to a TE family by its MIDPOINT (one TE), so %on-TE undercounts reads that overlap a
+TE only partially (~25% lower than a largest-overlap rule); the antisense-vs-sense conclusion is unaffected."""
 import os, glob, subprocess, pysam, numpy as np, pandas as pd
 ROOT = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA"
 U = f"{ROOT}/analysis/claude_biomni_analysis/unique_pirna"; CP = f"{U}/cluster_pav"

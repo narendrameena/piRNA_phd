@@ -9,7 +9,16 @@ reconstructs them deterministically from already-committed inputs. The logic was
 
 Inputs (all committed):
   unique16/final_classified.csv.gz            <- classify_unique16_locus.py  (3-class `klass`)
-  unique16/snp_variant_refinement.csv         <- classify_step416.py / step4_16 (1-3mm SNP-variant set, by cand_id)
+  unique16/snp_variant_refinement.csv         <- SNP-variant set (1-3mm), tp-resolved cand_id (X|tp|seq).
+       PROVENANCE CAVEAT (reproducibility, not correctness): the DETERMINANTS are committed
+       (classify_step416.py / classify_step416_pertp.py: candidate -> each other strain's genome via STAR
+       mm<=3, then exact/1-3mm match to that strain's expressed pool), but the exact table-build that emits
+       this file's extra columns (variant_strain/Y_allele/mm) is NOT committed, and the step4_16 alignments
+       used non-default STAR params -> this ONE input is not byte-reproducible from the committed tree (the
+       classification LOGIC is committed; the table build is not). make_klass5 uses ONLY its `cand_id` column;
+       given that set, klass5 reproduces at 100% (verified 2026-06-19). Known caveat in the determinant:
+       classify_step416.py:27-31 compares the FORWARD-strand reference sequence to the pool, so a
+       minus-strand-only expressed homolog can be missed (would under-call SNP-variant / over-call CBS).
   cand_self16/{X}.cand_self16.bam (16)        <- cand_self16.sh  (candidate -> OWN genome, --outFilterMismatchNmax 0,
                                                  so ANY alignment == a clean mm0 own-genome locus)
   edger16/{tp}.strain_specific_DA_2read.csv.gz <- the reproducible >=2-read edgeR DA candidate set

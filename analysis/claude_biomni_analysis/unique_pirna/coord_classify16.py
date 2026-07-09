@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """16-strain coordinate TE-driven classify (per strain X): does each candidate's production locus in X's own
 genome fall within an X-private insertion locus? cand_self16 BAM (PanSN) intersect ins16/{X}.ins_loci.bed
-(minimap2 of X-private insertions back to X, PanSN). Per-class locus-in-private-insertion vs TWO nulls: the
+(minimap2 of X-private insertion ALLELES back to X, PanSN, mapq>=20 CONFIDENT loci only — this keeps ~40-45%
+of the singleton alleles and drops the multi-mapping young/multi-copy TEs, the SAME localizability principle
+the NH==1 headline applies to piRNAs). Per-class locus-in-private-insertion vs TWO nulls: the
 single-locus null EXP = merged private-insertion bp / genome, AND a MULTIPLICITY-MATCHED null 1-(1-p)^NH. HEADLINE =
 the NH==1 uniquely-mapping subset (pct_uniqmap/n_uniqmap; fold_uniqmap = pct_uniqmap/EXP), the clean, un-inflatable
 signal whose single production locus is unambiguously localizable. NH>1 multimappers are un-localizable (no single

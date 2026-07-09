@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """16-strain version of parse_insertions.py. Reads a bcftools query stream (CHROM POS REF ALT[multi] GT*16)
-for ALL 16 strains (VCF column order) and extracts insertions (>=40 bp) PRIVATE to exactly one of the 16
-(stricter than the 3-strain pilot). Writes per-strain private-insertion sequences to FASTA in ins16/. id =
-CHROM_POS_inslen. Does NOT overwrite the pilot's 3-strain fastas (separate dir)."""
+for ALL 16 strains (VCF column order) and extracts insertions (>=40 bp) whose specific ALLELE is carried by
+exactly one of the 16 strains. NB this is a strain-private ALLELE, not necessarily a strain-unique EVENT:
+genome-wide ~53% of these singleton alleles sit at recurrently-polymorphic sites where >=2 strains carry
+some >=40 bp insertion. It is strongly strain-dependent, though — SPRET ~30% at such sites, CAST/PWK ~57-59%,
+classical strains 76-91% — i.e. the WILD strains (the thesis focus) are dominated by genuinely-isolated
+insertions. Writes per-strain private-insertion allele sequences to FASTA in ins16/. id = CHROM_POS_inslen."""
 import os,sys
 OUT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna/pangenome_te/ins16"
 os.makedirs(OUT,exist_ok=True)

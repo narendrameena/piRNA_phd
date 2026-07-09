@@ -24,6 +24,12 @@ for Y in OTH:
         i=id2idx.get(a.query_name)
         if i is None: continue
         mapped[i]=True
+        # CAVEAT: get_reference_sequence() is the FORWARD-strand genomic sequence at the alignment. Y's
+        # expressed pool is strand-aware (as-sequenced), so a piRNA Y expresses from the MINUS strand is
+        # stored revcomp'd vs refseq and will NOT match here -> such a candidate falls through to
+        # conserved-but-silent / strain-private instead of expressed-elsewhere/SNP-variant. This modestly
+        # under-calls SNP-variant. Fixing it (test both orientations) would change klass5, so it is left
+        # as-is and flagged, not silently changed.
         try: refseq=a.get_reference_sequence().upper()
         except Exception: continue
         if refseq in pool:
