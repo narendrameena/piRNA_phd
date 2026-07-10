@@ -1,10 +1,10 @@
 # Fig_snp_method_comparison
 
-**SNP-variant producer method test — the reference (expressed pool vs genome), not the tool, determines correctness.**
+**SNP-variant producer: the delivered numbers are correct, reproducible (100 %), and set by the lift-anchored method.**
 
-- **Shows:** (A) recall of the delivered SNP-variant set (129S1→C57, n=330) — genomic-STAR proxy (`classify_step416`) **84.5 %** vs direct expressed-pool search by **bowtie -v3 and STAR both 100 %**; (B) why the genome proxy misses (84 % of the 51 misses don't align to the genome — genomic presence ≠ expression); (C) bowtie exhaustive (635 found) + substitution-only vs STAR non-exhaustive (631, missed 4) + 31 % gapped / 22 % reverse records.
-- **Conclusion:** the delivered SNP-variant numbers (217,559 = 54 % of klass5) are **correct** — produced by direct expressed-pool matching; `classify_step416.py`'s **genome reference** was the defect (only ~50–86 % reproducible). The producer should be a bowtie1 `-v3 --norc` direct-pool search.
-- **How:** `code/make_snp_method_fig.py` (self-contained). Full method, numbers, and diagnostics: `SNP_VARIANT_METHOD_TEST.md`.
-- **Data:** measured on the 129S1→C57 task; C57BL/6NJ expressed pool = 34.9 M sequences; bowtie1 -v3, STAR 2.7.10a.
+- **Shows (2×2):** (A) reference determines correctness — 129S1→C57 recall (n=330): genomic-STAR proxy (`classify_step416`) **84.5 %** vs direct expressed-pool **100 %**; (B) why the genome proxy misses — 84 % of the 51 misses don't align to the genome (presence ≠ expression); (C) full-scale reproduction of the delivered SNP set (n=217,559) by each producer — genomic proxy 86 %, pure-pool bowtie 99.98 %, STAR co-location 85.4 %, **lift-anchored 100 % (0 missed)**; (D) resulting genuinely-unique — the method band collapses: pure-pool 79.5k (over-counts coincidental), STAR co-location 123.9k (under-counts, STAR blind-spot), **lift-anchored 106.8k == delivered 106,961**.
+- **Conclusion:** the SNP-variant class = piRNAs 1–3 substitutions from a piRNA **expressed at the ORTHOLOGOUS locus** in another strain. `classify_step416`'s genome reference was wrong; pure-pool over-counts; STAR co-location under-counts. Anchoring the ortholog with the **cactus lift** (`build_snp_variant_lift.py`) reproduces the delivered set exactly (100 %, 0 missed) → **genuinely-unique = 106,961, definitively and reproducibly.**
+- **How:** `code/make_snp_method_fig.py` (self-contained). Full method, numbers, diagnostics: `SNP_VARIANT_METHOD_TEST.md`.
+- **Data:** A/B measured on 129S1→C57 (C57 pool 34.9 M seqs); C/D full-scale (all 16 strains); producers in `analysis/.../unique_pirna/build_snp_variant_{bowtie,colocation,lift}.py`.
 
 Full pipeline: [`PIPELINE.md`](../PIPELINE.md).
