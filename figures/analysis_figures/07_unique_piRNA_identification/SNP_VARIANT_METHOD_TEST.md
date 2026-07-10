@@ -62,14 +62,22 @@ original ~50 % concern, which was purely the wrong method (genomic proxy), not a
 is a near-exact subset of the exhaustive bowtie output; `make_klass5` uses only base-CBS candidates and the
 delivered set is 100 % within base-CBS.
 
-**NUANCE (delivered numbers KEPT, bowtie superset NOT adopted):** exhaustive pool-matching also flags **27,465
-extra** base-CBS candidates as 1–3mm variants, enriched for mm=2,3 (49/28/23 % vs the agree set's 86/12/2 %), and
-98 % at homolog strains — NOT an orthology-anchor artefact (extras are ~as orthologous as agrees). This is a tail
-the delivered producer excluded via an additional stringency that is not recoverable from the lost code, and
-whose validity is unresolved (real mm=2,3 variants the delivered under-called, vs coincidental matches at 35 M-
-pool density). Adopting the superset would shift genuinely-unique 106,961 → 79,529 (−25.6 %) on these uncertain
-extras, so the delivered numbers stand; the bowtie producer is the validated reproducibility check (99.98 %) and a
-committed producer that recovers the delivered set.
+**NUANCE — the 27,465 extras are a MIX (delivered numbers KEPT):** exhaustive pool-matching also flags 27,465
+extra base-CBS candidates as 1–3mm variants (mm=2,3-enriched: 49/28/23 %). A GENOMIC CO-LOCATION test (align the
+candidate to the variant strain's genome via the committed cand_to_Y BAMs; is the matched Y_allele the sequence
+at the candidate's OWN orthologous locus?) splits them: **45.4 % orthologous** (real strain-SNPs at the
+candidate's own locus — the delivered's NON-exhaustive search missed them; note bowtie also finds CLOSER matches
+than delivered on the shared set, 86 % vs 76 % mm=1) vs **41.1 % aligns-but-different-locus** (coincidental — the
+matched expressed sequence is not the ortholog) + 13.5 % no-align (ambiguous). For calibration the delivered's
+OWN calls are 81.0 % orthologous by the same test — a stringent-but-imperfect approximation, not a clean anchor.
+
+So neither set is exactly "correct": bowtie (pure pool-match) OVER-calls (~half the extras are coincidental);
+delivered (217,559) is a reasonable stringent middle estimate; a STRICT genomic-locus anchor (expression AT the
+orthologous locus) would give ~188 k (but under-counts by the same genome blind-spot that limited classify_step416
+to 84.5 %). The true SNP/CBS boundary is thus uncertain within roughly [188 k strict-genomic, 217.6 k delivered,
+245 k pure-pool] — i.e. genuinely-unique is ~106,961 with a ~±15 % method-dependent band. The delivered numbers
+sit sensibly in the middle and are KEPT; the bowtie producer is the reproducibility check (99.98 %) not a
+replacement. A definitive set would need a bowtie(expression) + genomic-co-location(locus) producer.
 
 Figure: `figures/snp_method_comparison.{pdf,png,svg}` (rendered by `code/make_snp_method_fig.py`, self-contained).
 Producer scripts live in `analysis/claude_biomni_analysis/unique_pirna/`: `classify_step416.py` (genomic proxy,
