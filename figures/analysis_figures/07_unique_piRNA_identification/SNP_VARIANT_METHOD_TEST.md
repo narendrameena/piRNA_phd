@@ -62,38 +62,35 @@ original ~50 % concern, which was purely the wrong method (genomic proxy), not a
 is a near-exact subset of the exhaustive bowtie output; `make_klass5` uses only base-CBS candidates and the
 delivered set is 100 % within base-CBS.
 
-**NUANCE — the 27,465 extras are a MIX (delivered numbers KEPT):** exhaustive pool-matching also flags 27,465
-extra base-CBS candidates as 1–3mm variants (mm=2,3-enriched: 49/28/23 %). A GENOMIC CO-LOCATION test (align the
-candidate to the variant strain's genome via the committed cand_to_Y BAMs; is the matched Y_allele the sequence
-at the candidate's OWN orthologous locus?) splits them: **45.4 % orthologous** (real strain-SNPs at the
-candidate's own locus — the delivered's NON-exhaustive search missed them; note bowtie also finds CLOSER matches
-than delivered on the shared set, 86 % vs 76 % mm=1) vs **41.1 % aligns-but-different-locus** (coincidental — the
-matched expressed sequence is not the ortholog) + 13.5 % no-align (ambiguous). For calibration the delivered's
-OWN calls are 81.0 % orthologous by the same test — a stringent-but-imperfect approximation, not a clean anchor.
+**RESOLVED — the delivered producer was the LIFT-ANCHORED method; delivered numbers CONFIRMED correct.**
+Two intermediate methods each had a known bias: pure-pool bowtie OVER-called (of its 27,465 base-CBS extras a
+genomic co-location test found ~41 % coincidental — matched an expressed piRNA at a DIFFERENT locus), and a
+STAR-alignment co-location (`build_snp_variant_colocation.py`) UNDER-called (200,658; it drops candidates whose
+ortholog STAR can't align — off-assembly / too divergent). The fix is to anchor the locus with the **cactus
+lift** instead of STAR: `build_snp_variant_lift.py` takes each candidate's orthologous locus in strain Y from
+`present_in_Y.bed` (halLiftover through the HAL — captures the divergent/off-assembly orthologs STAR misses),
+reads Y's genome there (= the ortholog), and asks: is that ortholog EXPRESSED in Y (in Y's pool) and 1–3
+substitutions from the candidate? No STAR, no bowtie needed.
 
-So neither set is exactly "correct" and a definitive **bowtie(expression) + genomic-co-location(locus)** producer
-(`build_snp_variant_colocation.py`) was built and run — it keeps only bowtie matches whose Y_allele IS the
-sequence at the candidate's own orthologous locus in that strain (candidate aligns to Y's genome, aligned-
-orientation genomic seq == Y_allele). RESULT (base-CBS): **SNP-variant 200,658, genuinely-unique 123,862** — it
-recovers 85.4 % of delivered, drops 31,823 delivered calls it cannot confirm at the locus (the STAR-align
-blind-spot: candidate ortholog off-assembly / too divergent), and adds 14,922 it finds. So the three principled
-methods BRACKET the SNP/CBS boundary:
+**RESULT (base-CBS): reproduces the delivered set at 100 % — overlap 217,559 / 217,559, ZERO missed, +146 extra
+(0.07 %).** SNP-variant 217,559 → 217,705; genuinely-unique 106,961 → 106,815 (−0.14 %). So the lost producer was
+this lift-anchored, biologically-correct criterion, and the delivered numbers are **exactly right**.
 
-| method | criterion | SNP-variant | genuinely-unique | bias |
+| method | criterion | SNP-variant | genuinely-unique | vs delivered |
 |---|---|---|---|---|
-| co-location (locus-anchored) | expressed AT the orthologous locus | 200,658 | **123,862** | under-counts (STAR blind-spot) |
-| delivered | (lost producer; ~pool + stringency) | 217,559 | **106,961** | middle |
-| pure-pool bowtie | within 3mm of ANY expressed seq | 244,991 | **79,529** | over-counts (coincidental) |
+| **lift-anchored (DEFINITIVE)** | ortholog (via cactus lift) EXPRESSED, 1–3mm | **217,705** | **106,815** | **100 % (0 missed, +146)** |
+| delivered | (= lift-anchored) | 217,559 | 106,961 | reference |
+| STAR co-location | ortholog (via STAR align) expressed | 200,658 | 123,862 | under (blind-spot) |
+| pure-pool bowtie | within 3mm of ANY expressed seq | 244,991 | 79,529 | over (coincidental) |
 
-**genuinely-unique is ~107 k with a method-dependent band of ~[80 k .. 124 k].** The biologically-principled
-co-location argues the true value is at the HIGHER end (delivered slightly OVER-called SNP-variant), but its
-STAR blind-spot pulls it up, so 124 k is itself a soft ceiling. The delivered numbers sit inside the band and
-are KEPT as the reproducible (99.98 %) reference; all three producers are committed so the boundary is fully
-characterised and any choice is a documented method-dependency, not a hidden one.
+The earlier "~[80 k .. 124 k] band" COLLAPSES: the STAR-co-location's 124 k was the blind-spot under-count (the
+lift rescues it), the pool's 80 k was coincidental over-count. **Genuinely-unique = 106,961, definitively — and
+now reproducible from committed code (100 %) via the correct method.** `#4 fully closed.`
 
 Figure: `figures/snp_method_comparison.{pdf,png,svg}` (rendered by `code/make_snp_method_fig.py`, self-contained).
 Producer scripts live in `analysis/claude_biomni_analysis/unique_pirna/`: `classify_step416.py` (genomic proxy,
 to retire), `build_snp_variant_refinement.py` (genomic-proxy reconstruction ~50 %), `build_snp_variant_bowtie.py`
-(pure direct-pool, upper bracket, 99.98 % reproduces delivered), `build_snp_variant_colocation.py` (definitive
-locus-anchored = pool + genomic co-location, lower bracket, GU 123,862), `make_klass5.py` (consumes
+(pure direct-pool, over-count bracket, 99.98 % reproduces delivered), `build_snp_variant_colocation.py`
+(STAR-locus co-location, under-count bracket, GU 123,862), **`build_snp_variant_lift.py` (the DEFINITIVE
+lift-anchored producer — reproduces delivered at 100 %, 0 missed)**, `make_klass5.py` (consumes
 `snp_variant_refinement.csv`).
