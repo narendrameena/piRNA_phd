@@ -71,15 +71,29 @@ than delivered on the shared set, 86 % vs 76 % mm=1) vs **41.1 % aligns-but-diff
 matched expressed sequence is not the ortholog) + 13.5 % no-align (ambiguous). For calibration the delivered's
 OWN calls are 81.0 % orthologous by the same test — a stringent-but-imperfect approximation, not a clean anchor.
 
-So neither set is exactly "correct": bowtie (pure pool-match) OVER-calls (~half the extras are coincidental);
-delivered (217,559) is a reasonable stringent middle estimate; a STRICT genomic-locus anchor (expression AT the
-orthologous locus) would give ~188 k (but under-counts by the same genome blind-spot that limited classify_step416
-to 84.5 %). The true SNP/CBS boundary is thus uncertain within roughly [188 k strict-genomic, 217.6 k delivered,
-245 k pure-pool] — i.e. genuinely-unique is ~106,961 with a ~±15 % method-dependent band. The delivered numbers
-sit sensibly in the middle and are KEPT; the bowtie producer is the reproducibility check (99.98 %) not a
-replacement. A definitive set would need a bowtie(expression) + genomic-co-location(locus) producer.
+So neither set is exactly "correct" and a definitive **bowtie(expression) + genomic-co-location(locus)** producer
+(`build_snp_variant_colocation.py`) was built and run — it keeps only bowtie matches whose Y_allele IS the
+sequence at the candidate's own orthologous locus in that strain (candidate aligns to Y's genome, aligned-
+orientation genomic seq == Y_allele). RESULT (base-CBS): **SNP-variant 200,658, genuinely-unique 123,862** — it
+recovers 85.4 % of delivered, drops 31,823 delivered calls it cannot confirm at the locus (the STAR-align
+blind-spot: candidate ortholog off-assembly / too divergent), and adds 14,922 it finds. So the three principled
+methods BRACKET the SNP/CBS boundary:
+
+| method | criterion | SNP-variant | genuinely-unique | bias |
+|---|---|---|---|---|
+| co-location (locus-anchored) | expressed AT the orthologous locus | 200,658 | **123,862** | under-counts (STAR blind-spot) |
+| delivered | (lost producer; ~pool + stringency) | 217,559 | **106,961** | middle |
+| pure-pool bowtie | within 3mm of ANY expressed seq | 244,991 | **79,529** | over-counts (coincidental) |
+
+**genuinely-unique is ~107 k with a method-dependent band of ~[80 k .. 124 k].** The biologically-principled
+co-location argues the true value is at the HIGHER end (delivered slightly OVER-called SNP-variant), but its
+STAR blind-spot pulls it up, so 124 k is itself a soft ceiling. The delivered numbers sit inside the band and
+are KEPT as the reproducible (99.98 %) reference; all three producers are committed so the boundary is fully
+characterised and any choice is a documented method-dependency, not a hidden one.
 
 Figure: `figures/snp_method_comparison.{pdf,png,svg}` (rendered by `code/make_snp_method_fig.py`, self-contained).
 Producer scripts live in `analysis/claude_biomni_analysis/unique_pirna/`: `classify_step416.py` (genomic proxy,
 to retire), `build_snp_variant_refinement.py` (genomic-proxy reconstruction ~50 %), `build_snp_variant_bowtie.py`
-(the direct-pool bowtie producer), `make_klass5.py` (consumes `snp_variant_refinement.csv`).
+(pure direct-pool, upper bracket, 99.98 % reproduces delivered), `build_snp_variant_colocation.py` (definitive
+locus-anchored = pool + genomic co-location, lower bracket, GU 123,862), `make_klass5.py` (consumes
+`snp_variant_refinement.csv`).
