@@ -10,16 +10,15 @@ reconstructs them deterministically from already-committed inputs. The logic was
 Inputs (all committed):
   unique16/final_classified.csv.gz            <- classify_unique16_locus.py  (3-class `klass`)
   unique16/snp_variant_refinement.csv         <- SNP-variant set (1-3mm), tp-resolved cand_id (X|tp|seq).
-       PROVENANCE CAVEAT (reproducibility, not correctness): the DETERMINANTS are committed
-       (classify_step416.py / classify_step416_pertp.py: candidate -> each other strain's genome via STAR
-       mm<=3, then exact/1-3mm match to that strain's expressed pool), but the exact table-build that emits
-       this file's extra columns (variant_strain/Y_allele/mm) is NOT committed. build_snp_variant_refinement.py
-       reconstructs it faithfully from the committed determinants (it matches step4_classified16 exactly) yet
-       reproduces only ~50% of the DELIVERED file's cand_ids (verified 2026-07, pooled 49.6% across 5 strains:
-       129S1 67%, CAST 50%, FVB 51%, AKR 35%, C3H 39%; the committed within-tp chain does no better, 63.5% on
-       129S1). The committed inputs (Jun 11) PREDATE the delivered file (Jun 13), so the residual is a LOGIC
-       difference in the original uncommitted producer, not input drift -> this ONE input (hence the SNP-variant
-       class, 54% of klass5) is only ~HALF reproducible from the committed tree. make_klass5
+       CANONICAL (adopted 2026-07) = the LIFT-ANCHORED set from build_snp_variant_lift.py: a candidate is a
+       SNP-variant iff a piRNA EXPRESSED at its ORTHOLOGOUS locus in another strain is 1-3 substitutions away
+       (locus via the cactus halLiftover / present_in_Y.bed -- captures divergent orthologs; expression via that
+       strain's pool). This is the biologically-correct criterion, 100% reproducible from committed code, and it
+       reproduces the original delivered file at 100% (217,559/217,559 recovered, +146 -> SNP 217,705, CBS
+       85,969, genuinely-unique 106,815). HISTORY: the earlier genomic-alignment proxy (classify_step416.py ->
+       build_snp_variant_refinement.py) reproduced only ~50-86% -- the WRONG method (genome vs expressed pool),
+       never a data problem; pure-pool bowtie over-counts, STAR co-location under-counts (see
+       07_unique_piRNA_identification/SNP_VARIANT_METHOD_TEST.md). make_klass5
        uses ONLY its `cand_id` column; given that set, klass5 reproduces at 100% (verified 2026-06-19). Known caveat in the determinant:
        classify_step416.py:27-31 compares the FORWARD-strand reference sequence to the pool, so a
        minus-strand-only expressed homolog can be missed (would under-call SNP-variant / over-call CBS).
