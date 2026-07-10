@@ -87,6 +87,14 @@ The earlier "~[80 k .. 124 k] band" COLLAPSES: the STAR-co-location's 124 k was 
 lift rescues it), the pool's 80 k was coincidental over-count. **Genuinely-unique = 106,961, definitively — and
 now reproducible from committed code (100 %) via the correct method.** `#4 fully closed.`
 
+**ADOPTED as canonical (2026-07).** The lift-anchored set (`build_snp_variant_lift.py`) is now the canonical
+`unique16/snp_variant_refinement.csv`; `make_klass5.py` was re-run, so the canonical klass5 is regenerable from
+committed code and shifts by the +146 the lift adds over the original delivered file: **SNP-variant 217,559 →
+217,705, conserved-but-silent 86,115 → 85,969, genuinely-unique 106,961 → 106,815** (strain-private 20,846,
+low-quality 40,011, expressed-elsewhere 40,238 unchanged). The original delivered file is preserved as
+`snp_variant_refinement.delivered_orig.csv`; theme-07 count figures re-rendered; other themes compute klass5
+counts dynamically (the 0.036 % row shift is invisible).
+
 Figure: `figures/snp_method_comparison.{pdf,png,svg}` (rendered by `code/make_snp_method_fig.py`, self-contained).
 Producer scripts live in `analysis/claude_biomni_analysis/unique_pirna/`: `classify_step416.py` (genomic proxy,
 to retire), `build_snp_variant_refinement.py` (genomic-proxy reconstruction ~50 %), `build_snp_variant_bowtie.py`

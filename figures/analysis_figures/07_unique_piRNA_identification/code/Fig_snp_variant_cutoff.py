@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """TEST FIGURE — justifies the SNP-variant mismatch cutoff (≤3 mm = allelic variant of a piRNA expressed
-at the homologous locus elsewhere -> NOT novel). (A) overall mismatch distribution of the 217,559 SNP-variants:
+at the homologous locus elsewhere -> NOT novel). (A) overall mismatch distribution of the 217,705 SNP-variants:
 monotonic 1>2>3 = genuine allelic SNPs (a chance 29-mer match would INCREASE with mm). (B) per-strain mismatch
 composition (canonical order): the most divergent (wild-derived) strains carry the largest 2-3 mm fraction
 (SPRET 5.0%/CAST 4.0% at 3 mm vs classical <2%) -> a 2-mm cutoff would misclassify their allelic variants as

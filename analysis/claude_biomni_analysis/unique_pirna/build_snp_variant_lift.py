@@ -31,7 +31,7 @@ def lift_Y(Y):
     with gzip.open(f"{POOLS}/{Y}.pool.txt.gz","rt") as fh:
         for l in fh: pool.add(l.rstrip("\n"))
     fa=pysam.FastaFile(f"{GEN}/{Y}.fa")
-    best={}                                        # cand_id -> min mm (0-3) where the ortholog is expressed
+    best={}                                        # cand_id -> (min mm, ortholog G) where the ortholog is expressed
     with open(f"{LOCI}/present_in_{Y}.bed") as fh:
         for line in fh:
             f=line.rstrip("\n").split("\t")
@@ -47,25 +47,24 @@ def lift_Y(Y):
             if G not in pool: continue              # ortholog must be EXPRESSED in Y
             mm=ham(seq,G)
             if mm>3: continue
-            cur=best.get(cid,99)
-            if mm<cur: best[cid]=mm
+            if mm<best.get(cid,(99,))[0]: best[cid]=(mm,G)
     fa.close(); del pool
     with open(f"{WORK}/{Y}.tsv","w") as out:
-        for cid,mm in best.items(): out.write(f"{cid}\t{mm}\t{Y}\n")
-    return Y, sum(1 for m in best.values() if 1<=m<=3)
+        for cid,(mm,G) in best.items(): out.write(f"{cid}\t{mm}\t{G}\t{Y}\n")
+    return Y, sum(1 for v in best.values() if 1<=v[0]<=3)
 
 
 if __name__=="__main__":
     with ProcessPoolExecutor(max_workers=16) as ex:
         for Y,n in ex.map(lift_Y, ALL): print(f"[{Y}] {n:,} lift-confirmed SNP-variants (ortholog expressed, 1-3mm)",flush=True)
-    gmin={}; gY={}
+    gmin={}; gY={}; gAl={}
     for Y in ALL:
         with open(f"{WORK}/{Y}.tsv") as fh:
             for line in fh:
-                cid,m_s,yy=line.rstrip("\n").split("\t"); m=int(m_s)
-                if m<gmin.get(cid,99): gmin[cid]=m; gY[cid]=yy    # min across strains (0=exact excludes)
-    rows=[(cid,cid.split("|")[0],gY[cid],cid.split("|")[-1],m) for cid,m in gmin.items() if 1<=m<=3]
-    out=pd.DataFrame(rows,columns=["cand_id","home","variant_strain","home_seq","mm"])
+                cid,m_s,G,yy=line.rstrip("\n").split("\t"); m=int(m_s)
+                if m<gmin.get(cid,99): gmin[cid]=m; gY[cid]=yy; gAl[cid]=G    # min across strains (0=exact excludes)
+    rows=[(cid,cid.split("|")[0],gY[cid],cid.split("|")[-1],gAl[cid],m) for cid,m in gmin.items() if 1<=m<=3]
+    out=pd.DataFrame(rows,columns=["cand_id","home","variant_strain","home_seq","Y_allele","mm"])
     out.to_csv(f"{U}/unique16/snp_variant_refinement.lift.csv",index=False)
     print(f"lift SNP: {len(out):,} rows; mm={out.mm.value_counts().sort_index().to_dict()}",flush=True)
     D=set(pd.read_csv(f"{U}/unique16/snp_variant_refinement.delivered_orig.csv",usecols=["cand_id"]).cand_id)

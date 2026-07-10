@@ -26,5 +26,5 @@ unsupervised counterpart to the per-sequence strain-specific caller — it does 
 
 Verified numbers (`pca16/*.pca.csv`; `pca16/classes_pca.csv`): the pooled "Combined" PCA set = **55,442**
 candidate sequences expressed in **all 3 timepoint matrices** (per-class 13,121 / 30,953 / 1,934 / 7,343 /
-2,091); pooled strain-specific candidates **404,769**, of which **genuinely-unique = 106,961 (26%)**. Full
+2,091); pooled strain-specific candidates **404,769**, of which **genuinely-unique = 106,815 (26%)**. Full
 rationale: `analysis/claude_biomni_analysis/unique_pirna/METHODS_review_notes.md` (Step 7).
