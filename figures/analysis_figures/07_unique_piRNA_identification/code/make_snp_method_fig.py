@@ -2,7 +2,7 @@
 """Figure: SNP-variant producer method test (129S1->C57, delivered n=330). See SNP_VARIANT_METHOD_TEST.md."""
 import json, numpy as np, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt
-OUT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis/unique_pirna"
+OUT="/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/figures/analysis_figures/07_unique_piRNA_identification/figures"
 # measured on the 129S1->C57 task (see SNP_VARIANT_METHOD_TEST.md); numbers frozen here so the figure is self-contained
 g={"genome_recall_pct":84.5455,"genome_rec":279,"n_deliv":330,"miss":51,"no_align":43,"genome_ne":8}
 bt={"clean":9931,"substr":41905,"total":51836}
@@ -23,8 +23,7 @@ axA.set_xticks(x); axA.set_xticklabels(labels,fontsize=7.6)
 for t,c in zip(axA.get_xticklabels(),colors): t.set_color(c); t.set_fontweight("bold")
 axA.set_ylabel("recall of delivered SNP-variants\n(129S1 -> C57, n = 330)",fontsize=8.6)
 axA.set_ylim(0,116)
-axA.set_title("A   Reference determines correctness\n(genome 84.5% vs expressed-pool 100%)",fontsize=8.7,fontweight="bold",loc="left")
-axA.text(0.5,-0.30,"bar colour = reference:  orange = genome,  green/blue = expressed pool",transform=axA.transAxes,ha="center",fontsize=6.6,color="#666")
+axA.set_title("A   Reference determines correctness\n(orange = genome 84.5%;  green/blue = expressed-pool 100%)",fontsize=8.4,fontweight="bold",loc="left")
 axA.spines[["top","right"]].set_visible(False)
 
 # ---- B: why the genome proxy misses ----
