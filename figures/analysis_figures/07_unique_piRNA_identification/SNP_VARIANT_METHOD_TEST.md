@@ -55,5 +55,7 @@ One all-candidate bowtie `-v3` index (402,937 candidates), stream each of the 16
 (`--norc -v3 -a`), per-candidate min-mm across other strains (0 = expressed-exact, 1–3 = SNP-variant), emit
 `snp_variant_refinement.csv`. ~1–2 h. Then validate global reproduction of the delivered set (expected ~100 %).
 
-Figure: `snp_method_comparison.{pdf,png,svg}` (this directory). Scripts: `/tmp/bt/` (bowtie/STAR test harness),
-`build_snp_variant_refinement.py` (the genomic-proxy reconstruction, ~50 % — superseded by this finding).
+Figure: `figures/snp_method_comparison.{pdf,png,svg}` (rendered by `code/make_snp_method_fig.py`, self-contained).
+Producer scripts live in `analysis/claude_biomni_analysis/unique_pirna/`: `classify_step416.py` (genomic proxy,
+to retire), `build_snp_variant_refinement.py` (genomic-proxy reconstruction ~50 %), `build_snp_variant_bowtie.py`
+(the direct-pool bowtie producer), `make_klass5.py` (consumes `snp_variant_refinement.csv`).
