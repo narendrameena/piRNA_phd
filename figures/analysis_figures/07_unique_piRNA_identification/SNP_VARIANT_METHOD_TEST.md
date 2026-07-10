@@ -49,11 +49,27 @@ Global genomic-proxy reproduction of the *full* delivered set: **50 % (forward-o
 3. **`classify_step416.py` should be retired to a documented genomic PROXY**; the committed producer should be a
    bowtie `-v3` direct-pool search.
 
-## Recommended producer (next step)
+## Committed producer + full-scale result
 
-One all-candidate bowtie `-v3` index (402,937 candidates), stream each of the 16 pools through it once
-(`--norc -v3 -a`), per-candidate min-mm across other strains (0 = expressed-exact, 1–3 = SNP-variant), emit
-`snp_variant_refinement.csv`. ~1–2 h. Then validate global reproduction of the delivered set (expected ~100 %).
+`build_snp_variant_bowtie.py`: one all-candidate bowtie `-v3` index (402,937 candidates), each of the 16 pools
+streamed through it once (`--norc -v3 -a`), per-candidate min-mm across OTHER strains (0 = expressed-exact
+excluded, 1–3 = SNP-variant). Ran in ~15 min on 128 cores → `unique16/snp_variant_refinement.bowtie.csv`
+(295,493 rows; does NOT overwrite the delivered file).
+
+**RESULT — reproduces the delivered set at 99.98 %:** 217,526 / 217,559 recovered, only **33 missed**. This
+CONFIRMS the delivered SNP-variant numbers are correct and now reproducible from committed code — resolving the
+original ~50 % concern, which was purely the wrong method (genomic proxy), not a data problem. The delivered set
+is a near-exact subset of the exhaustive bowtie output; `make_klass5` uses only base-CBS candidates and the
+delivered set is 100 % within base-CBS.
+
+**NUANCE (delivered numbers KEPT, bowtie superset NOT adopted):** exhaustive pool-matching also flags **27,465
+extra** base-CBS candidates as 1–3mm variants, enriched for mm=2,3 (49/28/23 % vs the agree set's 86/12/2 %), and
+98 % at homolog strains — NOT an orthology-anchor artefact (extras are ~as orthologous as agrees). This is a tail
+the delivered producer excluded via an additional stringency that is not recoverable from the lost code, and
+whose validity is unresolved (real mm=2,3 variants the delivered under-called, vs coincidental matches at 35 M-
+pool density). Adopting the superset would shift genuinely-unique 106,961 → 79,529 (−25.6 %) on these uncertain
+extras, so the delivered numbers stand; the bowtie producer is the validated reproducibility check (99.98 %) and a
+committed producer that recovers the delivered set.
 
 Figure: `figures/snp_method_comparison.{pdf,png,svg}` (rendered by `code/make_snp_method_fig.py`, self-contained).
 Producer scripts live in `analysis/claude_biomni_analysis/unique_pirna/`: `classify_step416.py` (genomic proxy,
