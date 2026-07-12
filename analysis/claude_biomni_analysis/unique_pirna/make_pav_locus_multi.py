@@ -60,6 +60,7 @@ def collect(X):
                 pct_at=100 * nat / max(1, nte), arch="dual-strand" if min(nmi, ntot - nmi) / max(1, ntot) > 0.2 else "uni-strand")
 COV = {X: collect(X) for X in present}; COV = {X: d for X, d in COV.items() if d and d["ntot"] > 0}
 present = [X for X in present if X in COV]; TOP = max(present, key=lambda X: FPM.loc[X].max() if X in FPM.index else 0) if present else TOP
+OUT = OUT.replace("{TOP}", TOP)   # driver may pass a {TOP} placeholder -> name the file for the strain actually shown in Panel C (top expresser AFTER the coverage filter), so filename == panel strain (max-FPM carrier can lack in-window reads)
 # ---- (3) figure ----
 plt.rcParams.update({"font.family": "Liberation Sans", "pdf.fonttype": 42, "svg.fonttype": "none"})
 nP = max(1, len(present)); fig = plt.figure(figsize=(14, 9.8 + 1.7 * nP), dpi=300)
