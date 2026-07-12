@@ -187,7 +187,7 @@ axC = fig.add_subplot(gs[1, 1]); xs2 = np.arange(1, 17)
 axC.bar(xs2, spec_priv, color="#7a3b9a", label="strain-private locus", edgecolor="white", linewidth=0.3)
 axC.bar(xs2, spec_cbs, bottom=spec_priv, color="#9ecae8", label="conserved-but-silent", edgecolor="white", linewidth=0.3)
 axC.set_yscale("log"); axC.set_xticks(xs2); axC.tick_params(labelsize=7)
-axC.set_ylim(top=axC.get_ylim()[1]*2.4)                              # headroom for bar-top count labels
+axC.set_ylim(top=axC.get_ylim()[1]*3.6)                              # headroom for bar-top count labels + CORE/PRIVATE headers
 for _xi,_tv in zip(xs2, spec_priv+spec_cbs):                         # creative: total loci labelled on every bar
     if _tv<=0: continue
     _lab = f"{_tv/1000:.1f}k".replace(".0k","k") if _tv>=1000 else f"{int(_tv)}"
@@ -196,8 +196,8 @@ for _xi,_tv in zip(xs2, spec_priv+spec_cbs):                         # creative:
 axC.set_xlabel("number of strains carrying the homologous locus  (1 = private … 16 = core)", fontsize=8)
 axC.set_ylabel("unique piRNA loci (log)", fontsize=8.5)
 axC.axvspan(0.5,1.5,color="#7a3b9a",alpha=0.06); axC.axvspan(15.5,16.5,color="#0072B2",alpha=0.06)
-axC.text(1,axC.get_ylim()[1]*0.4,"PRIVATE",ha="center",fontsize=6.3,color="#7a3b9a",fontweight="bold")
-axC.text(16,axC.get_ylim()[1]*0.4,"CORE",ha="center",fontsize=6.3,color="#0072B2",fontweight="bold")
+axC.text(1,axC.get_ylim()[1]*0.9,"PRIVATE",ha="center",va="top",fontsize=6.3,color="#7a3b9a",fontweight="bold")
+axC.text(16,axC.get_ylim()[1]*0.9,"CORE",ha="center",va="top",fontsize=6.3,color="#0072B2",fontweight="bold")
 axC.legend(fontsize=6.6, frameon=False, loc="upper center"); axC.spines[["top","right"]].set_visible(False)
 axC.set_title("C   piRNA locus frequency spectrum — a conserved core + a large private tail", fontsize=9.4, fontweight="bold", loc="left")
 
