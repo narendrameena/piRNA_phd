@@ -62,7 +62,7 @@ strain-specific-DA / decomposition / coverage / class-by-strain×timepoint set (
 - Thresholds data-driven (FWHM 24–32; edgeR FDR/logFC; mismatch cutoff) — no magic numbers.
 - Four-route classification **BioMNI triple-verified** (METHODS §Biological grounding).
 - Uniqueness rechecked (pool-level 100 % true-unique; raw-per-rep caveat in `project_locus_figure_redesign`).
-- **≥2-read absence adoption (2026-06-18) is robustness-validated:** it removes ONLY "expressed-elsewhere (exact)" candidates (87,441→40,238); every genuinely-unique class is 100 % preserved (strain-private 20,846, conserved-but-silent 86,115, SNP-variant 217,559) → TE-origin / depth-confound / PCA figures are byte-identical and unchanged. BioMNI 3/3 signed off; full per-figure audit in the `Fig_strain_specific_DA16` note.
+- **≥2-read absence adoption (2026-06-18) is robustness-validated:** it removes ONLY "expressed-elsewhere (exact)" candidates (87,441→40,238); every genuinely-unique class is 100 % preserved by the ≥2-read filter (strain-private 20,846, conserved-but-silent 85,969, SNP-variant 217,705; canonical lift-anchored counts, 2026-07) → the ≥2-read filter alone leaves TE-origin / depth-confound / PCA figures unchanged (the later lift-anchored SNP-variant adoption, 2026-07, shifted 146 CBS→SNP-variant and regenerated the CBS-displaying figures). BioMNI 3/3 signed off; full per-figure audit in the `Fig_strain_specific_DA16` note.
 
 ---
 
