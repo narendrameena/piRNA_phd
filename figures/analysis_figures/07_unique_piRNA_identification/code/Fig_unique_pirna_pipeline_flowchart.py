@@ -50,7 +50,7 @@ box(80,46,21,4.4,"conserved-but-silent\n(locus there, not expressed)","#e7f0f7",
 arr(16,43.8,16,40.5); box(16,37.5,26,5.4,"D3  mm0 own-genome locus?\ntool: STAR · candidate → own\ngenome · 0 mismatch","#f0f0f0",fs=7.6,bold=True,r=0.05)
 arr(16,35.6,16,32.5,"NO (unmapped)",fs=7.5,lc="#b00",cx=17)
 arr(28,38,40,32.5,"YES",fs=8,lc="#b00",cx=33)
-arr(80,43.8,80,40.5); box(80,37.5,28,5.4,"D4  1–3 mm SNP-variant of an EXPRESSED allele elsewhere?\ntool: STAR · candidate → other genomes (mm≤3) + expressed there","#f0f0f0",fs=7.6,bold=True,r=0.05)
+arr(80,43.8,80,40.5); box(80,37.5,30,5.8,"D4  1–3 mm SNP-variant of an\nEXPRESSED allele elsewhere?\ntool: STAR · candidate → other\ngenomes (mm≤3) + expressed there","#f0f0f0",fs=7.6,bold=True,r=0.05)
 arr(72,37,56,32.5,"YES",fs=8,lc="#b00",cx=60)        # YES (is a SNP-variant) -> SNP-variant leaf (x56)
 arr(80,35.6,80,32.5,"NO",fs=8,lc="#b00",cx=81)       # NO (truly silent, novel) -> unique: conserved-but-silent (x80)
 # ---- 5 final classes (leaves), color-coded ----
