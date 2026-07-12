@@ -56,7 +56,7 @@ ax.text(5,1.9,"Mechanism: an L1 (LINE) element inserted in the SPRET lineage (ab
         ha="center",va="top",fontsize=6.8,color="#444")
 # legend
 ax.annotate("",xy=(2.0,2.7),xytext=(1.6,2.7),arrowprops=dict(arrowstyle="-|>",color="#C0392B",lw=1.3)); ax.text(2.1,2.7,"antisense piRNA (silencing)",va="center",fontsize=6.5,color="#C0392B")
-ax.annotate("",xy=(5.6,2.7),xytext=(6.0,2.7),arrowprops=dict(arrowstyle="-|>",color="#888",lw=1.3)); ax.text(5.7,2.7,"sense piRNA (ping-pong)",va="center",fontsize=6.5,color="#888")
+ax.annotate("",xy=(5.6,2.7),xytext=(6.0,2.7),arrowprops=dict(arrowstyle="-|>",color="#888",lw=1.3)); ax.text(6.1,2.7,"sense piRNA (ping-pong)",va="center",fontsize=6.5,color="#888")
 fig.tight_layout()
 for e in ("pdf","svg","png"): fig.savefig(f"{PG}/Fig_locus_example.{e}",bbox_inches="tight")
 print(f"wrote Fig_locus_example.{{png,pdf,svg}} for {ex['chrom']}:{ex['ins_start']}-{ex['ins_end']} {ex['te_family']} ({ex['n_pirna']} piRNAs)")
