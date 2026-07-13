@@ -95,7 +95,7 @@ low-quality 40,011, expressed-elsewhere 40,238 unchanged). The original delivere
 `snp_variant_refinement.delivered_orig.csv`; theme-07 count figures re-rendered; other themes compute klass5
 counts dynamically (the 0.036 % row shift is invisible).
 
-Figure: `figures/snp_method_comparison.{pdf,png,svg}` (rendered by `code/make_snp_method_fig.py`, self-contained).
+Figure: `figures/Fig_snp_method_comparison.{pdf,png,svg}` (rendered by `code/make_snp_method_fig.py`, self-contained).
 Producer scripts live in `analysis/claude_biomni_analysis/unique_pirna/`: `classify_step416.py` (genomic proxy,
 to retire), `build_snp_variant_refinement.py` (genomic-proxy reconstruction ~50 %), `build_snp_variant_bowtie.py`
 (pure direct-pool, over-count bracket, 99.98 % reproduces delivered), `build_snp_variant_colocation.py`
