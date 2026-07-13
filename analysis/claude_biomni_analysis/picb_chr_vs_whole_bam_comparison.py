@@ -383,12 +383,12 @@ _pd.DataFrame({"chr": list(CHRS),
                "thresh_naive_e165": list(thresh_naive_e165),   # Panel E E16.5 per-chr naive
                "thresh_correct_rep1": thresh_correct_rep1,      # genome-wide correct (scalar)
                "thresh_correct_e165": thresh_correct_e165}).to_csv(
-    f"{_SD}/SourceData_PICB_chr_vs_wholebam_comparison.csv", index=False)
+    f"{_SD}/SourceData_Fig_PICB_chr_vs_wholebam_comparison.csv", index=False)
 
 # ── Save ──────────────────────────────────────────────────────────────────────
 OUT_DIR = "/mnt/home3/miska/nm667/scratch/inProgress/mice_PiRNA/analysis/claude_biomni_analysis"
 for ext, dpi in [("pdf", 600), ("svg", 150), ("png", 300)]:
-    fig.savefig(os.path.join(OUT_DIR, f"PICB_chr_vs_wholebam_comparison.{ext}"),
+    fig.savefig(os.path.join(OUT_DIR, f"Fig_PICB_chr_vs_wholebam_comparison.{ext}"),
                 bbox_inches="tight", dpi=dpi)
 plt.close(fig)
-print("Saved PICB_chr_vs_wholebam_comparison.{pdf,svg,png}")
+print("Saved Fig_PICB_chr_vs_wholebam_comparison.{pdf,svg,png}")

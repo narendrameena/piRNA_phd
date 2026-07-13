@@ -32,7 +32,7 @@ piRNAs require (not an artefact).
 | Python | 3.11.15 | figures | matplotlib |
 
 ## INPUTS  `results/picb_result`, `results/picb_result_combined` (xlsx); STAR BAM NH stats.
-## OUTPUTS (`figures/`)  `PICB_chr_vs_wholebam_comparison`, `PICB_chrbychr_vs_wholebam` + `mapping_complexity/01–12`.
+## OUTPUTS (`figures/`)  `Fig_PICB_chr_vs_wholebam_comparison`, `PICB_chrbychr_vs_wholebam` + `mapping_complexity/01–12`.
 
 ## DOUBLE-VERIFICATION
 - Mode 1 vs Mode 3 are two independent correct routes that must agree → the cross-check itself.
