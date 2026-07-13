@@ -1,4 +1,4 @@
-# Fig3_coverage_detail
+# Fig_coverage_detail
 
 **Zamore coverage: per-gene coverage detail**
 

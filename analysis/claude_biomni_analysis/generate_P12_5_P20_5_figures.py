@@ -6,8 +6,8 @@ Nature Genetics quality figures for C57BL/6 P12.5 and P20.5
 piRNA cluster analysis with Zamore annotation cross-reference.
 
 Outputs (PDF + SVG + PNG ≥300 dpi) to claude_biomni_figures/:
-  Fig1_PICB_cluster_architecture.{pdf,svg,png}
-  Fig2_Zamore_gene_coverage.{pdf,svg,png}
+  Fig_PICB_cluster_architecture.{pdf,svg,png}
+  Fig_Zamore_gene_coverage.{pdf,svg,png}
 """
 
 import os
@@ -233,7 +233,7 @@ for stat_label, func in [("median_FPM", np.median), ("mean_FPM", np.mean)]:
 fig1_data.to_csv(os.path.join(OUT_DIR, "Fig1_data_matrix.csv"), index=False)
 print(f"  Saved Fig1_data_matrix.csv")
 
-stem1 = os.path.join(OUT_DIR, "Fig1_PICB_cluster_architecture")
+stem1 = os.path.join(OUT_DIR, "Fig_PICB_cluster_architecture")
 for ext in (".pdf", ".svg", ".png"):
     kw = {"dpi": 300, "bbox_inches": "tight"}
     fig1.savefig(stem1 + ext, **kw)
@@ -465,7 +465,7 @@ pach_df_out.columns = ["gene", "avg_cov_P12.5", "avg_cov_P20.5"]
 pach_df_out.to_csv(os.path.join(OUT_DIR, "Fig2_pachytene_scatter.csv"), index=False)
 print(f"  Saved Fig2_pachytene_scatter.csv")
 
-stem2 = os.path.join(OUT_DIR, "Fig2_Zamore_gene_coverage")
+stem2 = os.path.join(OUT_DIR, "Fig_Zamore_gene_coverage")
 for ext in (".pdf", ".svg", ".png"):
     kw = {"dpi": 300, "bbox_inches": "tight"}
     fig2.savefig(stem2 + ext, **kw)
@@ -599,7 +599,7 @@ top_loci_out["FPM_P12.5_rep1"] = fpm_p125
 top_loci_out.to_csv(os.path.join(OUT_DIR, "Fig3_top_pachytene_loci_FPM.csv"), index=False)
 print(f"  Saved Fig3_top_pachytene_loci_FPM.csv")
 
-stem3 = os.path.join(OUT_DIR, "Fig3_coverage_detail")
+stem3 = os.path.join(OUT_DIR, "Fig_coverage_detail")
 for ext in (".pdf", ".svg", ".png"):
     fig3.savefig(stem3 + ext, dpi=300, bbox_inches="tight")
     print(f"  Saved {stem3+ext}")
