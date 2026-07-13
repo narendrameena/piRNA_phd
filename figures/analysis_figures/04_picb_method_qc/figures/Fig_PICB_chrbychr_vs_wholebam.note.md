@@ -1,4 +1,4 @@
-# PICB_chrbychr_vs_wholebam
+# Fig_PICB_chrbychr_vs_wholebam
 
 **PICB chr-by-chr vs whole-BAM concordance**
 
