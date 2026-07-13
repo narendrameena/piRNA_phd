@@ -1,4 +1,4 @@
-# PICB_chr_vs_wholebam_comparison
+# Fig_PICB_chr_vs_wholebam_comparison
 
 **PICB chr-by-chr vs whole-BAM (LIBRARY.SIZE)**
 
