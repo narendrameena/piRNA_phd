@@ -15,6 +15,8 @@ FEAT = [("WSB_EiJ|10683", "Fig_nonref_locus_WSB_chr4_L1"),
         ("FVB_NJ|1226", "Fig_nonref_locus_FVB_chr1_ERVK"),
         ("SPRET_EiJ|14463", "Fig_nonref_locus_SPRET_chr6_SINEB4")]
 for cid, nm in FEAT:
+    if cid not in d.index:   # locus dropped from the atlas when shared_subset_loci.csv was regenerated (2026-07-07) -> skip, don't crash the whole run
+        print(f"    SKIP {nm}: rep_cid {cid} no longer in shared_subset_loci.csv (locus no longer in the non-reference set)", flush=True); continue
     r = d.loc[cid]
     title = f"{r.strain.replace('_','/')} chr{r.chrom} — a {r.te_family if pd.notna(r.te_family) else 'non-TE'} piRNA cluster genetically ABSENT from GRCm39; expressed in {r.n_strains}/16 strains"
     print(f">>> {nm}  ({r.strain} chr{r.chrom}:{int(r.start):,})", flush=True)
