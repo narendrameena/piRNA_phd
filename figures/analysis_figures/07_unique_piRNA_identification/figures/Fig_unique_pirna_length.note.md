@@ -4,5 +4,5 @@
 **How generated** — full unique-piRNA pipeline in [`PIPELINE.md`](../PIPELINE.md) (sRNA reads → strain-specific
  presence/absence + edgeR DA → STAR genome-anchored uniqueness test → classification → this figure).
 - **Code:** `code/Fig_unique_pirna_length.py`
-- **Data table (plotted points):** `data/SourceData_unique_pirna_length.csv`
+- **Data table (plotted points):** `data/source_data/SourceData_unique_pirna_length.csv`
 - **Formats:** PDF + SVG + PNG.

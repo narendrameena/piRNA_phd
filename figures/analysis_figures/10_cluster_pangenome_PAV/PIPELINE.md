@@ -37,7 +37,7 @@ across strains. → `Fig_zamore_stage_conservation`.
 | UCSC liftOver | 2023 | Zamore mm10→mm39 (only UCSC use) | `mm10ToMm39.over.chain.gz` |
 | Python / scipy | 3.11.15 | Gini, ρ, two-mechanism split, figures | Spearman; matplotlib |
 
-## INPUTS  `unique_pirna/cluster_pav/picb_pangenome_clusters.tsv`; `cluster_PAV_catalogue.csv.gz`; Zamore loci → `data/SourceData_pirna_pangenome16.csv`.
+## INPUTS  `unique_pirna/cluster_pav/picb_pangenome_clusters.tsv`; `cluster_PAV_catalogue.csv.gz`; Zamore loci → `data/source_data/SourceData_pirna_pangenome16.csv`.
 ## OUTPUTS (`figures/`, 6)  `Fig_pangenome_pav`, `Fig_pirna_pangenome16`, `Fig_pirna_lorenz16`, `Fig_zamore_stage_conservation`, `Fig_te_driven_pangenome16`, `Fig_divergence_pangenome16`.
 
 ## DOUBLE-VERIFICATION
