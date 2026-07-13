@@ -67,5 +67,5 @@ fig.text(0.5,0.012,"The SNP-variant class (54% of klass5) = piRNAs 1-3 substitut
   "pure-pool bowtie over-counts on coincidental lookalikes; STAR co-location under-counts (cannot align divergent orthologs). Anchoring the ortholog with the CACTUS LIFT (build_snp_variant_lift.py) reproduces the "
   "delivered set exactly (100%, 0 missed) -> genuinely-unique = 106,961, definitively and reproducibly.",
   ha="center",fontsize=6.4,color="#555",wrap=True)
-for ext in ("pdf","png","svg"): fig.savefig(f"{OUT}/snp_method_comparison.{ext}",bbox_inches="tight")
-print("wrote snp_method_comparison.{pdf,png,svg}")
+for ext in ("pdf","png","svg"): fig.savefig(f"{OUT}/Fig_snp_method_comparison.{ext}",bbox_inches="tight")
+print("wrote Fig_snp_method_comparison.{pdf,png,svg}")
